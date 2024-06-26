@@ -74,6 +74,97 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        int min = 1;
+        int max = 8;
+
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+
+        switch (type) {
+            case KING:
+                ArrayList<ChessMove> kingMoves = new ArrayList<>();
+                if (row < max) {
+                    if (col < max) {
+                        // Right up
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row + 1, col + 1), null));
+                        // Right
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row, col + 1), null));
+                    }
+                    // Up
+                    kingMoves.add(new ChessMove(myPosition, new ChessPosition(row + 1, col), null));
+                    if (col > min) {
+                        // Left up
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row + 1, col - 1), null));
+                        // Left
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row, col - 1), null));
+                    }
+                }
+
+                if (row > min) {
+                    if (col < max) {
+                        // Right down
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row - 1, col + 1), null));
+                        // Right
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row, col + 1), null));
+                    }
+                    // Down
+                    kingMoves.add(new ChessMove(myPosition, new ChessPosition(row - 1, col), null));
+                    if (col > min) {
+                        // Left Down
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row - 1, col - 1), null));
+                        // Left
+                        kingMoves.add(new ChessMove(myPosition, new ChessPosition(row, col - 1), null));
+                    }
+                }
+
+                // Check for same team blocking each move
+                kingMoves.removeIf(move -> {
+                    ChessPiece piece = board.getPiece(move.getEndPosition());
+                    return piece != null && piece.pieceColor == pieceColor;
+                });
+
+                validMoves.addAll(kingMoves);
+
+                break;
+            case QUEEN:
+                ArrayList<ChessMove> queenMoves = new ArrayList<>();
+                // Move up
+                for (int i = 1; i <= max - row; i++) {
+                    if (col + i < max) {
+                        // Right up diagonal
+                        queenMoves.add(new ChessMove(myPosition, new ChessPosition(row + i, col + i), null));
+                    }
+                    if (col - i > min) {
+                        // Left up diagonal
+                        queenMoves.add(new ChessMove(myPosition, new ChessPosition(row + i, col - i), null));
+                    }
+                    // Up
+                    queenMoves.add(new ChessMove(myPosition, new ChessPosition(row + i, col - i), null));
+                }
+
+                // Check for same team blocking each move
+                queenMoves.removeIf(move -> {
+                    ChessPiece piece = board.getPiece(move.getEndPosition());
+                    return piece != null && piece.pieceColor == pieceColor;
+                });
+
+                validMoves.addAll(queenMoves);
+
+                break;
+            case ROOK:
+                System.out.println("ROOK");
+                break;
+            case KNIGHT:
+                System.out.println("KNIGHT");
+                break;
+            case BISHOP:
+                System.out.println("BISHOP");
+                break;
+            case PAWN:
+                System.out.println("PAWN");
+                break;
+        }
+        return validMoves;
     }
 }
