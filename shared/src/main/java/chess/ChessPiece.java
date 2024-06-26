@@ -21,18 +21,6 @@ public class ChessPiece {
     }
 
     /**
-     * The various different chess piece options
-     */
-    public enum PieceType {
-        KING,
-        QUEEN,
-        BISHOP,
-        KNIGHT,
-        ROOK,
-        PAWN
-    }
-
-    /**
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
@@ -48,10 +36,7 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
+        return "ChessPiece{" + "pieceColor=" + pieceColor + ", type=" + type + '}';
     }
 
     @Override
@@ -79,9 +64,19 @@ public class ChessPiece {
         int min = 1;
         int max = 8;
 
+        boolean rightUpBlocked = false;
+        boolean leftUpBlocked = false;
+        boolean upBlocked = false;
+        boolean rightDownBlocked = false;
+        boolean leftDownBlocked = false;
+        boolean downBlocked = false;
+        boolean rightBlocked = false;
+        boolean leftBlocked = false;
+
         ArrayList<ChessMove> validMoves = new ArrayList<>();
 
         switch (type) {
+
             case KING:
                 ArrayList<ChessMove> kingMoves = new ArrayList<>();
                 if (row < max) {
@@ -125,46 +120,365 @@ public class ChessPiece {
                 });
 
                 validMoves.addAll(kingMoves);
-
                 break;
+
             case QUEEN:
                 ArrayList<ChessMove> queenMoves = new ArrayList<>();
-                // Move up
+
                 for (int i = 1; i <= max - row; i++) {
-                    if (col + i < max) {
-                        // Right up diagonal
-                        queenMoves.add(new ChessMove(myPosition, new ChessPosition(row + i, col + i), null));
+                    // Right up diagonal
+                    if (col + i <= max && !rightUpBlocked) {
+                        ChessPosition pos = new ChessPosition(row + i, col + i);
+                        if (board.getPiece(pos) != null) {
+                            rightUpBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
                     }
-                    if (col - i > min) {
-                        // Left up diagonal
-                        queenMoves.add(new ChessMove(myPosition, new ChessPosition(row + i, col - i), null));
+                    // Left up diagonal
+                    if (col - i >= min && !leftUpBlocked) {
+                        ChessPosition pos = new ChessPosition(row + i, col - i);
+
+                        if (board.getPiece(pos) != null) {
+                            leftUpBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
                     }
                     // Up
-                    queenMoves.add(new ChessMove(myPosition, new ChessPosition(row + i, col - i), null));
+                    if (!upBlocked) {
+                        ChessPosition pos = new ChessPosition(row + i, col);
+
+                        if (board.getPiece(pos) != null) {
+                            upBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
                 }
 
-                // Check for same team blocking each move
-                queenMoves.removeIf(move -> {
-                    ChessPiece piece = board.getPiece(move.getEndPosition());
-                    return piece != null && piece.pieceColor == pieceColor;
-                });
+                // Move down
+                for (int i = 1; i <= row - min; i++) {
+                    // Right down diagonal
+                    if (col + i <= max && !rightDownBlocked) {
+                        ChessPosition pos = new ChessPosition(row - i, col + i);
+                        if (board.getPiece(pos) != null) {
+                            rightDownBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                    // Left up diagonal
+                    if (col - i >= min && !leftDownBlocked) {
+                        ChessPosition pos = new ChessPosition(row - i, col - i);
+
+                        if (board.getPiece(pos) != null) {
+                            leftDownBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                    // Down
+                    if (!downBlocked) {
+                        ChessPosition pos = new ChessPosition(row - i, col);
+
+                        if (board.getPiece(pos) != null) {
+                            downBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Right
+                for (int i = 1; i <= max - col; i++) {
+                    if (!rightBlocked) {
+                        ChessPosition pos = new ChessPosition(row, col + i);
+                        if (board.getPiece(pos) != null) {
+                            rightBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Left
+                for (int i = 1; i <= col - min; i++) {
+                    if (!leftBlocked) {
+                        ChessPosition pos = new ChessPosition(row, col - i);
+                        if (board.getPiece(pos) != null) {
+                            leftBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                queenMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            queenMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
 
                 validMoves.addAll(queenMoves);
+                break;
 
-                break;
             case ROOK:
-                System.out.println("ROOK");
+                ArrayList<ChessMove> rookMoves = new ArrayList<>();
+
+                for (int i = 1; i <= max - row; i++) {
+                    // Up
+                    if (!upBlocked) {
+                        ChessPosition pos = new ChessPosition(row + i, col);
+
+                        if (board.getPiece(pos) != null) {
+                            upBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                rookMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            rookMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Down
+                for (int i = 1; i <= row - min; i++) {
+                    if (!downBlocked) {
+                        ChessPosition pos = new ChessPosition(row - i, col);
+
+                        if (board.getPiece(pos) != null) {
+                            downBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                rookMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            rookMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Right
+                for (int i = 1; i <= max - col; i++) {
+                    if (!rightBlocked) {
+                        ChessPosition pos = new ChessPosition(row, col + i);
+                        if (board.getPiece(pos) != null) {
+                            rightBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                rookMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            rookMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Left
+                for (int i = 1; i <= col - min; i++) {
+                    if (!leftBlocked) {
+                        ChessPosition pos = new ChessPosition(row, col - i);
+                        if (board.getPiece(pos) != null) {
+                            leftBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                rookMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            rookMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                validMoves.addAll(rookMoves);
                 break;
+
             case KNIGHT:
-                System.out.println("KNIGHT");
+                ArrayList<ChessMove> knightMoves = new ArrayList<>();
+
+                // Up 2, right 1
+                if (row + 2 <= max) {
+                    if (col + 1 <= max) {
+                        ChessPosition pos = new ChessPosition(row + 2, col + 1);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Up 2, left 1
+                if (row + 2 <= max) {
+                    if (col - 1 >= min) {
+                        ChessPosition pos = new ChessPosition(row + 2, col - 1);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Up 1, right 2
+                if (row + 1 <= max) {
+                    if (col + 2 <= max) {
+                        ChessPosition pos = new ChessPosition(row + 1, col + 2);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Up 1, left 2
+                if (row + 1 <= max) {
+                    if (col - 2 >= min) {
+                        ChessPosition pos = new ChessPosition(row + 1, col - 2);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Down 2, right 1
+                if (row - 2 >= min) {
+                    if (col + 1 <= max) {
+                        ChessPosition pos = new ChessPosition(row - 2, col + 1);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Up 2, left 1
+                if (row - 2 >= min) {
+                    if (col - 1 >= min) {
+                        ChessPosition pos = new ChessPosition(row - 2, col - 1);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Up 1, right 2
+                if (row - 1 >= min) {
+                    if (col + 2 <= max) {
+                        ChessPosition pos = new ChessPosition(row - 1, col + 2);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Up 1, left 2
+                if (row - 1 >= min) {
+                    if (col - 2 >= min) {
+                        ChessPosition pos = new ChessPosition(row - 1, col - 2);
+                        if (board.getPiece(pos) != null) {
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                knightMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            knightMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                validMoves.addAll(knightMoves);
                 break;
+
             case BISHOP:
-                System.out.println("BISHOP");
+                ArrayList<ChessMove> bishopMoves = new ArrayList<>();
+
+                for (int i = 1; i <= max - row; i++) {
+                    // Right up diagonal
+                    if (col + i <= max && !rightUpBlocked) {
+                        ChessPosition pos = new ChessPosition(row + i, col + i);
+                        if (board.getPiece(pos) != null) {
+                            rightUpBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                    // Left up diagonal
+                    if (col - i >= min && !leftUpBlocked) {
+                        ChessPosition pos = new ChessPosition(row + i, col - i);
+
+                        if (board.getPiece(pos) != null) {
+                            leftUpBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                // Move down
+                for (int i = 1; i <= row - min; i++) {
+                    // Right down diagonal
+                    if (col + i <= max && !rightDownBlocked) {
+                        ChessPosition pos = new ChessPosition(row - i, col + i);
+                        if (board.getPiece(pos) != null) {
+                            rightDownBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                    // Left up diagonal
+                    if (col - i >= min && !leftDownBlocked) {
+                        ChessPosition pos = new ChessPosition(row - i, col - i);
+
+                        if (board.getPiece(pos) != null) {
+                            leftDownBlocked = true;
+                            if (board.getPiece(pos).pieceColor != pieceColor)
+                                bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        } else {
+                            bishopMoves.add(new ChessMove(myPosition, pos, null));
+                        }
+                    }
+                }
+
+                validMoves.addAll(bishopMoves);
                 break;
+
             case PAWN:
-                System.out.println("PAWN");
+                ArrayList<ChessMove> pawnMoves = new ArrayList<>();
+
+                
                 break;
         }
         return validMoves;
+    }
+
+    /**
+     * The various different chess piece options
+     */
+    public enum PieceType {
+        KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN
     }
 }
