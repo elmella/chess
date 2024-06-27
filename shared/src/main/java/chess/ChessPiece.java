@@ -483,21 +483,21 @@ public class ChessPiece {
                     endRow = 1;
                 }
 
+                ChessPosition pos = new ChessPosition(row + direction, col);
+
                 // Double advancement
                 if (row == startRow) {
-                    ChessPosition pos = new ChessPosition(row + (2 * direction), col);
+                    ChessPosition doubl = new ChessPosition(row + (2 * direction), col);
+
 
                     // Check double square is open
-                    if (board.getPiece(pos) == null) {
-                        pawnMoves.add(new ChessMove(myPosition, pos, null));
+                    if (board.getPiece(doubl) == null && board.getPiece(pos) == null) {
+                        pawnMoves.add(new ChessMove(myPosition, doubl, null));
                     }
                 }
 
-                // Standard advancement
-                ChessPosition pos = new ChessPosition(row + direction, col);
-
                 // Promotion
-                if (row + 1 == endRow) {
+                if (row + direction == endRow) {
                     if (board.getPiece(pos) == null) {
                         for (ChessPiece.PieceType promotion : ChessPiece.PieceType.values()) {
                             if (promotion != ChessPiece.PieceType.PAWN && promotion != ChessPiece.PieceType.KING) {
@@ -511,43 +511,45 @@ public class ChessPiece {
                     }
                 }
 
-                // Right diagonal attack
+                // Diagonal attack
                 if (col + 1 <= max) {
-                    ChessPosition foeRight = new ChessPosition(row + direction, col + 1);
+                    ChessPosition foe = new ChessPosition(row + direction, col + 1);
                     // Check for piece on right
-                    if (board.getPiece(foeRight) != null) {
+                    if (board.getPiece(foe) != null) {
                         // Check piece is foe
-                        if (board.getPiece(foeRight).pieceColor != pieceColor)
+                        if (board.getPiece(foe).pieceColor != pieceColor) {
                             // Check for promotion
-                            if (row + 1 == endRow) {
+                            if (row + direction == endRow) {
                                 for (ChessPiece.PieceType promotion : ChessPiece.PieceType.values()) {
                                     if (promotion != ChessPiece.PieceType.PAWN && promotion != ChessPiece.PieceType.KING) {
-                                        pawnMoves.add(new ChessMove(myPosition, pos, promotion));
+                                        pawnMoves.add(new ChessMove(myPosition, foe, promotion));
                                     }
                                 }
                             } else {
-                                pawnMoves.add(new ChessMove(myPosition, foeRight, null));
+                                pawnMoves.add(new ChessMove(myPosition, foe, null));
                             }
+                        }
                     }
                 }
 
-                // Left diagonal attack
+                // Diagonal attack
                 if (col - 1 >= min) {
-                    ChessPosition foeRight = new ChessPosition(row + direction, col - 1);
+                    ChessPosition foe = new ChessPosition(row + direction, col - 1);
                     // Check for piece on right
-                    if (board.getPiece(foeRight) != null) {
+                    if (board.getPiece(foe) != null) {
                         // Check piece is foe
-                        if (board.getPiece(foeRight).pieceColor != pieceColor)
+                        if (board.getPiece(foe).pieceColor != pieceColor) {
                             // Check for promotion
-                            if (row + 1 == endRow) {
+                            if (row + direction == endRow) {
                                 for (ChessPiece.PieceType promotion : ChessPiece.PieceType.values()) {
                                     if (promotion != ChessPiece.PieceType.PAWN && promotion != ChessPiece.PieceType.KING) {
-                                        pawnMoves.add(new ChessMove(myPosition, pos, promotion));
+                                        pawnMoves.add(new ChessMove(myPosition, foe, promotion));
                                     }
                                 }
                             } else {
-                                pawnMoves.add(new ChessMove(myPosition, foeRight, null));
+                                pawnMoves.add(new ChessMove(myPosition, foe, null));
                             }
+                        }
                     }
                 }
 
