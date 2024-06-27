@@ -468,16 +468,24 @@ public class ChessPiece {
 
             case PAWN:
                 ArrayList<ChessMove> pawnMoves = new ArrayList<>();
+                int direction;
+                int startRow;
+                int endRow;
 
-//                if (pieceColor == ChessGame.TeamColor.BLACK) {
-//                    row = max + 1 - row;
-//                    col = max + 1 - col;
-//                    max = 1;
-//                    min = 8;
-//                }
+                if (pieceColor == ChessGame.TeamColor.WHITE) {
+                    direction = 1;
+                    startRow = 2;
+                    endRow = 8;
+                }
+                else {
+                    direction = -1;
+                    startRow = 7;
+                    endRow = 1;
+                }
+
                 // Double advancement
-                if (row == min + 1) {
-                    ChessPosition pos = new ChessPosition(row + 2, col);
+                if (row == startRow) {
+                    ChessPosition pos = new ChessPosition(row + (2 * direction), col);
 
                     // Check double square is open
                     if (board.getPiece(pos) == null) {
@@ -486,10 +494,10 @@ public class ChessPiece {
                 }
 
                 // Standard advancement
-                ChessPosition pos = new ChessPosition(row + 1, col);
+                ChessPosition pos = new ChessPosition(row + direction, col);
 
                 // Promotion
-                if (row + 1 == max) {
+                if (row + 1 == endRow) {
                     if (board.getPiece(pos) == null) {
                         for (ChessPiece.PieceType promotion : ChessPiece.PieceType.values()) {
                             if (promotion != ChessPiece.PieceType.PAWN && promotion != ChessPiece.PieceType.KING) {
@@ -505,13 +513,13 @@ public class ChessPiece {
 
                 // Right diagonal attack
                 if (col + 1 <= max) {
-                    ChessPosition foeRight = new ChessPosition(row + 1, col + 1);
+                    ChessPosition foeRight = new ChessPosition(row + direction, col + 1);
                     // Check for piece on right
                     if (board.getPiece(foeRight) != null) {
                         // Check piece is foe
                         if (board.getPiece(foeRight).pieceColor != pieceColor)
                             // Check for promotion
-                            if (row + 1 == max) {
+                            if (row + 1 == endRow) {
                                 for (ChessPiece.PieceType promotion : ChessPiece.PieceType.values()) {
                                     if (promotion != ChessPiece.PieceType.PAWN && promotion != ChessPiece.PieceType.KING) {
                                         pawnMoves.add(new ChessMove(myPosition, pos, promotion));
@@ -525,13 +533,13 @@ public class ChessPiece {
 
                 // Left diagonal attack
                 if (col - 1 >= min) {
-                    ChessPosition foeRight = new ChessPosition(row + 1, col - 1);
+                    ChessPosition foeRight = new ChessPosition(row + direction, col - 1);
                     // Check for piece on right
                     if (board.getPiece(foeRight) != null) {
                         // Check piece is foe
                         if (board.getPiece(foeRight).pieceColor != pieceColor)
                             // Check for promotion
-                            if (row + 1 == max) {
+                            if (row + 1 == endRow) {
                                 for (ChessPiece.PieceType promotion : ChessPiece.PieceType.values()) {
                                     if (promotion != ChessPiece.PieceType.PAWN && promotion != ChessPiece.PieceType.KING) {
                                         pawnMoves.add(new ChessMove(myPosition, pos, promotion));
