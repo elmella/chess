@@ -476,8 +476,7 @@ public class ChessPiece {
                     direction = 1;
                     startRow = 2;
                     endRow = 8;
-                }
-                else {
+                } else {
                     direction = -1;
                     startRow = 7;
                     endRow = 1;

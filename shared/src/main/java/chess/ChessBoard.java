@@ -10,7 +10,11 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] squares = new ChessPiece[8][8];
+    private final ChessPiece[][] squares = new ChessPiece[8][8];
+
+    public ChessBoard() {
+
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -21,18 +25,12 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "squares=" + Arrays.toString(squares) +
-                '}';
+        return "ChessBoard{" + "squares=" + Arrays.toString(squares) + '}';
     }
 
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(squares);
-    }
-
-    public ChessBoard() {
-
     }
 
     /**
