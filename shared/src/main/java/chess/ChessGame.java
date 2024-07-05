@@ -147,6 +147,7 @@ public class ChessGame {
         board.addPiece(move.getEndPosition(), piece);
         board.removePiece(move.getStartPosition());
 
+        team = (team == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
 
     }
 
