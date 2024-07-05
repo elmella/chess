@@ -90,8 +90,42 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        // Save ChessPosition and ChessPiece
+        ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) {
+            return null;
+        }
+        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) piece.pieceMoves(board, startPosition);
 
+        ChessPiece tempPiece;
+        ArrayList<ChessMove> movesToRemove = new ArrayList<>();
+        for (ChessMove move : validMoves) {
+            ChessPosition endPos = move.getEndPosition();
+            ChessPiece capturePiece = board.getPiece(endPos);
+
+            // Change the piece to its new promotion
+            if (move.getPromotionPiece() != null) {
+                tempPiece = new ChessPiece(team, move.getPromotionPiece());
+            } else {
+                tempPiece = piece;
+            }
+
+            board.addPiece(move.getEndPosition(), tempPiece);
+            board.removePiece(move.getStartPosition());
+
+
+            // check if move leaves team in check
+            if (isInCheck(piece.getTeamColor())) {
+                movesToRemove.add(move);
+            }
+            board.removePiece(move.getEndPosition());
+            board.addPiece(move.getStartPosition(), piece);
+            if (capturePiece != null) {
+                board.addPiece(endPos, capturePiece);
+            }
+        }
+        validMoves.removeAll(movesToRemove);
+        return validMoves;
     }
 
     /**
