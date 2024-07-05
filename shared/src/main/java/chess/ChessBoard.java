@@ -10,10 +10,10 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private final ChessPiece[][] squares = new ChessPiece[8][8];
+    private final ChessPiece[][] squares;
 
     public ChessBoard() {
-
+        squares = new ChessPiece[8][8];
     }
 
     @Override
@@ -24,13 +24,15 @@ public class ChessBoard {
     }
 
     @Override
-    public String toString() {
-        return "ChessBoard{" + "squares=" + Arrays.toString(squares) + '}';
+    public int hashCode() {
+        return Arrays.deepHashCode(squares);
     }
 
     @Override
-    public int hashCode() {
-        return Arrays.deepHashCode(squares);
+    public String toString() {
+        return "ChessBoard{" +
+                "squares=" + Arrays.toString(squares) +
+                '}';
     }
 
     /**
@@ -41,6 +43,15 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
+    }
+
+    /**
+     * Remove a chess piece from the chessboard, do nothing if the square is null
+     *
+     * @param position where to remove the piece from
+     */
+    public void removePiece(ChessPosition position) {
+        squares[position.getRow() - 1][position.getColumn() - 1] = null;
     }
 
     /**
