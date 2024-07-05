@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -14,11 +15,15 @@ public class ChessGame {
     private ChessBoard board;
     private ArrayList<ChessMove> whiteMoves;
     private ArrayList<ChessMove> blackMoves;
+    private HashMap<TeamColor, ChessPosition> kingPositions;
 
     public ChessGame() {
         team = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
+        kingPositions = new HashMap<>();
+        updateTeamMoves();
+        updateKingPositions();
     }
 
     /**
@@ -29,7 +34,7 @@ public class ChessGame {
     }
 
     /**
-     * Set's which teams turn it is
+     * Set's which team's turn it is
      *
      * @param team the team whose turn it is
      */
@@ -38,12 +43,12 @@ public class ChessGame {
     }
 
     /**
-     * Calculate all the moves possible for a white and black
+     * Calculate all the moves possible for both teams
      */
     public void updateTeamMoves() {
         // Initialize arrays for the team moves
-        ArrayList<ChessMove> whiteMoves = new ArrayList<>();
-        ArrayList<ChessMove> blackMoves = new ArrayList<>();
+        whiteMoves = new ArrayList<>();
+        blackMoves = new ArrayList<>();
         // Iterate over all squares
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -60,9 +65,23 @@ public class ChessGame {
                 }
             }
         }
-        // Save to class fields
-        this.whiteMoves = whiteMoves;
-        this.blackMoves = blackMoves;
+    }
+
+    /**
+     * Update the positions of both kings
+     */
+    public void updateKingPositions() {
+        // Iterate over all squares to find kings
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece = this.board.getPiece(pos);
+                // Check if square is null
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    kingPositions.put(piece.getTeamColor(), pos);
+                }
+            }
+        }
     }
 
     /**
@@ -72,33 +91,16 @@ public class ChessGame {
      * @return ChessPosition the position of the king
      */
     public ChessPosition getKingPosition(TeamColor teamColor) {
-        // Iterate over all squares
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition pos = new ChessPosition(i, j);
-                ChessPiece piece = this.board.getPiece(pos);
-                // Check if square is null
-                if (piece != null) {
-                    // Check if piece is the team's king
-                    if (piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
-                        return pos;
-                    }
-                }
-            }
-        }
-        return null;
+        return kingPositions.get(teamColor);
     }
 
-
     /**
-     * Gets a valid moves for a piece at the given location
+     * Gets valid moves for a piece at the given location
      *
      * @param startPosition the piece to get valid moves for
-     * @return Set of valid moves for requested piece, or null if no piece at
-     * startPosition
+     * @return Collection of valid moves for the requested piece, or null if no piece at startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-
         // Save ChessPosition and ChessPiece
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) {
@@ -106,7 +108,7 @@ public class ChessGame {
         }
 
         // Initialize array of ChessMoves, ChessPiece, and movesToRemove
-        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) piece.pieceMoves(board, startPosition);
+        ArrayList<ChessMove> validMoves = new ArrayList<>(piece.pieceMoves(board, startPosition));
         ChessPiece tempPiece;
         ArrayList<ChessMove> movesToRemove = new ArrayList<>();
 
@@ -115,29 +117,31 @@ public class ChessGame {
             ChessPosition endPos = move.getEndPosition();
             ChessPiece capturePiece = board.getPiece(endPos);
 
-            // Change the piece to its new promotion
+            // Change the piece to its new promotion if applicable
             if (move.getPromotionPiece() != null) {
                 tempPiece = new ChessPiece(team, move.getPromotionPiece());
             } else {
                 tempPiece = piece;
             }
 
-            board.addPiece(move.getEndPosition(), tempPiece);
-            board.removePiece(move.getStartPosition());
-
+            board.addPiece(endPos, tempPiece);
+            board.removePiece(startPosition);
 
             // Check if move leaves team in check
             if (isInCheck(piece.getTeamColor())) {
                 movesToRemove.add(move);
             }
-            board.removePiece(move.getEndPosition());
-            board.addPiece(move.getStartPosition(), piece);
+
+            // Undo the temporary move
+            board.removePiece(endPos);
+            board.addPiece(startPosition, piece);
 
             // Replace any pieces captured
             if (capturePiece != null) {
                 board.addPiece(endPos, capturePiece);
             }
         }
+
         validMoves.removeAll(movesToRemove);
         return validMoves;
     }
@@ -145,11 +149,10 @@ public class ChessGame {
     /**
      * Makes a move in a chess game
      *
-     * @param move chess move to preform
+     * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-
         // Save ChessPosition and ChessPiece
         ChessPosition startPos = move.getStartPosition();
         ChessPiece piece = board.getPiece(startPos);
@@ -161,22 +164,28 @@ public class ChessGame {
         if (piece.getTeamColor() != team) {
             throw new InvalidMoveException();
         }
+
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(startPos);
 
         // Check if the chess piece can move there
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException();
         }
+
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(team, move.getPromotionPiece());
         }
 
         // Add the new piece and remove the old piece
         board.addPiece(move.getEndPosition(), piece);
-        board.removePiece(move.getStartPosition());
+        board.removePiece(startPos);
+
+        // Update king position if necessary
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            kingPositions.put(piece.getTeamColor(), move.getEndPosition());
+        }
 
         team = (team == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-
     }
 
     /**
@@ -186,7 +195,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
         // Update list of possible moves
         updateTeamMoves();
 
@@ -198,7 +206,6 @@ public class ChessGame {
 
         // Iterate over foe moves
         for (ChessMove move : foeMoves) {
-
             // Check if any moves can hit the king
             if (move.getEndPosition().equals(kingPos)) {
                 return true;
@@ -214,23 +221,19 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-
         // In Checkmate if in check and there are no valid moves
-        return isInCheck(teamColor) && hasValidMoves(teamColor);
+        return isInCheck(teamColor) && !hasValidMoves(teamColor);
     }
 
-
     /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves
+     * Determines if the given team is in stalemate, which here is defined as having no valid moves
      *
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-
         // In Stalemate if not in check and there are no valid moves
-        return !isInCheck(teamColor) && hasValidMoves(teamColor);
+        return !isInCheck(teamColor) && !hasValidMoves(teamColor);
     }
 
     /**
@@ -245,16 +248,13 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition pos = new ChessPosition(i, j);
                 ChessPiece piece = this.board.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() == teamColor) {
-                        validMoves.addAll(validMoves(pos));
-                    }
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    validMoves.addAll(validMoves(pos));
                 }
             }
         }
-        return validMoves.isEmpty();
+        return !validMoves.isEmpty();
     }
-
 
     /**
      * Gets the current chessboard
@@ -272,6 +272,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+        updateTeamMoves();
+        updateKingPositions();
     }
 
     /**
@@ -281,4 +283,3 @@ public class ChessGame {
         WHITE, BLACK
     }
 }
-
