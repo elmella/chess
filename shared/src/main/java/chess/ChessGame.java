@@ -143,6 +143,19 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
+        // Check if it is the corresponding team's turn
+        if (piece.getTeamColor() != team) {
+            throw new InvalidMoveException();
+        }
+        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(startPos);
+
+        // Check if the chess piece can move there
+        if (!validMoves.contains(move)) {
+            throw new InvalidMoveException();
+        }
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(team, move.getPromotionPiece());
+        }
 
         board.addPiece(move.getEndPosition(), piece);
         board.removePiece(move.getStartPosition());
