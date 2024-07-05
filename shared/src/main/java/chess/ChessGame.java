@@ -1,5 +1,7 @@
 package chess;
 
+import jdk.jshell.spi.ExecutionControl;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -189,7 +191,23 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+       if (!isInCheck(teamColor)) {
+           return false;
+       }
+
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece = this.board.getPiece(pos);
+                if (piece != null) {
+                    if (piece.getTeamColor() == teamColor) {
+                        validMoves.addAll(validMoves(pos));
+                    }
+                }
+            }
+        }
+        return validMoves.isEmpty();
     }
 
 
