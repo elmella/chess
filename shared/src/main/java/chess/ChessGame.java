@@ -1,7 +1,5 @@
 package chess;
 
-import jdk.jshell.spi.ExecutionControl;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -191,23 +189,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-       if (!isInCheck(teamColor)) {
-           return false;
-       }
-
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition pos = new ChessPosition(i, j);
-                ChessPiece piece = this.board.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() == teamColor) {
-                        validMoves.addAll(validMoves(pos));
-                    }
-                }
-            }
-        }
-        return validMoves.isEmpty();
+        return isInCheck(teamColor) && hasValidMoves(teamColor);
     }
 
 
@@ -219,10 +201,16 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (isInCheck(teamColor)) {
-            return false;
-        }
+        return !isInCheck(teamColor) && hasValidMoves(teamColor);
+    }
 
+    /**
+     * Determines if there are no valid moves
+     *
+     * @param teamColor which team to check for valid moves
+     * @return True if the specified team has valid moves, otherwise false
+     */
+    public boolean hasValidMoves(TeamColor teamColor) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -264,3 +252,4 @@ public class ChessGame {
         WHITE, BLACK
     }
 }
+
