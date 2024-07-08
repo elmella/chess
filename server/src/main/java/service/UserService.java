@@ -17,12 +17,14 @@ public class UserService {
         // Create new user
         userDAO.createUser(user);
 
-
+        return null;
     }
 
     public AuthData login(UserData user) {
+        return null;
     }
 
     public void logout(UserData user) {
+        return;
     }
 }
