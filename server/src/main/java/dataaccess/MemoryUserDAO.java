@@ -15,7 +15,7 @@ public class MemoryUserDAO implements UserDAOInterface {
     @Override
     public void createUser(UserData u) throws DataAccessException {
         if (user.contains(u)) {
-            throw new DataAccessException("Auth already exists");
+            throw new DataAccessException("Username already exists");
         }
         user.add(u);
     }
@@ -27,25 +27,22 @@ public class MemoryUserDAO implements UserDAOInterface {
                 return u;
             }
         }
-        throw new DataAccessException("Username not found");
+        throw new DataAccessException("Username or Password not found");
     }
 
     @Override
     public void updateUser(UserData u) throws DataAccessException {
-        for (UserData uData : user) {
-            if (uData.username().equals(u.username()) && uData.password().equals(u.password())) {
-                user.remove(u);
-                user.add(u);
-                return;
-            }
+        if (!user.contains(u)) {
+            throw new DataAccessException("User not found");
         }
-        throw new DataAccessException("Username not found");
+        user.remove(u);
+        user.add(u);
     }
 
     @Override
     public void deleteUser(UserData u) throws DataAccessException {
         if (!user.contains(u)) {
-            throw new DataAccessException("Auth not found");
+            throw new DataAccessException("User not found");
         }
         user.remove(u);
     }
