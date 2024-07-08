@@ -13,7 +13,7 @@ public class UserService {
         MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
         // Check if user exists
-        
+
         // Create new user
         userDAO.createUser(user);
 
