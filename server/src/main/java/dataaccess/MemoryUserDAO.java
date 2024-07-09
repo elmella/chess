@@ -24,7 +24,8 @@ public class MemoryUserDAO implements UserDAOInterface {
                 return u;
             }
         }
-        throw new DataAccessException("Username or Password not found");
+        return null;
+//        throw new DataAccessException("Username or Password not found");
     }
 
     @Override

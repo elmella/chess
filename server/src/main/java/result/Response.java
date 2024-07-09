@@ -22,9 +22,6 @@ public class Response {
         this.success = success;
     }
 
-    public Response() {
-    }
-
     public boolean isSuccess() {
         return success;
     }

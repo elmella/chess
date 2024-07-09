@@ -14,18 +14,9 @@ public class CreateGameResponse extends Response {
      *
      * @param gameID : int
      */
-    public CreateGameResponse(int gameID) {
-        this.gameID = gameID;
-    }
-
-    /**
-     * constructor for CreateGameRequest for an unsuccessful request
-     *
-     * @param success : boolean
-     * @param message : String
-     */
-    public CreateGameResponse(String message, boolean success) {
+    public CreateGameResponse(int gameID, boolean success, String message) {
         super(message, success);
+        this.gameID = gameID;
     }
 
     public int getGameID() {

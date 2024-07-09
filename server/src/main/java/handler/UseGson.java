@@ -1,18 +1,18 @@
-import chess.ChessPiece;
+package handler;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
+
 import request.Request;
 import result.Response;
 
 import java.lang.reflect.Type;
 
-public class gson {
+public class UseGson {
 
 
-    public static Request fromJson(String reqData, Type t) {
+    public static request.Request fromJson(spark.Request req, Type t) {
         Gson serializer = new Gson();
-        return serializer.fromJson(reqData, t);
+        return serializer.fromJson(req.body(), t);
     }
 
     public static String toJson(Response response) {

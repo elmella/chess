@@ -33,4 +33,6 @@ public class Handler {
         return sb.toString();
     }
 
+//    public boolean authorize(String authToken)
+
 }

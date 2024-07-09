@@ -14,18 +14,9 @@ public class ListGamesResponse extends Response {
      *
      * @param gameResponses : ArrayList<GameResponse>
      */
-    public ListGamesResponse(ArrayList<GameResponse> gameResponses) {
-        this.gameResponses = gameResponses;
-    }
-
-    /**
-     * constructor for ListGamesResponse for an unsuccessful request
-     *
-     * @param success : boolean
-     * @param message : String
-     */
-    public ListGamesResponse(String message, boolean success) {
+    public ListGamesResponse(ArrayList<GameResponse> gameResponses, boolean success, String message) {
         super(message, success);
+        this.gameResponses = gameResponses;
     }
 
     public ArrayList<GameResponse> getGameResponses() {

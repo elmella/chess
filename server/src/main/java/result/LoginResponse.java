@@ -17,19 +17,10 @@ public class LoginResponse extends Response {
      * @param authToken : String
      * @param username : String
      */
-    public LoginResponse(String authToken, String username) {
+    public LoginResponse(String authToken, String username, boolean success, String message) {
+        super(message, success);
         this.authToken = authToken;
         this.username = username;
-    }
-
-    /**
-     * constructor for LoginResponse for an unsuccessful login
-     *
-     * @param success : boolean
-     * @param message : String
-     */
-    public LoginResponse(String message, boolean success) {
-        super(message, success);
     }
 
     public String getAuthToken() {
