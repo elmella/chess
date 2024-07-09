@@ -48,4 +48,9 @@ public class MemoryGameDAO implements GameDAOInterface {
         }
         game.remove(g);
     }
+
+    @Override
+    public void clearGame() throws DataAccessException {
+        game = new ArrayList<>();
+    }
 }

@@ -9,5 +9,5 @@ public interface AuthDAOInterface {
 
     void deleteAuth(AuthData a) throws DataAccessException;
 
-    void clear() throws DataAccessException;
+    void clearAuth() throws DataAccessException;
 }

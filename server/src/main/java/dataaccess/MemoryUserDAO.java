@@ -45,7 +45,7 @@ public class MemoryUserDAO implements UserDAOInterface {
     }
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clearUser() throws DataAccessException {
         user = new ArrayList<>();
     }
 }
