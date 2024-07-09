@@ -1,23 +1,25 @@
-package result;
+package request;
+
+import result.Response;
 
 public class CreateGameResponse extends Response {
 
     /**
-     * gameName : String
+     * gameName : int
      */
-    private String gameName;
+    private int gameID;
 
     /**
-     * constructor for CreateGameResponse for a successful request
+     * constructor for CreateGameRequest for a successful request
      *
-     * @param gameName : String
+     * @param gameID : int
      */
-    public CreateGameResponse(String gameName) {
-        this.gameName = gameName;
+    public CreateGameResponse(int gameID) {
+        this.gameID = gameID;
     }
 
     /**
-     * constructor for CreateGameResponse for an unsuccessful request
+     * constructor for CreateGameRequest for an unsuccessful request
      *
      * @param success : boolean
      * @param message : String
@@ -26,11 +28,11 @@ public class CreateGameResponse extends Response {
         super(message, success);
     }
 
-    public String getGameName() {
-        return gameName;
+    public int getGameID() {
+        return gameID;
     }
 
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
     }
 }
