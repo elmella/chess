@@ -6,6 +6,8 @@ import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 
+import java.util.UUID;
+
 public class UserService {
     public AuthData register(UserData user) throws DataAccessException {
         // Declare DAO objects
@@ -13,11 +15,19 @@ public class UserService {
         MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
         // Check if user exists
+        UserData foundUser = userDAO.getUser(user.username(), user.password());
 
+        if (foundUser == null) {
+            userDAO.createUser(user);
+            String authToken = UUID.randomUUID().toString();
+            String username = user.username();
+            AuthData auth = new AuthData(authToken, username);
+            authDAO.createAuth(auth);
+            return auth;
+        }
         // Create new user
-        userDAO.createUser(user);
 
-        return null;
+        return new AuthData(null,null);
     }
 
     public AuthData login(UserData user) {

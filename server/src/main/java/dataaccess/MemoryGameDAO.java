@@ -14,16 +14,13 @@ public class MemoryGameDAO implements GameDAOInterface {
 
     @Override
     public void createGame(GameData g) throws DataAccessException {
-        if (game.contains(g)) {
-            throw new DataAccessException("Auth already exists");
-        }
         game.add(g);
     }
 
     @Override
-    public GameData getGame(int gameID, String gameName) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException {
         for (GameData g : game) {
-            if (g.gameID() == gameID && g.gameName().equals(gameName)) {
+            if (g.gameID() == gameID) {
                 return g;
             }
         }

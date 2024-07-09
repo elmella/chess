@@ -14,9 +14,6 @@ public class MemoryUserDAO implements UserDAOInterface {
 
     @Override
     public void createUser(UserData u) throws DataAccessException {
-        if (user.contains(u)) {
-            throw new DataAccessException("Username already exists");
-        }
         user.add(u);
     }
 

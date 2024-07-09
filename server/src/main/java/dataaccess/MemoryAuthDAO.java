@@ -13,20 +13,17 @@ public class MemoryAuthDAO implements AuthDAOInterface {
 
     @Override
     public void createAuth(AuthData a) throws DataAccessException {
-        if (auth.contains(a)) {
-            throw new DataAccessException("Auth already exists");
-        }
         auth.add(a);
     }
 
     @Override
-    public AuthData getAuth(String username) throws DataAccessException {
+    public AuthData getAuth(String authToke) throws DataAccessException {
         for (AuthData a : this.auth) {
-            if (a.username().equals(username)) {
+            if (a.authToken().equals(authToke)) {
                 return a;
             }
         }
-        throw new DataAccessException("Username not found");
+        throw new DataAccessException("AuthToken not found");
     }
 
     @Override
