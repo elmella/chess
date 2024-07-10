@@ -28,7 +28,7 @@ public class MemoryGameDAO implements GameDAOInterface {
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         for (GameData g : game) {
-            if (g.gameID() == gameID) {
+            if (g.getGameID() == gameID) {
                 return g;
             }
         }
@@ -42,11 +42,18 @@ public class MemoryGameDAO implements GameDAOInterface {
 
     @Override
     public void updateGame(GameData g) throws DataAccessException {
-        if (!game.contains(g)) {
-            throw new DataAccessException("User not found");
-        }
-        game.remove(g);
-        game.add(g);
+//        if (!game.contains(g)) {
+//            throw new DataAccessException("User not found");
+//        }
+        GameData currentGame = getGame(g.getGameID());
+
+        currentGame.setGameID(g.getGameID());
+        currentGame.setGameName(g.getGameName());
+        currentGame.setBlackUsername(g.getBlackUsername());
+        currentGame.setWhiteUsername(g.getWhiteUsername());
+        currentGame.setGame(g.getGame());
+//        game.remove(g);
+//        game.add(g);
     }
 
     @Override

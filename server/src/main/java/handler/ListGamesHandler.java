@@ -17,7 +17,7 @@ public class ListGamesHandler extends Handler {
             return UseGson.toJson(new result.Response("Error: unauthorized", false));
         }
 
-        GameService game = new GameService(MemoryGameDAO.getInstance());
+        GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
         ListGamesResponse result = game.getGames();
 

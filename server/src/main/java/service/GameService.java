@@ -1,27 +1,45 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.AuthDAOInterface;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAOInterface;
+import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
 import request.CreateGameResponse;
+import request.JoinGameRequest;
 import result.GameResponse;
 import result.ListGamesResponse;
+import result.Response;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GameService {
-//    private final UserDAOInterface userDAO;
-//    private final AuthDAOInterface authDAO;
+    //    private final UserDAOInterface userDAO;
+    private final AuthDAOInterface authDAO;
     private final GameDAOInterface gameDAO;
 
-//    public GameService(UserDAOInterface userDAO, AuthDAOInterface authDAO, GameDAOInterface gameDAO) {
-public GameService(GameDAOInterface gameDAO) {
+    //    public GameService(UserDAOInterface userDAO, AuthDAOInterface authDAO, GameDAOInterface gameDAO) {
+    public GameService(GameDAOInterface gameDAO, AuthDAOInterface authDAO) {
 //        this.userDAO = userDAO;
-//        this.authDAO = authDAO;
+        this.authDAO = authDAO;
         this.gameDAO = gameDAO;
+    }
+
+    private int createGameID() {
+        Random r = new Random();
+        int gameID = r.nextInt(8999) + 1000;
+        while (true) {
+            try {
+                if (gameDAO.getGame(gameID) == null) break;
+            } catch (DataAccessException e) {
+                throw new RuntimeException(e);
+            }
+            gameID = r.nextInt(8999) + 1000;
+        }
+        return gameID;
     }
 
 
@@ -30,7 +48,7 @@ public GameService(GameDAOInterface gameDAO) {
             ArrayList<GameData> games = gameDAO.listGames();
             ArrayList<GameResponse> responses = new ArrayList<>();
             for (GameData game : games) {
-                responses.add(new GameResponse(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+                responses.add(new GameResponse(game.getGameID(), game.getWhiteUsername(), game.getBlackUsername(), game.getGameName()));
             }
             return new ListGamesResponse(responses, true, null);
         } catch (DataAccessException e) {
@@ -39,18 +57,9 @@ public GameService(GameDAOInterface gameDAO) {
     }
 
     public CreateGameResponse createGame(CreateGameRequest request) {
-    String gameName = request.gameName();
-    Random r = new Random();
-    int gameID = r.nextInt(8999) + 1000;
-    while (true) {
-        try {
-            if (gameDAO.getGame(gameID) == null) break;
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-        gameID = r.nextInt(8999) + 1000;
-    }
-    GameData game = new GameData(gameID, null, null, gameName, new ChessGame());
+        String gameName = request.gameName();
+        int gameID = createGameID();
+        GameData game = new GameData(gameID, null, null, gameName, new ChessGame());
         try {
             gameDAO.createGame(game);
         } catch (DataAccessException e) {
@@ -58,9 +67,44 @@ public GameService(GameDAOInterface gameDAO) {
         }
 
         return new CreateGameResponse(gameID, true, null);
-
     }
 
+    public Response joinGame(JoinGameRequest request, String authToken) {
+        int gameID = request.gameID();
+        String color = request.playerColor();
+        GameData currentGame;
+        String username;
+        String whiteUsername;
+        String blackUsername;
+        String gameName;
+        ChessGame game;
+        try {
+            AuthData auth = authDAO.getAuth(authToken);
+            username = auth.username();
+            currentGame = gameDAO.getGame(gameID);
+            gameName = currentGame.getGameName();
+            game = currentGame.getGame();
+            if (color.equals("WHITE")) {
+                if (currentGame.getWhiteUsername() != null) {
+                    return new Response("Error: already taken", false);
+                }
+                whiteUsername = username;
+                blackUsername = currentGame.getBlackUsername();
+            } else {
+                if (currentGame.getBlackUsername() != null) {
+                    return new Response("Error: already taken", false);
+                }
+                blackUsername = username;
+                whiteUsername = currentGame.getWhiteUsername();
+            }
+            GameData updatedGame = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+
+            gameDAO.updateGame(updatedGame);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return new Response(null, true);
+    }
 
 
 }
