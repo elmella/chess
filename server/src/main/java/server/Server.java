@@ -10,11 +10,12 @@ public class Server {
 
     private final LoginHandler loginHandler;
     private final RegisterHandler registerHandler;
-    private ClearHandler clearHandler;
+    private final ClearHandler clearHandler;
 
     public Server() {
         this.loginHandler = new LoginHandler();
         this.registerHandler = new RegisterHandler();
+        this.clearHandler = new ClearHandler();
     }
 
     public int run(int desiredPort) {
@@ -25,6 +26,7 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         Spark.post("/session", loginHandler::handleRequest);
         Spark.post("/user", registerHandler::handleRequest);
+        Spark.delete("/db", clearHandler::handleRequest);
 
 
         //This line initializes the server and can be removed once you have a functioning endpoint 

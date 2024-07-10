@@ -53,7 +53,12 @@ public class UserService {
         return new LoginResponse(null, null, false, "Error: unauthorized");
     }
 
-    public void logout(UserData user) {
+    public void logout(String authToken) {
+        try {
+            boolean authorized = !(authDAO.getAuth(authToken) == null);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         return;
     }
 }
