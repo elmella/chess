@@ -32,14 +32,15 @@ public class MemoryAuthDAO implements AuthDAOInterface {
                 return a;
             }
         }
-        throw new DataAccessException("AuthToken not found");
+        return null;
+//        throw new DataAccessException("AuthToken not found");
     }
 
     @Override
     public void deleteAuth(AuthData a) throws DataAccessException {
-        if (!auth.contains(a)) {
-            throw new DataAccessException("Auth not found");
-        }
+//        if (!auth.contains(a)) {
+//            throw new DataAccessException("Auth not found");
+//        }
         auth.remove(a);
     }
 

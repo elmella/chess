@@ -6,6 +6,7 @@ import model.UserData;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResponse;
+import result.Response;
 
 import java.util.UUID;
 
@@ -53,12 +54,17 @@ public class UserService {
         return new LoginResponse(null, null, false, "Error: unauthorized");
     }
 
-    public void logout(String authToken) {
+    public Response logout(String authToken) {
         try {
-            boolean authorized = !(authDAO.getAuth(authToken) == null);
+            AuthData auth = authDAO.getAuth(authToken);
+            if (auth == null) {
+                return new Response("Error: unauthorized", false);
+            }
+            authDAO.deleteAuth(auth);
+
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        return;
+        return new Response(null, true);
     }
 }
