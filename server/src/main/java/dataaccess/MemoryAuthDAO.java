@@ -6,9 +6,18 @@ import java.util.ArrayList;
 
 public class MemoryAuthDAO implements AuthDAOInterface {
     ArrayList<AuthData> auth;
+    private static MemoryAuthDAO instance;
+
 
     public MemoryAuthDAO() {
         auth = new ArrayList<>();
+    }
+
+    public static MemoryAuthDAO getInstance() {
+        if (instance == null) {
+            instance = new MemoryAuthDAO();
+        }
+        return instance;
     }
 
     @Override

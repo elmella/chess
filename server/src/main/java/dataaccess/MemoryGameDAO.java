@@ -7,9 +7,17 @@ import java.util.ArrayList;
 
 public class MemoryGameDAO implements GameDAOInterface {
     ArrayList<GameData> game;
+    private static MemoryGameDAO instance;
 
-    public MemoryGameDAO() {
+    private MemoryGameDAO() {
         game = new ArrayList<>();
+    }
+
+    public static MemoryGameDAO getInstance() {
+        if (instance == null) {
+            instance = new MemoryGameDAO();
+        }
+        return instance;
     }
 
     @Override

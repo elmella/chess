@@ -1,25 +1,30 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
+import request.RegisterRequest;
 import result.LoginResponse;
 
 import java.util.UUID;
 
 public class UserService {
-    public LoginResponse register(UserData user) throws DataAccessException {
-        // Declare DAO objects
-        MemoryUserDAO userDAO = new MemoryUserDAO();
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    private final UserDAOInterface userDAO;
+    private final AuthDAOInterface authDAO;
 
+    public UserService(UserDAOInterface userDAO, AuthDAOInterface authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+    }
+
+
+    public LoginResponse register(RegisterRequest request) throws DataAccessException {
         // Check if user exists
-        UserData foundUser = userDAO.getUser(user.username(), user.password());
+        UserData foundUser = userDAO.getUser(request.username(), request.password());
 
         if (foundUser == null) {
+            UserData user = new UserData(request.username(), request.password(), request.email());
             userDAO.createUser(user);
             String authToken = UUID.randomUUID().toString();
             String username = user.username();
@@ -33,9 +38,6 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest request) throws DataAccessException {
-        // Declare DAO objects
-        MemoryUserDAO userDAO = new MemoryUserDAO();
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
         String username = request.username();
         // Check if user exists
         UserData foundUser = userDAO.getUser(username, request.password());

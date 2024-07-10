@@ -7,9 +7,18 @@ import java.util.ArrayList;
 
 public class MemoryUserDAO implements UserDAOInterface {
     ArrayList<UserData> user;
+    private static MemoryUserDAO instance;
+
 
     public MemoryUserDAO() {
         user = new ArrayList<>();
+    }
+
+    public static MemoryUserDAO getInstance() {
+        if (instance == null) {
+            instance = new MemoryUserDAO();
+        }
+        return instance;
     }
 
     @Override

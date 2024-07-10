@@ -10,14 +10,14 @@ import java.lang.reflect.Type;
 public class UseGson {
 
 
-    public static request.Request fromJson(spark.Request req, Type t) {
+    public static Request fromJson(String json, Type t) {
         Gson serializer = new Gson();
-        return serializer.fromJson(req.body(), t);
+        return serializer.fromJson(json, t);
     }
 
-    public static String toJson(Response response) {
+    public static String toJson(Object o) {
         Gson serializer = new Gson();
-        return serializer.toJson(response);
+        return serializer.toJson(o);
     }
 
 //    public static Gson createSerializer() {
@@ -39,6 +39,6 @@ public class UseGson {
 //                    }
 //                    return chessPiece;
 //                });
-//
+
 //        return gsonBuilder.create();
 }
