@@ -16,7 +16,6 @@ public class LoginHandler {
 
         LoginResponse result = user.login(request);
 
-        System.out.println(UseGson.toJson(result));
         if (!result.isSuccess()) {
             res.status(401);
         }

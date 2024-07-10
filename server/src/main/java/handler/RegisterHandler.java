@@ -9,13 +9,12 @@ import service.UserService;
 import spark.Request;
 import spark.Response;
 
-public class RegisterHandler {
+public class RegisterHandler extends Handler {
 
     public String handleRequest(Request req, Response res) throws DataAccessException {
         RegisterRequest request = (RegisterRequest) UseGson.fromJson(req.body(), RegisterRequest.class);
-        System.out.println(request);
 
-        if(request.username() == null || request.password() == null || request.email() == null) {
+        if (hasNullFields(request)) {
             res.status(400);
             return UseGson.toJson(new result.Response("Error: bad request", false));
         }
@@ -27,9 +26,6 @@ public class RegisterHandler {
         if (!result.isSuccess()) {
             res.status(403);
         }
-
-        System.out.println(UseGson.toJson(result));
-
 
         return UseGson.toJson(result);
     }

@@ -1,10 +1,7 @@
 package server;
 
 import dataaccess.*;
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.RegisterHandler;
+import handler.*;
 import spark.*;
 
 public class Server {
@@ -13,12 +10,16 @@ public class Server {
     private final RegisterHandler registerHandler;
     private final ClearHandler clearHandler;
     private final LogoutHandler logoutHandler;
+    private final ListGamesHandler listGamesHandler;
+    private final CreateGameHandler createGameHandler;
 
     public Server() {
         this.loginHandler = new LoginHandler();
         this.registerHandler = new RegisterHandler();
         this.clearHandler = new ClearHandler();
         this.logoutHandler = new LogoutHandler();
+        this.listGamesHandler = new ListGamesHandler();
+        this.createGameHandler = new CreateGameHandler();
     }
 
     public int run(int desiredPort) {
@@ -31,6 +32,9 @@ public class Server {
         Spark.post("/user", registerHandler::handleRequest);
         Spark.delete("/db", clearHandler::handleRequest);
         Spark.delete("/session", logoutHandler::handleRequest);
+        Spark.get("/game", listGamesHandler::handleRequest);
+        Spark.post("/game", createGameHandler::handleRequest);
+
 
 
         //This line initializes the server and can be removed once you have a functioning endpoint 

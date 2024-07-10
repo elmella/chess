@@ -57,9 +57,6 @@ public class UserService {
     public Response logout(String authToken) {
         try {
             AuthData auth = authDAO.getAuth(authToken);
-            if (auth == null) {
-                return new Response("Error: unauthorized", false);
-            }
             authDAO.deleteAuth(auth);
 
         } catch (DataAccessException e) {

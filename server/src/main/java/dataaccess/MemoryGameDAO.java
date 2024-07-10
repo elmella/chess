@@ -32,7 +32,7 @@ public class MemoryGameDAO implements GameDAOInterface {
                 return g;
             }
         }
-        throw new DataAccessException("Game ID or Game Name not found");
+        return null;
     }
 
     @Override
