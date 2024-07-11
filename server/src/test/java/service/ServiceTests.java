@@ -38,7 +38,7 @@ public class ServiceTests {
         // Add a user, will also create an auth
         RegisterRequest userRequest = new RegisterRequest("username", "email@email.com", "password");
             user.register(userRequest);
-        } catch (DataAccessException | AlreadyTakenException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
             throw new RuntimeException(e);
         }
 

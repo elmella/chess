@@ -1,9 +1,6 @@
 package handler;
 
-import dataaccess.AlreadyTakenException;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import request.RegisterRequest;
 import result.LoginResponse;
 import service.UserService;
@@ -31,6 +28,9 @@ public class RegisterHandler extends Handler {
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         } catch (DataAccessException e) {
             res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        }  catch (UnauthorizedException e) {
+            res.status(401);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
 

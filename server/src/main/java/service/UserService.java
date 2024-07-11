@@ -20,20 +20,20 @@ public class UserService {
     }
 
 
-    public LoginResponse register(RegisterRequest request) throws DataAccessException, AlreadyTakenException {
+    public LoginResponse register(RegisterRequest request) throws DataAccessException, AlreadyTakenException, UnauthorizedException {
         // Check if user exists
         UserData foundUser = userDAO.getUser(request.username(), request.password());
 
         if (foundUser == null) {
+
+            // Create new user
             UserData user = new UserData(request.username(), request.password(), request.email());
             userDAO.createUser(user);
-            String authToken = UUID.randomUUID().toString();
-            String username = user.username();
-            AuthData auth = new AuthData(authToken, username);
-            authDAO.createAuth(auth);
-            return new LoginResponse(authToken, username, true, null);
+
+            // Login new user
+            LoginRequest loginRequest = new LoginRequest(request.username(), request.password());
+            return login(loginRequest);
         }
-        // Create new user
 
 //        return new LoginResponse(null, null, false, "Error: already taken");
         throw new AlreadyTakenException("Error: already taken");
@@ -45,12 +45,15 @@ public class UserService {
         UserData foundUser = userDAO.getUser(username, request.password());
 
         if (foundUser != null) {
+
+            // Generate authToken
             String authToken = UUID.randomUUID().toString();
             AuthData auth = new AuthData(authToken, username);
+
+            // Create auth
             authDAO.createAuth(auth);
             return new LoginResponse(authToken, username, true, null);
         }
-        // Create new user
         throw new UnauthorizedException("Error: unauthorized");
     }
 
