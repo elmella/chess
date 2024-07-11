@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -19,7 +20,8 @@ public class ListGamesHandler extends Handler {
 
         GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
-        ListGamesResponse result = game.getGames();
+        ListGamesResponse result = null;
+        result = game.getGames();
 
         if (!result.isSuccess()) {
             res.status(500);

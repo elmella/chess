@@ -1,9 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.AuthDAOInterface;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAOInterface;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
@@ -69,7 +67,7 @@ public class GameService {
         return new CreateGameResponse(gameID, true, null);
     }
 
-    public Response joinGame(JoinGameRequest request, String authToken) {
+    public Response joinGame(JoinGameRequest request, String authToken) throws GameAlreadyTakenException, BadRequestException {
         int gameID = request.gameID();
         String color = request.playerColor();
         GameData currentGame;
@@ -82,17 +80,20 @@ public class GameService {
             AuthData auth = authDAO.getAuth(authToken);
             username = auth.username();
             currentGame = gameDAO.getGame(gameID);
+            if (currentGame == null) {
+                throw new BadRequestException("Error: bad request");
+            }
             gameName = currentGame.getGameName();
             game = currentGame.getGame();
             if (color.equals("WHITE")) {
                 if (currentGame.getWhiteUsername() != null) {
-                    return new Response("Error: already taken", false);
+                    throw new GameAlreadyTakenException("Error: already taken");
                 }
                 whiteUsername = username;
                 blackUsername = currentGame.getBlackUsername();
             } else {
                 if (currentGame.getBlackUsername() != null) {
-                    return new Response("Error: already taken", false);
+                    throw new GameAlreadyTakenException("Error: already taken");
                 }
                 blackUsername = username;
                 whiteUsername = currentGame.getWhiteUsername();

@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import request.CreateGameRequest;
@@ -28,9 +29,10 @@ public class CreateGameHandler extends Handler {
 
         GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
-        CreateGameResponse result = game.createGame(request);
-
+        CreateGameResponse result = null;
+        result = game.createGame(request);
         return UseGson.toJson(result);
 
     }
+
 }

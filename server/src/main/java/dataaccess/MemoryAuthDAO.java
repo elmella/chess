@@ -26,9 +26,9 @@ public class MemoryAuthDAO implements AuthDAOInterface {
     }
 
     @Override
-    public AuthData getAuth(String authToke) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         for (AuthData a : this.auth) {
-            if (a.authToken().equals(authToke)) {
+            if (a.authToken().equals(authToken)) {
                 return a;
             }
         }
@@ -47,5 +47,10 @@ public class MemoryAuthDAO implements AuthDAOInterface {
     @Override
     public void clearAuth() throws DataAccessException {
         auth = new ArrayList<>();
+    }
+
+    @Override
+    public boolean isEmpty() throws DataAccessException {
+        return auth.isEmpty();
     }
 }

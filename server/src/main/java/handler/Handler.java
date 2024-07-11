@@ -1,6 +1,7 @@
 package handler;
 
 import dataaccess.MemoryAuthDAO;
+import dataaccess.UnauthorizedException;
 import service.AuthService;
 import spark.Request;
 import spark.Response;

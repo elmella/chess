@@ -58,4 +58,9 @@ public class MemoryUserDAO implements UserDAOInterface {
     public void clearUser() throws DataAccessException {
         user = new ArrayList<>();
     }
+
+    @Override
+    public boolean isEmpty() throws DataAccessException {
+        return user.isEmpty();
+    }
 }

@@ -68,4 +68,9 @@ public class MemoryGameDAO implements GameDAOInterface {
     public void clearGame() throws DataAccessException {
         game = new ArrayList<>();
     }
+
+    @Override
+    public boolean isEmpty() throws DataAccessException {
+        return game.isEmpty();
+    }
 }

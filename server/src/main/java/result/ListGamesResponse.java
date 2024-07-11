@@ -7,7 +7,7 @@ public class ListGamesResponse extends Response {
     /**
      * gameResponses : ArrayList<GameResponse>
      */
-    private ArrayList<GameResponse> gameResponses;
+    private ArrayList<GameResponse> games;
 
     /**
      * constructor for ListGamesResponse for a successful request
@@ -16,14 +16,21 @@ public class ListGamesResponse extends Response {
      */
     public ListGamesResponse(ArrayList<GameResponse> gameResponses, boolean success, String message) {
         super(message, success);
-        this.gameResponses = gameResponses;
+        this.games = gameResponses;
     }
 
     public ArrayList<GameResponse> getGameResponses() {
-        return gameResponses;
+        return games;
     }
 
     public void setGameResponses(ArrayList<GameResponse> gameResponses) {
-        this.gameResponses = gameResponses;
+        this.games = gameResponses;
+    }
+
+    @Override
+    public String toString() {
+        return "ListGamesResponse{" +
+                "games=" + games +
+                '}';
     }
 }

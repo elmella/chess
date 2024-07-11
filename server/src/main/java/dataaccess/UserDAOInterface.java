@@ -12,4 +12,6 @@ public interface UserDAOInterface {
     void deleteUser(UserData u) throws DataAccessException;
 
     void clearUser() throws DataAccessException;
+
+    boolean isEmpty() throws DataAccessException;
 }
