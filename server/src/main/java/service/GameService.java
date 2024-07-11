@@ -67,7 +67,7 @@ public class GameService {
         return new CreateGameResponse(gameID, true, null);
     }
 
-    public Response joinGame(JoinGameRequest request, String authToken) throws GameAlreadyTakenException, BadRequestException {
+    public Response joinGame(JoinGameRequest request, String authToken) throws AlreadyTakenException, BadRequestException {
         int gameID = request.gameID();
         String color = request.playerColor();
         GameData currentGame;
@@ -87,13 +87,13 @@ public class GameService {
             game = currentGame.getGame();
             if (color.equals("WHITE")) {
                 if (currentGame.getWhiteUsername() != null) {
-                    throw new GameAlreadyTakenException("Error: already taken");
+                    throw new AlreadyTakenException("Error: already taken");
                 }
                 whiteUsername = username;
                 blackUsername = currentGame.getBlackUsername();
             } else {
                 if (currentGame.getBlackUsername() != null) {
-                    throw new GameAlreadyTakenException("Error: already taken");
+                    throw new AlreadyTakenException("Error: already taken");
                 }
                 blackUsername = username;
                 whiteUsername = currentGame.getWhiteUsername();

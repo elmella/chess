@@ -20,7 +20,7 @@ public class UserService {
     }
 
 
-    public LoginResponse register(RegisterRequest request) throws DataAccessException {
+    public LoginResponse register(RegisterRequest request) throws DataAccessException, AlreadyTakenException {
         // Check if user exists
         UserData foundUser = userDAO.getUser(request.username(), request.password());
 
@@ -35,10 +35,11 @@ public class UserService {
         }
         // Create new user
 
-        return new LoginResponse(null, null, false, "Error: already taken");
+//        return new LoginResponse(null, null, false, "Error: already taken");
+        throw new AlreadyTakenException("Error: already taken");
     }
 
-    public LoginResponse login(LoginRequest request) throws DataAccessException {
+    public LoginResponse login(LoginRequest request) throws DataAccessException, UnauthorizedException {
         String username = request.username();
         // Check if user exists
         UserData foundUser = userDAO.getUser(username, request.password());
@@ -50,8 +51,7 @@ public class UserService {
             return new LoginResponse(authToken, username, true, null);
         }
         // Create new user
-
-        return new LoginResponse(null, null, false, "Error: unauthorized");
+        throw new UnauthorizedException("Error: unauthorized");
     }
 
     public Response logout(String authToken) {

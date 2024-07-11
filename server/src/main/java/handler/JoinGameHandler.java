@@ -1,8 +1,6 @@
 package handler;
 
 import dataaccess.*;
-import request.CreateGameRequest;
-import request.CreateGameResponse;
 import request.JoinGameRequest;
 import service.GameService;
 import spark.Request;
@@ -32,7 +30,7 @@ public class JoinGameHandler extends Handler {
         try {
             result.Response result = gameService.joinGame(request, authToken);
             return UseGson.toJson(result);
-        } catch (GameAlreadyTakenException e) {
+        } catch (AlreadyTakenException e) {
             res.status(403);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         } catch (BadRequestException e) {

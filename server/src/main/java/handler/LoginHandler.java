@@ -9,16 +9,20 @@ import spark.*;
 
 public class LoginHandler {
 
-    public String handleRequest(Request req, Response res) throws DataAccessException {
+    public String handleRequest(Request req, Response res) {
         LoginRequest request = (LoginRequest) UseGson.fromJson(req.body(), LoginRequest.class);
 
         UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
 
-        LoginResponse result = user.login(request);
-
-        if (!result.isSuccess()) {
+        try {
+            LoginResponse result = user.login(request);
+            return UseGson.toJson(result);
+        } catch (UnauthorizedException e) {
             res.status(401);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        } catch (DataAccessException e) {
+            res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
-        return UseGson.toJson(result);
     }
 }

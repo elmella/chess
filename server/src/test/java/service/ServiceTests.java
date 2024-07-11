@@ -1,12 +1,10 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import request.CreateGameRequest;
+import request.LoginRequest;
 import request.RegisterRequest;
 import server.Server;
 
@@ -40,11 +38,16 @@ public class ServiceTests {
         RegisterRequest userRequest = new RegisterRequest("username", "email@email.com", "password");
         try {
             user.register(userRequest);
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | AlreadyTakenException e) {
             throw new RuntimeException(e);
         }
+
+        // Clear the data
         clear.clear();
 
-//        Assertions.assertEquals();
+        // Try to log in, should fail
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            user.login(new LoginRequest("username", "password"));
+        });
     }
 }

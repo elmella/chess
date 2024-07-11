@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
@@ -11,7 +12,7 @@ import spark.Response;
 
 public class RegisterHandler extends Handler {
 
-    public String handleRequest(Request req, Response res) throws DataAccessException {
+    public String handleRequest(Request req, Response res) {
         RegisterRequest request = (RegisterRequest) UseGson.fromJson(req.body(), RegisterRequest.class);
 
         if (hasNullFields(request)) {
@@ -21,12 +22,16 @@ public class RegisterHandler extends Handler {
 
         UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
 
-        LoginResponse result = user.register(request);
-
-        if (!result.isSuccess()) {
+        try {
+            LoginResponse result = user.register(request);
+            return UseGson.toJson(result);
+        } catch (AlreadyTakenException e) {
             res.status(403);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        } catch (DataAccessException e) {
+            res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
 
-        return UseGson.toJson(result);
     }
 }
