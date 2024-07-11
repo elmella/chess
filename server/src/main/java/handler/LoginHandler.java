@@ -1,10 +1,14 @@
 package handler;
 
-import dataaccess.*;
+import dataaccess.DataAccessException;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
+import dataaccess.UnauthorizedException;
 import request.LoginRequest;
 import result.LoginResponse;
 import service.UserService;
-import spark.*;
+import spark.Request;
+import spark.Response;
 
 
 public class LoginHandler {

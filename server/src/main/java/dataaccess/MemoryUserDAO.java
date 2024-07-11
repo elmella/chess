@@ -1,13 +1,12 @@
 package dataaccess;
 
-import model.AuthData;
 import model.UserData;
 
 import java.util.ArrayList;
 
 public class MemoryUserDAO implements UserDAOInterface {
-    ArrayList<UserData> user;
     private static MemoryUserDAO instance;
+    ArrayList<UserData> user;
 
 
     public MemoryUserDAO() {
@@ -34,7 +33,6 @@ public class MemoryUserDAO implements UserDAOInterface {
             }
         }
         return null;
-//        throw new DataAccessException("Username or Password not found");
     }
 
     @Override
@@ -59,8 +57,4 @@ public class MemoryUserDAO implements UserDAOInterface {
         user = new ArrayList<>();
     }
 
-    @Override
-    public boolean isEmpty() throws DataAccessException {
-        return user.isEmpty();
-    }
 }

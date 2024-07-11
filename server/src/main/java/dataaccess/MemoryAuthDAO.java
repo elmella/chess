@@ -5,8 +5,8 @@ import model.AuthData;
 import java.util.ArrayList;
 
 public class MemoryAuthDAO implements AuthDAOInterface {
-    ArrayList<AuthData> auth;
     private static MemoryAuthDAO instance;
+    ArrayList<AuthData> auth;
 
 
     public MemoryAuthDAO() {
@@ -33,14 +33,10 @@ public class MemoryAuthDAO implements AuthDAOInterface {
             }
         }
         return null;
-//        throw new DataAccessException("AuthToken not found");
     }
 
     @Override
     public void deleteAuth(AuthData a) throws DataAccessException {
-//        if (!auth.contains(a)) {
-//            throw new DataAccessException("Auth not found");
-//        }
         auth.remove(a);
     }
 
@@ -49,8 +45,4 @@ public class MemoryAuthDAO implements AuthDAOInterface {
         auth = new ArrayList<>();
     }
 
-    @Override
-    public boolean isEmpty() throws DataAccessException {
-        return auth.isEmpty();
-    }
 }

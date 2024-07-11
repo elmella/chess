@@ -1,7 +1,6 @@
 package handler;
 
 import com.google.gson.Gson;
-
 import request.Request;
 
 import java.lang.reflect.Type;

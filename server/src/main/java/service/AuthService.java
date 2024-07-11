@@ -2,8 +2,6 @@ package service;
 
 import dataaccess.AuthDAOInterface;
 import dataaccess.DataAccessException;
-import dataaccess.UserDAOInterface;
-import model.AuthData;
 
 public class AuthService {
 

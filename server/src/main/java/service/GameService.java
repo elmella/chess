@@ -15,13 +15,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GameService {
-    //    private final UserDAOInterface userDAO;
     private final AuthDAOInterface authDAO;
     private final GameDAOInterface gameDAO;
 
-    //    public GameService(UserDAOInterface userDAO, AuthDAOInterface authDAO, GameDAOInterface gameDAO) {
     public GameService(GameDAOInterface gameDAO, AuthDAOInterface authDAO) {
-//        this.userDAO = userDAO;
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
@@ -40,6 +37,8 @@ public class GameService {
         ArrayList<GameData> games = gameDAO.listGames();
         ArrayList<GameResponse> responses = new ArrayList<>();
         for (GameData game : games) {
+
+            // Turn game data into game response
             responses.add(new GameResponse(game.getGameID(), game.getWhiteUsername(), game.getBlackUsername(), game.getGameName()));
         }
         return new ListGamesResponse(responses, true, null);

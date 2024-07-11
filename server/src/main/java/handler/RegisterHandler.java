@@ -29,7 +29,7 @@ public class RegisterHandler extends Handler {
         } catch (DataAccessException e) {
             res.status(500);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
-        }  catch (UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             res.status(401);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         }

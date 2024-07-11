@@ -29,8 +29,6 @@ public class ListGamesResponse extends Response {
 
     @Override
     public String toString() {
-        return "ListGamesResponse{" +
-                "games=" + games +
-                '}';
+        return "ListGamesResponse{" + "games=" + games + '}';
     }
 }
