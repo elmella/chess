@@ -56,8 +56,11 @@ public class UserService {
         throw new UnauthorizedException("Error: unauthorized");
     }
 
-    public Response logout(String authToken) throws DataAccessException {
+    public Response logout(String authToken) throws DataAccessException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
         authDAO.deleteAuth(auth);
         return new Response(null, true);
     }

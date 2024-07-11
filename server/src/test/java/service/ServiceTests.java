@@ -125,6 +125,37 @@ public class ServiceTests {
     }
 
     @Test
+    @Order(6)
+    @DisplayName("Logout Failure")
+    public void logoutFailure() {
+        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
+        LoginRequest loginRequest = new LoginRequest("emily", "iambeautiful");
+
+        try {
+            // Register user
+            user.register(registerRequest);
+
+            // Log in user
+            LoginResponse response = user.login(loginRequest);
+            String authToken = response.getAuthToken();
+
+            // Attempt to authorize, should return true
+            boolean preLogout = auth.authorize(authToken);
+
+            // Log out user
+            user.logout(authToken);
+
+            // Attempt to log out again, should throw UnauthorizedException
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                user.logout(authToken);
+            });
+
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     @Order(10)
     @DisplayName("Clear success")
     public void clearSuccess() {
