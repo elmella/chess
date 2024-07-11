@@ -18,14 +18,6 @@ public class ClearService {
         this.userDAO = userDAO;
     }
 
-//    public boolean authorize(String authToken) {
-//        try {
-//            return (!(authDAO.getAuth(authToken) == null));
-//        } catch (DataAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
     public Response clear() {
         try {
             authDAO.clearAuth();

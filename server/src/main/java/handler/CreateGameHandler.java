@@ -5,7 +5,6 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import request.CreateGameRequest;
 import request.CreateGameResponse;
-import request.LoginRequest;
 import service.GameService;
 import spark.Request;
 import spark.Response;
@@ -30,7 +29,12 @@ public class CreateGameHandler extends Handler {
         GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
         CreateGameResponse result = null;
-        result = game.createGame(request);
+        try {
+            result = game.createGame(request);
+        } catch (DataAccessException e) {
+            res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        }
         return UseGson.toJson(result);
 
     }

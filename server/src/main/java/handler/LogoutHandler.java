@@ -17,9 +17,14 @@ public class LogoutHandler extends Handler {
         String authToken = req.headers("authorization");
         UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
 
-        result.Response result = user.logout(authToken);
+        try {
+            result.Response result = user.logout(authToken);
+            return UseGson.toJson(result);
+        } catch (DataAccessException e) {
+            res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        }
 
 
-        return UseGson.toJson(result);
     }
 }

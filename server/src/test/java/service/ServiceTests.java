@@ -32,11 +32,11 @@ public class ServiceTests {
 
         // Add a game
         CreateGameRequest gameRequest = new CreateGameRequest("game");
+        try {
         game.createGame(gameRequest);
 
         // Add a user, will also create an auth
         RegisterRequest userRequest = new RegisterRequest("username", "email@email.com", "password");
-        try {
             user.register(userRequest);
         } catch (DataAccessException | AlreadyTakenException e) {
             throw new RuntimeException(e);

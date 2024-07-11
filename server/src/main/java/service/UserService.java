@@ -54,14 +54,9 @@ public class UserService {
         throw new UnauthorizedException("Error: unauthorized");
     }
 
-    public Response logout(String authToken) {
-        try {
-            AuthData auth = authDAO.getAuth(authToken);
-            authDAO.deleteAuth(auth);
-
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public Response logout(String authToken) throws DataAccessException {
+        AuthData auth = authDAO.getAuth(authToken);
+        authDAO.deleteAuth(auth);
         return new Response(null, true);
     }
 }

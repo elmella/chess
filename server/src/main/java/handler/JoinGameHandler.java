@@ -36,6 +36,9 @@ public class JoinGameHandler extends Handler {
         } catch (BadRequestException e) {
             res.status(400);
             return UseGson.toJson(new result.Response("Error: bad request", false));
+        } catch (DataAccessException e) {
+            res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
     }
 }

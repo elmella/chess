@@ -1,7 +1,7 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
-import dataaccess.UnauthorizedException;
 import service.AuthService;
 import spark.Request;
 import spark.Response;
@@ -15,7 +15,13 @@ public class Handler {
         String authToken = req.headers("authorization");
         AuthService auth = new AuthService(MemoryAuthDAO.getInstance());
 
-        boolean authorized = auth.authorize(authToken);
+        boolean authorized = false;
+        try {
+            authorized = auth.authorize(authToken);
+        } catch (DataAccessException e) {
+            res.status(500);
+            return false;
+        }
         if (!authorized) {
             res.status(401);
         }

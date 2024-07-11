@@ -13,12 +13,7 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public boolean authorize(String authToken) {
-        try {
-            return authDAO.getAuth(authToken) != null;
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-
+    public boolean authorize(String authToken) throws DataAccessException {
+        return authDAO.getAuth(authToken) != null;
     }
 }

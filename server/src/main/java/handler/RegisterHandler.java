@@ -15,6 +15,7 @@ public class RegisterHandler extends Handler {
     public String handleRequest(Request req, Response res) {
         RegisterRequest request = (RegisterRequest) UseGson.fromJson(req.body(), RegisterRequest.class);
 
+        // Check for null fields
         if (hasNullFields(request)) {
             res.status(400);
             return UseGson.toJson(new result.Response("Error: bad request", false));
