@@ -13,17 +13,16 @@ public class JoinGameHandler extends Handler {
 
         // Authorize request
         if (!authorize(req, res)) {
-            res.status(401);
             return UseGson.toJson(new result.Response("Error: unauthorized", false));
         }
 
         JoinGameRequest request = (JoinGameRequest) UseGson.fromJson(req.body(), JoinGameRequest.class);
 
         // Verify valid request body
-        if (hasNullFields(request)) {
-            res.status(400);
-            return UseGson.toJson(new result.Response("Error: bad request", false));
-        }
+//        if (hasNullFields(request)) {
+//            res.status(400);
+//            return UseGson.toJson(new result.Response("Error: bad request", false));
+//        }
 
         GameService gameService = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 

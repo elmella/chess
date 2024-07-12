@@ -14,7 +14,7 @@ import result.Response;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GameService {
+public class GameService extends Service {
     private final AuthDAOInterface authDAO;
     private final GameDAOInterface gameDAO;
 
@@ -22,16 +22,6 @@ public class GameService {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
-
-    private int createGameID() throws DataAccessException {
-        Random r = new Random();
-        int gameID = r.nextInt(8999) + 1000;
-        while ((gameDAO.getGame(gameID) != null)) {
-            gameID = r.nextInt(8999) + 1000;
-        }
-        return gameID;
-    }
-
 
     public ListGamesResponse getGames() throws DataAccessException {
         ArrayList<GameData> games = gameDAO.listGames();
@@ -44,7 +34,8 @@ public class GameService {
         return new ListGamesResponse(responses, true, null);
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException {
+    public CreateGameResponse createGame(CreateGameRequest request) throws DataAccessException, BadRequestException {
+        hasNullFields(request);
         String gameName = request.gameName();
         int gameID = createGameID();
         GameData game = new GameData(gameID, null, null, gameName, new ChessGame());
@@ -54,6 +45,7 @@ public class GameService {
     }
 
     public Response joinGame(JoinGameRequest request, String authToken) throws AlreadyTakenException, BadRequestException, DataAccessException {
+        hasNullFields(request);
         int gameID = request.gameID();
         String color = request.playerColor();
         GameData currentGame;
@@ -98,6 +90,15 @@ public class GameService {
         gameDAO.updateGame(updatedGame);
 
         return new Response(null, true);
+    }
+
+    private int createGameID() throws DataAccessException {
+        Random r = new Random();
+        int gameID = r.nextInt(8999) + 1000;
+        while ((gameDAO.getGame(gameID) != null)) {
+            gameID = r.nextInt(8999) + 1000;
+        }
+        return gameID;
     }
 
 }

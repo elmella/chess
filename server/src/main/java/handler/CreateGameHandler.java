@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
@@ -21,10 +22,10 @@ public class CreateGameHandler extends Handler {
         CreateGameRequest request = (CreateGameRequest) UseGson.fromJson(req.body(), CreateGameRequest.class);
 
         // Verify valid request body
-        if (hasNullFields(request)) {
-            res.status(400);
-            return UseGson.toJson(new result.Response("Error: bad request", false));
-        }
+//        if (hasNullFields(request)) {
+//            res.status(400);
+//            return UseGson.toJson(new result.Response("Error: bad request", false));
+//        }
 
         GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
@@ -33,6 +34,9 @@ public class CreateGameHandler extends Handler {
             result = game.createGame(request);
         } catch (DataAccessException e) {
             res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        } catch (BadRequestException e) {
+            res.status(400);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
         return UseGson.toJson(result);

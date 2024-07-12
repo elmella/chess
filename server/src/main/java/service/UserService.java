@@ -10,7 +10,7 @@ import result.Response;
 
 import java.util.UUID;
 
-public class UserService {
+public class UserService extends Service {
     private final UserDAOInterface userDAO;
     private final AuthDAOInterface authDAO;
 
@@ -19,7 +19,8 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public LoginResponse register(RegisterRequest request) throws DataAccessException, AlreadyTakenException, UnauthorizedException {
+    public LoginResponse register(RegisterRequest request) throws DataAccessException, AlreadyTakenException, UnauthorizedException, BadRequestException {
+        hasNullFields(request);
         // Check if user exists
         UserData foundUser = userDAO.getUser(request.username(), request.password());
 

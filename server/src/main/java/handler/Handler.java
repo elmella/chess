@@ -27,22 +27,4 @@ public class Handler {
         }
         return authorized;
     }
-
-    public boolean hasNullFields(Object obj) {
-        if (obj == null) {
-            return true;
-        }
-
-        for (Field field : obj.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                if (field.get(obj) == null) {
-                    return true;
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return false;
-    }
 }

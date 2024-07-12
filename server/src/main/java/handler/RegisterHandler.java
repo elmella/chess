@@ -13,10 +13,10 @@ public class RegisterHandler extends Handler {
         RegisterRequest request = (RegisterRequest) UseGson.fromJson(req.body(), RegisterRequest.class);
 
         // Check for null fields
-        if (hasNullFields(request)) {
-            res.status(400);
-            return UseGson.toJson(new result.Response("Error: bad request", false));
-        }
+//        if (hasNullFields(request)) {
+//            res.status(400);
+//            return UseGson.toJson(new result.Response("Error: bad request", false));
+//        }
 
         UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
 
@@ -32,7 +32,9 @@ public class RegisterHandler extends Handler {
         } catch (UnauthorizedException e) {
             res.status(401);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
+        } catch (BadRequestException e) {
+            res.status(400);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
-
     }
 }

@@ -1,11 +1,14 @@
 package service;
 
 import dataaccess.*;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import request.CreateGameRequest;
+import request.CreateGameResponse;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ListGamesResponse;
 import result.LoginResponse;
 import server.Server;
 
@@ -31,7 +34,7 @@ public class ServiceTests {
         try {
             LoginResponse registerResponse = user.register(registerRequest);
             Assertions.assertTrue(registerResponse.isSuccess());
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
     }
@@ -45,7 +48,7 @@ public class ServiceTests {
         // Register user
         try {
             user.register(registerRequest);
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
 
@@ -68,7 +71,7 @@ public class ServiceTests {
 
             // Login and get username, should be the same
             Assertions.assertEquals(user.login(loginRequest).getUsername(), "emily");
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
     }
@@ -83,7 +86,7 @@ public class ServiceTests {
         // Register user
         try {
             user.register(registerRequest);
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
 
@@ -119,7 +122,7 @@ public class ServiceTests {
 
             Assertions.assertTrue(preLogout && !postLogout);
 
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
     }
@@ -150,7 +153,51 @@ public class ServiceTests {
                 user.logout(authToken);
             });
 
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Create Game Success")
+    public void createGameSuccess() {
+        try {
+
+            CreateGameRequest gameRequest = new CreateGameRequest("game");
+
+            // Create game
+            game.createGame(gameRequest);
+
+            // List games
+            ListGamesResponse games = game.getGames();
+
+            // Verify games is not empty
+            Assertions.assertFalse(games.getGameResponses().isEmpty());
+
+        } catch (DataAccessException | BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Create Game Failure")
+    public void createGameFailure() {
+        try {
+
+            CreateGameRequest gameRequest = new CreateGameRequest(null);
+
+            // Create game
+            game.createGame(gameRequest);
+
+            // List games
+            ListGamesResponse games = game.getGames();
+
+            // Verify games is not empty
+            Assertions.assertFalse(games.getGameResponses().isEmpty());
+
+        } catch (DataAccessException | BadRequestException e) {
             throw new RuntimeException(e);
         }
     }
@@ -179,7 +226,7 @@ public class ServiceTests {
 
         // Get games, should be empty
         Assertions.assertTrue(game.getGames().getGameResponses().isEmpty());
-        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException e) {
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
 
