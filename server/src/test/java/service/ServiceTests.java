@@ -4,10 +4,8 @@ import dataaccess.*;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
-import request.CreateGameRequest;
+import request.*;
 import request.CreateGameResponse;
-import request.LoginRequest;
-import request.RegisterRequest;
 import result.ListGamesResponse;
 import result.LoginResponse;
 import server.Server;
@@ -19,6 +17,8 @@ public class ServiceTests {
     private final ClearService clear = new ClearService(MemoryAuthDAO.getInstance(), MemoryGameDAO.getInstance(), MemoryUserDAO.getInstance());
     private final UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
     private final AuthService auth = new AuthService(MemoryAuthDAO.getInstance());
+
+    private String authToken;
 
     @AfterEach
     public void clear() {
@@ -33,6 +33,7 @@ public class ServiceTests {
         // Register user
         try {
             LoginResponse registerResponse = user.register(registerRequest);
+            authToken = registerResponse.getAuthToken();
             Assertions.assertTrue(registerResponse.isSuccess());
         } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
@@ -184,12 +185,54 @@ public class ServiceTests {
     @Order(8)
     @DisplayName("Create Game Failure")
     public void createGameFailure() {
+        // Initialize game with null name
+        CreateGameRequest gameRequest = new CreateGameRequest(null);
+
+        // Attempt to create game, should throw a bad request
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            game.createGame(gameRequest);
+        });
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("List Games Success")
+    public void listGamesSuccess() {
         try {
 
-            CreateGameRequest gameRequest = new CreateGameRequest(null);
+            CreateGameRequest gameRequest = new CreateGameRequest("game");
+
+            ListGamesResponse games = game.getGames();
+
+            // Verify games is empty
+            Assertions.assertTrue(games.getGameResponses().isEmpty());
 
             // Create game
             game.createGame(gameRequest);
+
+            // List games
+            games = game.getGames();
+
+            // Verify games is not empty
+            Assertions.assertFalse(games.getGameResponses().isEmpty());
+
+        } catch (DataAccessException | BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("List Games Failure")
+    public void listGamesFailure() {
+        try {
+
+            CreateGameRequest gameRequest = new CreateGameRequest("game");
+
+            // Create game
+            game.createGame(gameRequest);
+
+//            user.logout()
 
             // List games
             ListGamesResponse games = game.getGames();
@@ -203,7 +246,77 @@ public class ServiceTests {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
+    @DisplayName("Join Game Success")
+    public void joinGameSuccess() {
+        try {
+            // Register, save authToken
+            RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
+            LoginResponse loginResponse = user.register(registerRequest);
+            String authToken = loginResponse.getAuthToken();
+
+            // Add a game
+            CreateGameRequest gameRequest = new CreateGameRequest("game");
+            // Create game
+            CreateGameResponse gameResponse = game.createGame(gameRequest);
+
+            int gameID = gameResponse.getGameID();
+
+            // Join game
+            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE",gameID);
+            game.joinGame(joinGameRequest, authToken);
+
+            // List games, verify username saved
+            ListGamesResponse listGamesResponse = game.getGames();
+            Assertions.assertEquals(listGamesResponse.getGameResponses().getFirst().whiteUsername(), "emily");
+
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Join Game Failure")
+    public void joinGameFailure() {
+        try {
+            // Register, save authToken, do twice
+            RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
+            RegisterRequest registerRequest2 = new RegisterRequest("matt", "email@email.com", "iamlessbeautiful");
+            LoginResponse loginResponse = user.register(registerRequest);
+            LoginResponse loginResponse2 = user.register(registerRequest2);
+            String authToken = loginResponse.getAuthToken();
+            String authToken2 = loginResponse2.getAuthToken();
+
+
+            // Add a game
+            CreateGameRequest gameRequest = new CreateGameRequest("game");
+
+            // Create game
+            CreateGameResponse gameResponse = game.createGame(gameRequest);
+
+            int gameID = gameResponse.getGameID();
+
+            // Join game
+            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE", gameID);
+            game.joinGame(joinGameRequest, authToken);
+
+            // Attempt to join game as same color, should fail
+            JoinGameRequest joinGameRequest2 = new JoinGameRequest("WHITE", gameID);
+            Assertions.assertThrows(AlreadyTakenException.class, () -> {
+                game.joinGame(joinGameRequest2, authToken2);
+
+            });
+
+
+        } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Test
+    @Order(13)
     @DisplayName("Clear success")
     public void clearSuccess() {
         // Add a game

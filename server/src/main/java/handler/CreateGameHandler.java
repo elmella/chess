@@ -1,9 +1,6 @@
 package handler;
 
-import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
+import dataaccess.*;
 import request.CreateGameRequest;
 import request.CreateGameResponse;
 import service.GameService;
@@ -13,11 +10,6 @@ import spark.Response;
 public class CreateGameHandler extends Handler {
 
     public String handleRequest(Request req, Response res) {
-
-        // Authorize request
-        if (!authorize(req, res)) {
-            return UseGson.toJson(new result.Response("Error: unauthorized", false));
-        }
 
         CreateGameRequest request = (CreateGameRequest) UseGson.fromJson(req.body(), CreateGameRequest.class);
 
@@ -31,12 +23,17 @@ public class CreateGameHandler extends Handler {
 
         CreateGameResponse result = null;
         try {
+            // Authorize
+            authorize(req, res);
             result = game.createGame(request);
         } catch (DataAccessException e) {
             res.status(500);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         } catch (BadRequestException e) {
             res.status(400);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+        } catch (UnauthorizedException e) {
+            res.status(401);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
         return UseGson.toJson(result);

@@ -11,11 +11,6 @@ public class JoinGameHandler extends Handler {
     public String handleRequest(Request req, Response res) {
         String authToken = req.headers("authorization");
 
-        // Authorize request
-        if (!authorize(req, res)) {
-            return UseGson.toJson(new result.Response("Error: unauthorized", false));
-        }
-
         JoinGameRequest request = (JoinGameRequest) UseGson.fromJson(req.body(), JoinGameRequest.class);
 
         // Verify valid request body
@@ -27,6 +22,8 @@ public class JoinGameHandler extends Handler {
         GameService gameService = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
         try {
+            // Authorize request
+            authorize(req, res);
             result.Response result = gameService.joinGame(request, authToken);
             return UseGson.toJson(result);
         } catch (AlreadyTakenException e) {
@@ -38,6 +35,10 @@ public class JoinGameHandler extends Handler {
         } catch (DataAccessException e) {
             res.status(500);
             return UseGson.toJson(new result.Response(e.getMessage(), false));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
+
         }
     }
 }
