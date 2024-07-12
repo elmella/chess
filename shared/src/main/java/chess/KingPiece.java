@@ -2,7 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 
-public class KingMoves extends ChessPiece {
+public class KingPiece extends ChessPiece {
 
     private final int row;
     private final int col;
@@ -14,15 +14,17 @@ public class KingMoves extends ChessPiece {
     private final ChessBoard board;
     private final ChessPosition myPosition;
 
-    private ArrayList<ChessMove> kingMoves = new ArrayList<>();
+    private final ArrayList<ChessMove> kingMoves;
     private final ChessGame.TeamColor myTeam;
 
 
 
 
-    public KingMoves(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type,
-                     ChessBoard board, ChessPosition myPosition, int col, int row) {
+    public KingPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type,
+                     ChessBoard board, ChessPosition myPosition) {
         super(pieceColor, type);
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
         int min = 1;
         int max = 8;
         leftEdge = (col == min);
@@ -34,14 +36,15 @@ public class KingMoves extends ChessPiece {
         this.board = board;
         this.myPosition = myPosition;
         myTeam = board.getPiece(myPosition).getTeamColor();
-        kingMoves = kingMoves();
+        kingMoves = new ArrayList<>();
+        kingMoves();
     }
 
     public ArrayList<ChessMove> getKingMoves() {
         return kingMoves;
     }
 
-    private ArrayList<ChessMove> kingMoves() {
+    private void kingMoves() {
         // Add down moves
         if (!bottomEdge) {
             // Down left
@@ -145,7 +148,5 @@ public class KingMoves extends ChessPiece {
                 kingMoves.add(move);
             }
         }
-
-        return kingMoves;
     }
 }

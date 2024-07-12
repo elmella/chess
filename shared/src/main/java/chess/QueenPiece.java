@@ -2,7 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 
-public class QueenMoves extends ChessPiece {
+public class QueenPiece extends ChessPiece {
 
     private final int min = 1;
     private final int max = 8;
@@ -10,8 +10,6 @@ public class QueenMoves extends ChessPiece {
     private final int col;
     private boolean leftEdge;
     private boolean rightEdge;
-    private final boolean bottomEdge;
-    private final boolean topEdge;
 
     private final BooleanWrapper upBlocked = new BooleanWrapper(false);
     private final BooleanWrapper upRightBlocked = new BooleanWrapper(false);
@@ -24,27 +22,23 @@ public class QueenMoves extends ChessPiece {
 
     private final ChessBoard board;
     private final ChessPosition myPosition;
-
-    private ArrayList<ChessMove> queenMoves = new ArrayList<>();
     private final ChessGame.TeamColor myTeam;
+    private final ArrayList<ChessMove> queenMoves;
 
 
 
-    public QueenMoves(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type,
-                      ChessBoard board, ChessPosition myPosition, int col, int row) {
+    public QueenPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type,
+                      ChessBoard board, ChessPosition myPosition) {
         super(pieceColor, type);
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
         leftEdge = (col == min);
         rightEdge = (col == max);
-        bottomEdge = (row == min);
-        topEdge = (row == max);
-        this.col = col;
-        this.row = row;
         this.board = board;
         this.myPosition = myPosition;
         myTeam = board.getPiece(myPosition).getTeamColor();
-
-        queenMoves = queenMoves();
-
+        queenMoves = new ArrayList<>();
+        queenMoves();
     }
 
     public ArrayList<ChessMove> getQueenMoves() {
@@ -52,7 +46,7 @@ public class QueenMoves extends ChessPiece {
     }
 
 
-    private ArrayList<ChessMove> queenMoves() {
+    private void queenMoves() {
         // Add up moves
         for (int i = 1; i <= max - row; i++) {
             // Declare if at the edge
@@ -111,7 +105,6 @@ public class QueenMoves extends ChessPiece {
 
             }
         }
-        return queenMoves;
     }
 
     private void addMoves(BooleanWrapper blocked, int row, int col) {
