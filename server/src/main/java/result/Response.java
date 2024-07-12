@@ -3,13 +3,13 @@ package result;
 public class Response {
 
     /**
-     * message : String
-     */
-    private String message;
-    /**
      * success : boolean
      */
-    private boolean success;
+    private final boolean success;
+    /**
+     * message : String
+     */
+    private final String message;
 
     /**
      * constructor for Response
@@ -26,15 +26,8 @@ public class Response {
         return success;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

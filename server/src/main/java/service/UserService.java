@@ -19,7 +19,8 @@ public class UserService extends Service {
         this.authDAO = authDAO;
     }
 
-    public LoginResponse register(RegisterRequest request) throws DataAccessException, AlreadyTakenException, UnauthorizedException, BadRequestException {
+    public LoginResponse register(RegisterRequest request) throws DataAccessException,
+            AlreadyTakenException, UnauthorizedException, BadRequestException {
         hasNullFields(request);
         // Check if user exists
         UserData foundUser = userDAO.getUser(request.username(), request.password());

@@ -5,11 +5,11 @@ public class LoginResponse extends Response {
     /**
      * authToken : String
      */
-    private String authToken;
+    private final String authToken;
     /**
      * userName : String
      */
-    private String username;
+    private final String username;
 
     /**
      * constructor for LoginResponse for a successful login
@@ -27,15 +27,7 @@ public class LoginResponse extends Response {
         return authToken;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

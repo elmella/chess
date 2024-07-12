@@ -7,9 +7,5 @@ public interface UserDAOInterface {
 
     UserData getUser(String username, String password) throws DataAccessException;
 
-    void updateUser(UserData u) throws DataAccessException;
-
-    void deleteUser(UserData u) throws DataAccessException;
-
     void clearUser() throws DataAccessException;
 }

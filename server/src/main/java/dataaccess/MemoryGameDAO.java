@@ -49,13 +49,6 @@ public class MemoryGameDAO implements GameDAOInterface {
         currentGame.setGame(g.getGame());
     }
 
-    @Override
-    public void deleteGame(GameData g) throws DataAccessException {
-        if (!game.contains(g)) {
-            throw new DataAccessException("User not found");
-        }
-        game.remove(g);
-    }
 
     @Override
     public void clearGame() throws DataAccessException {

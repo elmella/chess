@@ -7,7 +7,7 @@ public class CreateGameResponse extends Response {
     /**
      * gameName : int
      */
-    private int gameID;
+    private final int gameID;
 
     /**
      * constructor for CreateGameRequest for a successful request
@@ -21,9 +21,5 @@ public class CreateGameResponse extends Response {
 
     public int getGameID() {
         return gameID;
-    }
-
-    public void setGameID(int gameID) {
-        this.gameID = gameID;
     }
 }

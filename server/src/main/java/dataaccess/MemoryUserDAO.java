@@ -36,23 +36,6 @@ public class MemoryUserDAO implements UserDAOInterface {
     }
 
     @Override
-    public void updateUser(UserData u) throws DataAccessException {
-        if (!user.contains(u)) {
-            throw new DataAccessException("User not found");
-        }
-        user.remove(u);
-        user.add(u);
-    }
-
-    @Override
-    public void deleteUser(UserData u) throws DataAccessException {
-        if (!user.contains(u)) {
-            throw new DataAccessException("User not found");
-        }
-        user.remove(u);
-    }
-
-    @Override
     public void clearUser() throws DataAccessException {
         user = new ArrayList<>();
     }

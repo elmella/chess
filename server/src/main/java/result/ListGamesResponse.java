@@ -23,9 +23,7 @@ public class ListGamesResponse extends Response {
         return games;
     }
 
-    public void setGameResponses(ArrayList<GameResponse> gameResponses) {
-        this.games = gameResponses;
-    }
+
 
     @Override
     public String toString() {
