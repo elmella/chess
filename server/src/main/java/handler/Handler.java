@@ -7,8 +7,6 @@ import service.AuthService;
 import spark.Request;
 import spark.Response;
 
-import java.lang.reflect.Field;
-
 public class Handler {
 
     public void authorize(Request req, Response res) throws UnauthorizedException, DataAccessException {

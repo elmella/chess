@@ -13,12 +13,6 @@ public class CreateGameHandler extends Handler {
 
         CreateGameRequest request = (CreateGameRequest) UseGson.fromJson(req.body(), CreateGameRequest.class);
 
-        // Verify valid request body
-//        if (hasNullFields(request)) {
-//            res.status(400);
-//            return UseGson.toJson(new result.Response("Error: bad request", false));
-//        }
-
         GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
         CreateGameResponse result = null;

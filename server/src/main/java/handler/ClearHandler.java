@@ -1,5 +1,6 @@
 package handler;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -13,11 +14,14 @@ public class ClearHandler {
 
         ClearService clear = new ClearService(MemoryAuthDAO.getInstance(), MemoryGameDAO.getInstance(), MemoryUserDAO.getInstance());
 
-        result.Response result = clear.clear();
-
-        if (!result.isSuccess()) {
+        result.Response result = null;
+        try {
+            result = clear.clear();
+        } catch (DataAccessException e) {
             res.status(500);
+            return UseGson.toJson(new result.Response(e.getMessage(), false));
         }
+
         return UseGson.toJson(result);
     }
 

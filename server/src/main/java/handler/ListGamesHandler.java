@@ -19,6 +19,8 @@ public class ListGamesHandler extends Handler {
         try {
             // Authorize
             authorize(req, res);
+
+            // List games
             result = game.getGames();
         } catch (DataAccessException e) {
             res.status(500);

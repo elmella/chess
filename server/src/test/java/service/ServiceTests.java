@@ -1,14 +1,11 @@
 package service;
 
 import dataaccess.*;
-import model.GameData;
 import org.junit.jupiter.api.*;
-import passoff.model.*;
 import request.*;
 import request.CreateGameResponse;
 import result.ListGamesResponse;
 import result.LoginResponse;
-import server.Server;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceTests {
@@ -18,10 +15,8 @@ public class ServiceTests {
     private final UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
     private final AuthService auth = new AuthService(MemoryAuthDAO.getInstance());
 
-    private String authToken;
-
     @AfterEach
-    public void clear() {
+    public void clear() throws DataAccessException {
         clear.clear();
     }
 
@@ -33,7 +28,6 @@ public class ServiceTests {
         // Register user
         try {
             LoginResponse registerResponse = user.register(registerRequest);
-            authToken = registerResponse.getAuthToken();
             Assertions.assertTrue(registerResponse.isSuccess());
         } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
@@ -143,9 +137,6 @@ public class ServiceTests {
             LoginResponse response = user.login(loginRequest);
             String authToken = response.getAuthToken();
 
-            // Attempt to authorize, should return true
-            boolean preLogout = auth.authorize(authToken);
-
             // Log out user
             user.logout(authToken);
 
@@ -232,8 +223,6 @@ public class ServiceTests {
             // Create game
             game.createGame(gameRequest);
 
-//            user.logout()
-
             // List games
             ListGamesResponse games = game.getGames();
 
@@ -263,7 +252,7 @@ public class ServiceTests {
             int gameID = gameResponse.getGameID();
 
             // Join game
-            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE",gameID);
+            JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE", gameID);
             game.joinGame(joinGameRequest, authToken);
 
             // List games, verify username saved
@@ -308,7 +297,6 @@ public class ServiceTests {
 
             });
 
-
         } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
@@ -322,27 +310,26 @@ public class ServiceTests {
         // Add a game
         CreateGameRequest gameRequest = new CreateGameRequest("game");
         try {
-        game.createGame(gameRequest);
+            game.createGame(gameRequest);
 
-        // Add a user, will also create an auth
-        RegisterRequest userRequest = new RegisterRequest("username", "email@email.com", "password");
+            // Add a user, will also create an auth
+            RegisterRequest userRequest = new RegisterRequest("username", "email@email.com", "password");
             user.register(userRequest);
 
 
-        // Clear the data
-        clear.clear();
+            // Clear the data
+            clear.clear();
 
-        // Try to log in, should fail
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            user.login(new LoginRequest("username", "password"));
-        });
+            // Try to log in, should fail
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                user.login(new LoginRequest("username", "password"));
+            });
 
-        // Get games, should be empty
-        Assertions.assertTrue(game.getGames().getGameResponses().isEmpty());
+            // Get games, should be empty
+            Assertions.assertTrue(game.getGames().getGameResponses().isEmpty());
         } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);
         }
 
-        // Re-register, should work
     }
 }

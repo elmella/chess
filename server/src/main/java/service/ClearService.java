@@ -18,14 +18,10 @@ public class ClearService {
         this.userDAO = userDAO;
     }
 
-    public Response clear() {
-        try {
-            authDAO.clearAuth();
-            gameDAO.clearGame();
-            userDAO.clearUser();
-            return new Response(null, true);
-        } catch (DataAccessException e) {
-            return new Response(e.toString(), false);
-        }
+    public Response clear() throws DataAccessException {
+        authDAO.clearAuth();
+        gameDAO.clearGame();
+        userDAO.clearUser();
+        return new Response(null, true);
     }
 }

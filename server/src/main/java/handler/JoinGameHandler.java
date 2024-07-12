@@ -13,12 +13,6 @@ public class JoinGameHandler extends Handler {
 
         JoinGameRequest request = (JoinGameRequest) UseGson.fromJson(req.body(), JoinGameRequest.class);
 
-        // Verify valid request body
-//        if (hasNullFields(request)) {
-//            res.status(400);
-//            return UseGson.toJson(new result.Response("Error: bad request", false));
-//        }
-
         GameService gameService = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
 
         try {
