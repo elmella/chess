@@ -106,131 +106,134 @@ public class ChessPiece {
                 break;
 
             case KNIGHT:
-                ArrayList<ChessMove> knightMoves = new ArrayList<>();
-
-                // 2+ below max
-                if (row < max - 1) {
-
-                    // 2 up, 1 right
-                    if (!rightEdge) {
-                        ChessPosition pos = new ChessPosition(row + 2, col + 1);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-
-                    // 2 up, 1 left
-                    if (!leftEdge) {
-                        ChessPosition pos = new ChessPosition(row + 2, col - 1);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-                }
-
-                // 2+ above min
-                if (row > min + 1) {
-
-                    // 2 down, 1 right
-                    if (!rightEdge) {
-                        ChessPosition pos = new ChessPosition(row - 2, col + 1);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-
-                    // 2 down, 1 left
-                    if (!leftEdge) {
-                        ChessPosition pos = new ChessPosition(row - 2, col - 1);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-                }
-
-                // 2+ left max
-                if (col < max - 1) {
-
-                    // 1 up, 2 right
-                    if (!topEdge) {
-                        ChessPosition pos = new ChessPosition(row + 1, col + 2);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-
-                    // 1 down, 2 right
-                    if (!bottomEdge) {
-                        ChessPosition pos = new ChessPosition(row - 1, col + 2);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-                }
-
-                // 2+ right min
-                if (col > min + 1) {
-
-                    // 1 up, 2 left
-                    if (!topEdge) {
-                        ChessPosition pos = new ChessPosition(row + 1, col - 2);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-
-                    // 1 down, 2 left
-                    if (!bottomEdge) {
-                        ChessPosition pos = new ChessPosition(row - 1, col - 2);
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        if (board.getPiece(pos) != null) {
-                            if (board.getPiece(pos).pieceColor != myTeam) {
-                                knightMoves.add(move);
-                            }
-                        } else {
-                            knightMoves.add(move);
-                        }
-                    }
-                }
-
+                ArrayList<ChessMove> knightMoves = new KnightPiece(pieceColor, type, board, myPosition).getKnightMoves();
                 validMoves.addAll(knightMoves);
-
                 break;
+//                ArrayList<ChessMove> knightMoves = new ArrayList<>();
+//
+//                // 2+ below max
+//                if (row < max - 1) {
+//
+//                    // 2 up, 1 right
+//                    if (!rightEdge) {
+//                        ChessPosition pos = new ChessPosition(row + 2, col + 1);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//
+//                    // 2 up, 1 left
+//                    if (!leftEdge) {
+//                        ChessPosition pos = new ChessPosition(row + 2, col - 1);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//                }
+//
+//                // 2+ above min
+//                if (row > min + 1) {
+//
+//                    // 2 down, 1 right
+//                    if (!rightEdge) {
+//                        ChessPosition pos = new ChessPosition(row - 2, col + 1);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//
+//                    // 2 down, 1 left
+//                    if (!leftEdge) {
+//                        ChessPosition pos = new ChessPosition(row - 2, col - 1);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//                }
+//
+//                // 2+ left max
+//                if (col < max - 1) {
+//
+//                    // 1 up, 2 right
+//                    if (!topEdge) {
+//                        ChessPosition pos = new ChessPosition(row + 1, col + 2);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//
+//                    // 1 down, 2 right
+//                    if (!bottomEdge) {
+//                        ChessPosition pos = new ChessPosition(row - 1, col + 2);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//                }
+//
+//                // 2+ right min
+//                if (col > min + 1) {
+//
+//                    // 1 up, 2 left
+//                    if (!topEdge) {
+//                        ChessPosition pos = new ChessPosition(row + 1, col - 2);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//
+//                    // 1 down, 2 left
+//                    if (!bottomEdge) {
+//                        ChessPosition pos = new ChessPosition(row - 1, col - 2);
+//                        ChessMove move = new ChessMove(myPosition, pos, null);
+//                        if (board.getPiece(pos) != null) {
+//                            if (board.getPiece(pos).pieceColor != myTeam) {
+//                                knightMoves.add(move);
+//                            }
+//                        } else {
+//                            knightMoves.add(move);
+//                        }
+//                    }
+//                }
+//
+//                validMoves.addAll(knightMoves);
+//
+//                break;
             case PAWN:
                 ArrayList<ChessMove> pawnMoves = new ArrayList<>();
 
