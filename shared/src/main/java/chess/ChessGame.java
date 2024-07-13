@@ -112,26 +112,26 @@ public class ChessGame {
 
         // Iterate over all valid moves
         for (ChessMove move : validMoves) {
-            ChessPosition endPos = move.getEndPosition();
+            ChessPosition endPos = move.endPosition();
             ChessPiece capturePiece = board.getPiece(endPos);
 
             // Change the piece to its new promotion
-            if (move.getPromotionPiece() != null) {
-                tempPiece = new ChessPiece(team, move.getPromotionPiece());
+            if (move.promotionPiece() != null) {
+                tempPiece = new ChessPiece(team, move.promotionPiece());
             } else {
                 tempPiece = piece;
             }
 
-            board.addPiece(move.getEndPosition(), tempPiece);
-            board.removePiece(move.getStartPosition());
+            board.addPiece(move.endPosition(), tempPiece);
+            board.removePiece(move.startPosition());
 
 
             // Check if move leaves team in check
             if (isInCheck(piece.getTeamColor())) {
                 movesToRemove.add(move);
             }
-            board.removePiece(move.getEndPosition());
-            board.addPiece(move.getStartPosition(), piece);
+            board.removePiece(move.endPosition());
+            board.addPiece(move.startPosition(), piece);
 
             // Replace any pieces captured
             if (capturePiece != null) {
@@ -151,7 +151,7 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
         // Save ChessPosition and ChessPiece
-        ChessPosition startPos = move.getStartPosition();
+        ChessPosition startPos = move.startPosition();
         ChessPiece piece = board.getPiece(startPos);
         if (piece == null) {
             throw new InvalidMoveException();
@@ -167,13 +167,13 @@ public class ChessGame {
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException();
         }
-        if (move.getPromotionPiece() != null) {
-            piece = new ChessPiece(team, move.getPromotionPiece());
+        if (move.promotionPiece() != null) {
+            piece = new ChessPiece(team, move.promotionPiece());
         }
 
         // Add the new piece and remove the old piece
-        board.addPiece(move.getEndPosition(), piece);
-        board.removePiece(move.getStartPosition());
+        board.addPiece(move.endPosition(), piece);
+        board.removePiece(move.startPosition());
 
         team = (team == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
 
@@ -200,7 +200,7 @@ public class ChessGame {
         for (ChessMove move : foeMoves) {
 
             // Check if any moves can hit the king
-            if (move.getEndPosition().equals(kingPos)) {
+            if (move.endPosition().equals(kingPos)) {
                 return true;
             }
         }

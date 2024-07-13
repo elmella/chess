@@ -18,10 +18,7 @@ public class KingPiece extends ChessPiece {
     private final ChessGame.TeamColor myTeam;
 
 
-
-
-    public KingPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type,
-                     ChessBoard board, ChessPosition myPosition) {
+    public KingPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type, ChessBoard board, ChessPosition myPosition) {
         super(pieceColor, type);
         int row = myPosition.getRow();
         int col = myPosition.getColumn();

@@ -8,20 +8,17 @@ public class KnightPiece extends ChessPiece {
     private final int max = 8;
     private final int row;
     private final int col;
-
+    private final ChessBoard board;
+    private final ChessPosition myPosition;
+    private final ChessGame.TeamColor myTeam;
+    private final ArrayList<ChessMove> knightMoves;
     boolean leftEdge;
     boolean rightEdge;
     boolean bottomEdge;
     boolean topEdge;
 
-    private final ChessBoard board;
-    private final ChessPosition myPosition;
-    private final ChessGame.TeamColor myTeam;
-    private final ArrayList<ChessMove> knightMoves;
 
-
-    public KnightPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type
-            , ChessBoard board, ChessPosition myPosition) {
+    public KnightPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type, ChessBoard board, ChessPosition myPosition) {
         super(pieceColor, type);
         row = myPosition.getRow();
         col = myPosition.getColumn();

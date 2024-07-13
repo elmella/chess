@@ -8,9 +8,6 @@ public class QueenPiece extends ChessPiece {
     private final int max = 8;
     private final int row;
     private final int col;
-    private boolean leftEdge;
-    private boolean rightEdge;
-
     private final BooleanWrapper upBlocked = new BooleanWrapper(false);
     private final BooleanWrapper upRightBlocked = new BooleanWrapper(false);
     private final BooleanWrapper rightBlocked = new BooleanWrapper(false);
@@ -19,16 +16,15 @@ public class QueenPiece extends ChessPiece {
     private final BooleanWrapper downLeftBlocked = new BooleanWrapper(false);
     private final BooleanWrapper leftBlocked = new BooleanWrapper(false);
     private final BooleanWrapper upLeftBlocked = new BooleanWrapper(false);
-
     private final ChessBoard board;
     private final ChessPosition myPosition;
     private final ChessGame.TeamColor myTeam;
     private final ArrayList<ChessMove> queenMoves;
+    private boolean leftEdge;
+    private boolean rightEdge;
 
 
-
-    public QueenPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type,
-                      ChessBoard board, ChessPosition myPosition) {
+    public QueenPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type, ChessBoard board, ChessPosition myPosition) {
         super(pieceColor, type);
         row = myPosition.getRow();
         col = myPosition.getColumn();
@@ -55,16 +51,16 @@ public class QueenPiece extends ChessPiece {
 
             // Up left
             if (!leftEdge && !upLeftBlocked.value) {
-                addMoves(upLeftBlocked,row + i, col - i);
+                addMoves(upLeftBlocked, row + i, col - i);
             }
             // Up right
             if (!rightEdge && !upRightBlocked.value) {
-                addMoves(upRightBlocked,row + i, col + i);
+                addMoves(upRightBlocked, row + i, col + i);
             }
 
             // Up
             if (!upBlocked.value) {
-                addMoves(upBlocked,row + i, col);
+                addMoves(upBlocked, row + i, col);
             }
         }
 
@@ -76,11 +72,11 @@ public class QueenPiece extends ChessPiece {
 
             // Down left
             if (!leftEdge && !downLeftBlocked.value) {
-                addMoves(downLeftBlocked,row - i, col - i);
+                addMoves(downLeftBlocked, row - i, col - i);
             }
             // Down right
             if (!rightEdge && !downRightBlocked.value) {
-                addMoves(downRightBlocked,row - i, col + i);
+                addMoves(downRightBlocked, row - i, col + i);
             }
 
             // Down
@@ -108,15 +104,15 @@ public class QueenPiece extends ChessPiece {
     }
 
     private void addMoves(BooleanWrapper blocked, int row, int col) {
-            ChessPosition pos = new ChessPosition(row, col);
-            ChessMove move = new ChessMove(myPosition, pos, null);
-            if (board.getPiece(pos) != null) {
-                blocked.value = true;
-                if (board.getPiece(pos).getTeamColor() != myTeam) {
-                    queenMoves.add(move);
-                }
-            } else {
+        ChessPosition pos = new ChessPosition(row, col);
+        ChessMove move = new ChessMove(myPosition, pos, null);
+        if (board.getPiece(pos) != null) {
+            blocked.value = true;
+            if (board.getPiece(pos).getTeamColor() != myTeam) {
                 queenMoves.add(move);
             }
+        } else {
+            queenMoves.add(move);
+        }
     }
 }

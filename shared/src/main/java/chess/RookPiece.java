@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 public class RookPiece extends ChessPiece {
 
-    private final int min = 1;
-    private final int max = 8;
     private final int row;
     private final int col;
 
@@ -20,8 +18,7 @@ public class RookPiece extends ChessPiece {
     private final ArrayList<ChessMove> rookMoves;
 
 
-    public RookPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type
-            , ChessBoard board, ChessPosition myPosition) {
+    public RookPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type, ChessBoard board, ChessPosition myPosition) {
         super(pieceColor, type);
         row = myPosition.getRow();
         col = myPosition.getColumn();

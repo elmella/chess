@@ -25,8 +25,12 @@ public class ChessPosition {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true;}
-        if (!(o instanceof ChessPosition that)) {return false;}
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ChessPosition that)) {
+            return false;
+        }
         return getRow() == that.getRow() && getColumn() == that.getColumn();
     }
 

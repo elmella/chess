@@ -218,18 +218,10 @@ public class ServiceTests {
     public void listGamesFailure() {
         try {
 
-            CreateGameRequest gameRequest = new CreateGameRequest("");
-
-            // Create game
-            game.createGame(gameRequest);
-
-            // List games
-            ListGamesResponse games = game.getGames();
-
             // Verify games is not empty
-            Assertions.assertTrue(games.getGameResponses().getFirst().gameName().isEmpty());
+            Assertions.assertTrue(game.getGames().getGameResponses().isEmpty());
 
-        } catch (DataAccessException | BadRequestException e) {
+        } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
