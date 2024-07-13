@@ -72,17 +72,19 @@ public class ChessPiece {
                 break;
 
             case QUEEN:
-                ArrayList<ChessMove> queenMoves = new QueenPiece(pieceColor, type, board, myPosition).getQueenMoves();
-                validMoves.addAll(queenMoves);
+                ArrayList<ChessMove> rookMoves = new RookPiece(pieceColor, type, board, myPosition).getRookMoves();
+                ArrayList<ChessMove> bishopMoves = new BishopPiece(pieceColor, type, board, myPosition).getBishopMoves();
+                validMoves.addAll(rookMoves);
+                validMoves.addAll(bishopMoves);
                 break;
 
             case ROOK:
-                ArrayList<ChessMove> rookMoves = new RookPiece(pieceColor, type, board, myPosition).getRookMoves();
+                rookMoves = new RookPiece(pieceColor, type, board, myPosition).getRookMoves();
                 validMoves.addAll(rookMoves);
                 break;
 
             case BISHOP:
-                ArrayList<ChessMove> bishopMoves = new BishopPiece(pieceColor, type, board, myPosition).getBishopMoves();
+                bishopMoves = new BishopPiece(pieceColor, type, board, myPosition).getBishopMoves();
                 validMoves.addAll(bishopMoves);
                 break;
 

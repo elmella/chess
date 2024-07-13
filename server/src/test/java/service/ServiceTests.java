@@ -157,15 +157,18 @@ public class ServiceTests {
         try {
 
             CreateGameRequest gameRequest = new CreateGameRequest("game");
+            CreateGameRequest gameRequest2 = new CreateGameRequest("fun game");
+
 
             // Create game
             game.createGame(gameRequest);
+            game.createGame(gameRequest2);
 
             // List games
             ListGamesResponse games = game.getGames();
 
             // Verify games is not empty
-            Assertions.assertFalse(games.getGameResponses().isEmpty());
+            Assertions.assertEquals(games.getGameResponses().getLast().gameName(), "fun game");
 
         } catch (DataAccessException | BadRequestException e) {
             throw new RuntimeException(e);
