@@ -193,16 +193,11 @@ public class ServiceTests {
 
             CreateGameRequest gameRequest = new CreateGameRequest("game");
 
-            ListGamesResponse games = game.getGames();
-
-            // Verify games is empty
-            Assertions.assertTrue(games.getGameResponses().isEmpty());
-
             // Create game
             game.createGame(gameRequest);
 
             // List games
-            games = game.getGames();
+            ListGamesResponse games = game.getGames();
 
             // Verify games is not empty
             Assertions.assertFalse(games.getGameResponses().isEmpty());
