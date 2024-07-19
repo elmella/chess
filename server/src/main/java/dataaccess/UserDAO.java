@@ -45,7 +45,7 @@ public class UserDAO implements UserDAOInterface {
     public UserData getUser(String username, String password) throws DataAccessException {
         String foundUsername = null;
         String foundPassword = null;
-        String email = null;
+        String foundEmail = null;
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("SELECT * FROM user u" +
                     "WHERE u.username = ? AND u.password = ?")) {
@@ -55,9 +55,9 @@ public class UserDAO implements UserDAOInterface {
                     while (rs.next()) {
                         foundUsername = rs.getString("username");
                         foundPassword = rs.getString("password");
-                        email = rs.getString("email");
+                        foundEmail = rs.getString("email");
                     }
-                    return new UserData(foundUsername, foundPassword, email);
+                    return new UserData(foundUsername, foundPassword, foundEmail);
                 }
             }
         } catch (SQLException e) {
