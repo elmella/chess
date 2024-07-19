@@ -1,8 +1,8 @@
 package handler;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
 import dataaccess.UnauthorizedException;
 import request.LoginRequest;
 import result.LoginResponse;
@@ -16,7 +16,7 @@ public class LoginHandler {
     public String handleRequest(Request req, Response res) {
         LoginRequest request = (LoginRequest) UseGson.fromJson(req.body(), LoginRequest.class);
 
-        UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
+        UserService user = new UserService(UserDAO.getInstance(), AuthDAO.getInstance());
 
         try {
             LoginResponse result = user.login(request);

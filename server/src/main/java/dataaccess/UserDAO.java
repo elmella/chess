@@ -32,12 +32,10 @@ public class UserDAO implements UserDAOInterface {
                 preparedStatement.setString(1, u.username());
                 preparedStatement.setString(2, hashPassword(u.password()));
                 preparedStatement.setString(3, u.email());
-                var rs = preparedStatement.executeQuery();
-                rs.next();
-                System.out.println(rs.getInt(1));
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
     }
 
@@ -47,32 +45,34 @@ public class UserDAO implements UserDAOInterface {
         String foundPassword = null;
         String foundEmail = null;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT * FROM user u" +
-                    "WHERE u.username = ? AND u.password = ?")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM user u " +
+                    "WHERE u.username = ?")) {
                 preparedStatement.setString(1, username);
-                preparedStatement.setString(2, hashPassword(password));
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
                         foundUsername = rs.getString("username");
                         foundPassword = rs.getString("password");
                         foundEmail = rs.getString("email");
                     }
-                    return new UserData(foundUsername, foundPassword, foundEmail);
+                    if (BCrypt.checkpw(password, foundPassword)) {
+                        return new UserData(foundUsername, foundPassword, foundEmail);
+                    }
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
+        return null;
     }
 
     @Override
     public void clearUser() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("DELETE FROM user")) {
-                var rs = preparedStatement.executeQuery();
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
     }
 }

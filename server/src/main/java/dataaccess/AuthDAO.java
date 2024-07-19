@@ -4,8 +4,21 @@ import model.AuthData;
 import model.UserData;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class AuthDAO implements AuthDAOInterface {
+    private static AuthDAO instance;
+
+    public AuthDAO() {
+    }
+
+    public static AuthDAO getInstance() {
+        if (instance == null) {
+            instance = new AuthDAO();
+        }
+        return instance;
+    }
+
 
     @Override
     public void createAuth(AuthData a) throws DataAccessException {
@@ -14,12 +27,10 @@ public class AuthDAO implements AuthDAOInterface {
                     "(authToken, username) VALUES(?, ?)")) {
                 preparedStatement.setString(1, a.authToken());
                 preparedStatement.setString(2, a.username());
-                var rs = preparedStatement.executeQuery();
-                rs.next();
-                System.out.println(rs.getInt(1));
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
     }
 
@@ -28,7 +39,7 @@ public class AuthDAO implements AuthDAOInterface {
         String foundAuthToken = null;
         String foundUsername = null;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT * FROM auth a" +
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM auth a " +
                     "WHERE a.authToken = ?")) {
                 preparedStatement.setString(1, authToken);
                 try (var rs = preparedStatement.executeQuery()) {
@@ -40,7 +51,7 @@ public class AuthDAO implements AuthDAOInterface {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
     }
 
@@ -51,12 +62,10 @@ public class AuthDAO implements AuthDAOInterface {
                     "WHERE (a.authToken = ? AND a.username = ?)")) {
                 preparedStatement.setString(1, a.authToken());
                 preparedStatement.setString(2, a.username());
-                var rs = preparedStatement.executeQuery();
-                rs.next();
-                System.out.println(rs.getInt(1));
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
     }
 
@@ -64,10 +73,10 @@ public class AuthDAO implements AuthDAOInterface {
     public void clearAuth() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("DELETE FROM auth")) {
-                var rs = preparedStatement.executeQuery();
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: issue communicating with database");
+            throw new DataAccessException(e.toString());
         }
     }
 }

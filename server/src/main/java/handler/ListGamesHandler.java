@@ -1,7 +1,7 @@
 package handler;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
+import dataaccess.AuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.UnauthorizedException;
 import result.ListGamesResponse;
@@ -13,7 +13,7 @@ public class ListGamesHandler extends Handler {
 
     public String handleRequest(Request req, Response res) {
 
-        GameService game = new GameService(MemoryGameDAO.getInstance(), MemoryAuthDAO.getInstance());
+        GameService game = new GameService(MemoryGameDAO.getInstance(), AuthDAO.getInstance());
 
         ListGamesResponse result = null;
         try {
