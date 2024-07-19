@@ -27,6 +27,14 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.createTables();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.

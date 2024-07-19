@@ -12,7 +12,7 @@ public class RegisterHandler extends Handler {
     public String handleRequest(Request req, Response res) {
         RegisterRequest request = (RegisterRequest) UseGson.fromJson(req.body(), RegisterRequest.class);
 
-        UserService user = new UserService(MemoryUserDAO.getInstance(), MemoryAuthDAO.getInstance());
+        UserService user = new UserService(UserDAO.getInstance(), MemoryAuthDAO.getInstance());
 
         try {
             LoginResponse result = user.register(request);
