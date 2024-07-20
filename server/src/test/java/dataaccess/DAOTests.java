@@ -434,10 +434,11 @@ public class DAOTests {
             authDAO.createAuth(authData);
 
             // Assert found authToken is null using wrong authToken
-            Assertions.assertEquals(authToken, authDAO.getAuth(authToken).authToken());
+            Assertions.assertNull(authDAO.getAuth("keep me out").authToken());
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
 
 }
