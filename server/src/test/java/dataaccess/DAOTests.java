@@ -15,19 +15,34 @@ public class DAOTests {
     private final GameDAO gameDAO = new GameDAO();
     private final ClearService clear = new ClearService(AuthDAO.getInstance(), GameDAO.getInstance(), UserDAO.getInstance());
 
+    private final String username = "emily";
+    private final String password = "iambeautiful";
+    private final String email = "email@email.com";
+    private final int gameID = 1;
+    private final String gameName = "game";
+    private final ChessGame game = new ChessGame();
+    private final String authToken = "let me in";
+    private final int gameID2 = 2;
+    private final String gameName2 = "game2";
+    private final ChessGame game2 = new ChessGame();
+    private final GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
+    private UserData userData = new UserData(username, password, email);
+    private GameData gameData = new GameData(gameID, null, null, gameName, game);
+    private AuthData authData = new AuthData(authToken, username);
+
     @BeforeEach
     public void clear() throws DataAccessException {
         clear.clear();
+        userData = new UserData(username, password, email);
+        gameData = new GameData(gameID, null, null, gameName, game);
+        authData = new AuthData(authToken, username);
+
     }
 
     @Test
     @Order(1)
     @DisplayName("Create User Success")
     public void createUserSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         // Create user, make sure no errors are thrown
         Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
     }
@@ -36,10 +51,6 @@ public class DAOTests {
     @Order(2)
     @DisplayName("Create User Failure")
     public void createUserFailure() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
@@ -56,10 +67,6 @@ public class DAOTests {
     @Order(3)
     @DisplayName("Get User Success")
     public void getUserSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
@@ -76,16 +83,13 @@ public class DAOTests {
     @Order(4)
     @DisplayName("Get User Failure")
     public void getUserFailure() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String wrongPassword = "iamugly";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
+
         try {
             // Create user
             userDAO.createUser(userData);
 
             // Get user with wrong password, should return null
+            String wrongPassword = "iamugly";
             UserData foundUserData = userDAO.getUser(username, wrongPassword);
 
             Assertions.assertNull(foundUserData);
@@ -99,10 +103,6 @@ public class DAOTests {
     @Order(5)
     @DisplayName("Create Game Success")
     public void createGameSuccess() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         // Create game, verify no errors are thrown
         Assertions.assertDoesNotThrow(() -> gameDAO.createGame(gameData));
     }
@@ -111,10 +111,6 @@ public class DAOTests {
     @Order(6)
     @DisplayName("Create Game Failure")
     public void createGameFailure() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
             // Create game
             gameDAO.createGame(gameData);
@@ -131,12 +127,7 @@ public class DAOTests {
     @Order(7)
     @DisplayName("Get Game Success")
     public void getGameSuccess() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
-
             // Create game
             gameDAO.createGame(gameData);
 
@@ -152,12 +143,7 @@ public class DAOTests {
     @Order(8)
     @DisplayName("Get Move Failure")
     public void getGameFailure() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
-
             // Create game
             gameDAO.createGame(gameData);
 
@@ -173,17 +159,11 @@ public class DAOTests {
     @Order(9)
     @DisplayName("Add Player Success")
     public void addPlayerSuccess() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
             // Create game
             gameDAO.createGame(gameData);
 
             // Create user
-            String username = "emily";
-            UserData userData = new UserData(username, "iambeautiful", "email@email.com");
             userDAO.createUser(userData);
 
             // Update game with username for whiteUsername
@@ -205,18 +185,11 @@ public class DAOTests {
     @Order(10)
     @DisplayName("Add Player Failure")
     public void addPlayerFailure() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
             // Create game
             gameDAO.createGame(gameData);
 
-            // Do not create user
-            String username = "emily";
-
-            // Update game with username not attached to a user for whiteUsername
+            // Update game without username attached to a user for whiteUsername
             gameData.setWhiteUsername(username);
             Assertions.assertThrows(DataAccessException.class, () -> gameDAO.updateGame(gameData));
 
@@ -229,10 +202,6 @@ public class DAOTests {
     @Order(11)
     @DisplayName("Make Move Success")
     public void makeMoveSuccess() {
-        int gameID = 1;
-        String gameName = "game";
-        ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
             // Create game
             gameDAO.createGame(gameData);
@@ -264,32 +233,24 @@ public class DAOTests {
     @Order(12)
     @DisplayName("Make Move Failure")
     public void makeMoveFailure() {
-        int gameID1 = 1;
-        int gameID2 = 2;
-        String gameName1 = "game1";
-        String gameName2 = "game2";
-        ChessGame game1 = new ChessGame();
-        ChessGame game2 = new ChessGame();
-        GameData gameData1 = new GameData(gameID1, null, null, gameName1, game1);
-        GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
         try {
             // Create 2 games
-            gameDAO.createGame(gameData1);
+            gameDAO.createGame(gameData);
             gameDAO.createGame(gameData2);
 
 
-            // Make move for game 1
+            // Make move for game 2
             ChessPosition startPos = new ChessPosition(2, 4);
             ChessPosition endPos = new ChessPosition(4, 4);
             ChessMove move = new ChessMove(startPos, endPos, null);
-            game1.makeMove(move);
+            game2.makeMove(move);
 
-            // Update game in database
-            gameData1.setGame(game1);
-            gameDAO.updateGame(gameData1);
+            // Update game2 in database
+            gameData2.setGame(game2);
+            gameDAO.updateGame(gameData2);
 
-            // Get game2 and its board
-            GameData foundGame = gameDAO.getGame(gameID2);
+            // Get game and its board
+            GameData foundGame = gameDAO.getGame(gameID);
             ChessBoard foundBoard = foundGame.getGame().getBoard();
 
             // Verify move did not register for game 2
@@ -305,17 +266,9 @@ public class DAOTests {
     @Order(13)
     @DisplayName("List Games Success")
     public void listGamesSuccess() {
-        int gameID1 = 1;
-        int gameID2 = 2;
-        String gameName1 = "game1";
-        String gameName2 = "game2";
-        ChessGame game1 = new ChessGame();
-        ChessGame game2 = new ChessGame();
-        GameData gameData1 = new GameData(gameID1, null, null, gameName1, game1);
-        GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
         try {
             // Create 2 games
-            gameDAO.createGame(gameData1);
+            gameDAO.createGame(gameData);
             gameDAO.createGame(gameData2);
 
             // Assert lists both games
@@ -343,17 +296,10 @@ public class DAOTests {
     @Order(15)
     @DisplayName("Create Auth Success")
     public void createAuthSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
 
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
             // Create auth, make sure no errors are thrown
             Assertions.assertDoesNotThrow(() -> authDAO.createAuth(authData));
         } catch (DataAccessException e) {
@@ -365,17 +311,10 @@ public class DAOTests {
     @Order(16)
     @DisplayName("Create Auth Failure")
     public void createAuthFailure() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
 
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
             // Create auth
             authDAO.createAuth(authData);
 
@@ -391,17 +330,9 @@ public class DAOTests {
     @Order(17)
     @DisplayName("Get Auth Success")
     public void getAuthSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
-
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
 
             // Create auth
             authDAO.createAuth(authData);
@@ -418,17 +349,9 @@ public class DAOTests {
     @Order(18)
     @DisplayName("Get Auth Failure")
     public void getAuthFailure() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
-
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
 
             // Create auth
             authDAO.createAuth(authData);
@@ -445,17 +368,9 @@ public class DAOTests {
     @Order(19)
     @DisplayName("Delete Auth Success")
     public void deleteAuthSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
-
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
 
             // Create auth
             authDAO.createAuth(authData);
@@ -475,17 +390,9 @@ public class DAOTests {
     @Order(20)
     @DisplayName("Delete Auth Failure")
     public void deleteAuthFailure() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
-
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
 
             // Create auth
             authDAO.createAuth(authData);
@@ -506,10 +413,6 @@ public class DAOTests {
     @Order(21)
     @DisplayName("User Clear Success")
     public void userClearSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
@@ -529,17 +432,9 @@ public class DAOTests {
     @Order(22)
     @DisplayName("Game Clear Success")
     public void gameClearSuccess() {
-        int gameID1 = 1;
-        int gameID2 = 2;
-        String gameName1 = "game1";
-        String gameName2 = "game2";
-        ChessGame game1 = new ChessGame();
-        ChessGame game2 = new ChessGame();
-        GameData gameData1 = new GameData(gameID1, null, null, gameName1, game1);
-        GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
         try {
             // Create 2 games
-            gameDAO.createGame(gameData1);
+            gameDAO.createGame(gameData);
             gameDAO.createGame(gameData2);
 
             // Clear table
@@ -557,17 +452,9 @@ public class DAOTests {
     @Order(23)
     @DisplayName("Auth Clear Success")
     public void authClearSuccess() {
-        String username = "emily";
-        String password = "iambeautiful";
-        String email = "email@email.com";
-        UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
-
-            // Create auth for user
-            String authToken = "let me in";
-            AuthData authData = new AuthData(authToken, username);
 
             // Create auth
             authDAO.createAuth(authData);
