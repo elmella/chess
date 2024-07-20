@@ -304,9 +304,25 @@ public class DAOTests {
     @Order(13)
     @DisplayName("List Games Success")
     public void listGamesSuccess() {
-        
+        int gameID1 = 1;
+        int gameID2 = 2;
+        String gameName1 = "game1";
+        String gameName2 = "game2";
+        ChessGame game1 = new ChessGame();
+        ChessGame game2 = new ChessGame();
+        GameData gameData1 = new GameData(gameID1, null, null, gameName1, game1);
+        GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
+        try {
+            // Create 2 games
+            gameDAO.createGame(gameData1);
+            gameDAO.createGame(gameData2);
 
+            // Assert lists both games
+            Assertions.assertEquals(gameDAO.listGames().size(), 2);
 
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
