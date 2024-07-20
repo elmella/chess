@@ -1,10 +1,8 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class AuthDAO implements AuthDAOInterface {
     private static AuthDAO instance;

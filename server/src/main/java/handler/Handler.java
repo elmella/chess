@@ -1,7 +1,7 @@
 package handler;
 
-import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
 import service.AuthService;
 import spark.Request;

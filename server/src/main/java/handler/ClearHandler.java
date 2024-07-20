@@ -1,9 +1,6 @@
 package handler;
 
-import dataaccess.DataAccessException;
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import service.ClearService;
 import spark.Request;
 import spark.Response;

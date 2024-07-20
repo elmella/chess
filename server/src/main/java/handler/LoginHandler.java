@@ -1,9 +1,6 @@
 package handler;
 
-import dataaccess.DataAccessException;
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
-import dataaccess.UnauthorizedException;
+import dataaccess.*;
 import request.LoginRequest;
 import result.LoginResponse;
 import service.UserService;
