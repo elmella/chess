@@ -338,4 +338,79 @@ public class DAOTests {
         }
     }
 
+    @Test
+    @Order(15)
+    @DisplayName("Create Auth Success")
+    public void createAuthSuccess() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        // Create user, make sure no errors are thrown
+        Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Create Auth Failure")
+    public void createAuthFailure() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Try creating user again, should fail primary key condition
+            Assertions.assertThrows(DataAccessException.class, () -> userDAO.createUser(userData));
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("Get Auth Success")
+    public void getAuthSuccess() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Get user, verify usernames are equal
+            Assertions.assertEquals(username, userDAO.getUser(username, password).username());
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("Get Auth Failure")
+    public void getAuthFailure() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String wrongPassword = "iamugly";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Get user with wrong password, should return null
+            UserData foundUserData = userDAO.getUser(username, wrongPassword);
+
+            Assertions.assertNull(foundUserData);
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
