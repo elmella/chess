@@ -42,7 +42,6 @@ public class DatabaseManager {
     public static void createDatabase() throws DataAccessException {
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
-            System.out.println(statement);
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
@@ -85,7 +84,6 @@ public class DatabaseManager {
                     ,	FOREIGN KEY (blackUsername) REFERENCES user(username)
                     )
                     """};
-            System.out.println(Arrays.toString(statements));
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             for (String statement : statements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
