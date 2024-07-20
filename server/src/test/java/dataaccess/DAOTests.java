@@ -471,8 +471,35 @@ public class DAOTests {
         }
     }
 
+    @Test
+    @Order(20)
+    @DisplayName("Delete Auth Failure")
     public void deleteAuthFailure() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
 
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
+
+            // Create auth
+            authDAO.createAuth(authData);
+
+            // Create new authData and delete it
+            AuthData wrongAuthData = new AuthData("keep me out", username);
+            authDAO.deleteAuth(wrongAuthData);
+
+            // Assert found authToken is not null after deleting wrong authData
+            Assertions.assertNotNull(authDAO.getAuth(authToken).authToken());
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
