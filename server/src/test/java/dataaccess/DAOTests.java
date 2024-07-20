@@ -403,7 +403,7 @@ public class DAOTests {
             String authToken = "let me in";
             AuthData authData = new AuthData(authToken, username);
 
-            // Create auth, make sure no errors are thrown
+            // Create auth
             authDAO.createAuth(authData);
 
             // Assert found authToken is equal to the one assigned
@@ -430,7 +430,7 @@ public class DAOTests {
             String authToken = "let me in";
             AuthData authData = new AuthData(authToken, username);
 
-            // Create auth, make sure no errors are thrown
+            // Create auth
             authDAO.createAuth(authData);
 
             // Assert found authToken is null using wrong authToken
@@ -439,6 +439,40 @@ public class DAOTests {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    @Order(19)
+    @DisplayName("Delete Auth Success")
+    public void deleteAuthSuccess() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
+
+            // Create auth
+            authDAO.createAuth(authData);
+
+            // Delete auth
+            authDAO.deleteAuth(authData);
+
+            // Assert found authToken is null after deleting
+            Assertions.assertNull(authDAO.getAuth(authToken).authToken());
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteAuthFailure() {
+
     }
 
 }
