@@ -1,5 +1,6 @@
 package dataaccess;
-import chess.ChessGame;
+
+import chess.*;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -29,6 +30,7 @@ public class DAOTests {
         // Create user, make sure no errors are thrown
         Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
     }
+
     @Test
     @Order(2)
     @DisplayName("Create User Failure")
@@ -61,10 +63,8 @@ public class DAOTests {
             // Create user
             userDAO.createUser(userData);
 
-            // Get user
-            UserData foundUserData = userDAO.getUser(username, password);
-
-            Assertions.assertEquals(username, foundUserData.username());
+            // Get user, verify usernames are equal
+            Assertions.assertEquals(username, userDAO.getUser(username, password).username());
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -108,7 +108,7 @@ public class DAOTests {
 
     @Test
     @Order(6)
-    @DisplayName("Make Move Failure")
+    @DisplayName("Create Game Failure")
     public void createGameFailure() {
         int gameID = 1;
         String gameName = "game";
@@ -128,27 +128,185 @@ public class DAOTests {
 
     @Test
     @Order(7)
-    @DisplayName("Update Game Success")
-    public void updateGameSuccess() {
+    @DisplayName("Get Game Success")
+    public void getGameSuccess() {
         int gameID = 1;
-        String whiteUsername = null;
-        String blackUsername = null;
         String gameName = "game";
         ChessGame game = new ChessGame();
-        GameData gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        GameData gameData = new GameData(gameID, null, null, gameName, game);
         try {
+
             // Create game
             gameDAO.createGame(gameData);
 
-            // Get game
-            GameData foundGameData = gameDAO.getGame(gameID);
-            System.out.println(foundGameData.getGameID());
-
-            Assertions.assertEquals(gameID, foundGameData.getGameID());
+            // Verify gameName from database is not null
+            Assertions.assertEquals(gameDAO.getGame(gameID).getGameName(), gameName);
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Get Move Failure")
+    public void getGameFailure() {
+        int gameID = 1;
+        String gameName = "game";
+        ChessGame game = new ChessGame();
+        GameData gameData = new GameData(gameID, null, null, gameName, game);
+        try {
+
+            // Create game
+            gameDAO.createGame(gameData);
+
+            // Verify gameName from database is null after fetching with wrong id
+            Assertions.assertNull(gameDAO.getGame(2).getGameName());
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Add Player Success")
+    public void addPlayerSuccess() {
+        int gameID = 1;
+        String gameName = "game";
+        ChessGame game = new ChessGame();
+        GameData gameData = new GameData(gameID, null, null, gameName, game);
+        try {
+            // Create game
+            gameDAO.createGame(gameData);
+
+            // Create user
+            String username = "emily";
+            UserData userData = new UserData(username, "iambeautiful", "email@email.com");
+            userDAO.createUser(userData);
+
+            // Update game with username for whiteUsername
+            gameData.setWhiteUsername(username);
+            gameDAO.updateGame(gameData);
+
+            // Get game
+            GameData foundGame = gameDAO.getGame(gameID);
+
+            // Assert whiteUsername is updated correctly
+            Assertions.assertEquals(foundGame.getWhiteUsername(), username);
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Add Player Failure")
+    public void addPlayerFailure() {
+        int gameID = 1;
+        String gameName = "game";
+        ChessGame game = new ChessGame();
+        GameData gameData = new GameData(gameID, null, null, gameName, game);
+        try {
+            // Create game
+            gameDAO.createGame(gameData);
+
+            // Do not create user
+            String username = "emily";
+
+            // Update game with username not attached to a user for whiteUsername
+            gameData.setWhiteUsername(username);
+            Assertions.assertThrows(DataAccessException.class, () -> gameDAO.updateGame(gameData));
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Make Move Success")
+    public void makeMoveSuccess() {
+        int gameID = 1;
+        String gameName = "game";
+        ChessGame game = new ChessGame();
+        GameData gameData = new GameData(gameID, null, null, gameName, game);
+        try {
+            // Create game
+            gameDAO.createGame(gameData);
+
+
+            // Make move
+            ChessPosition startPos = new ChessPosition(2,4);
+            ChessPosition endPos = new ChessPosition(4,4);
+            ChessMove move = new ChessMove(startPos, endPos, null);
+            game.makeMove(move);
+
+            // Update game in database
+            gameData.setGame(game);
+            gameDAO.updateGame(gameData);
+
+            // Get game and its board
+            GameData foundGame = gameDAO.getGame(gameID);
+            ChessBoard foundBoard = foundGame.getGame().getBoard();
+
+            // Verify move registered
+            Assertions.assertNotNull(foundBoard.getPiece(endPos));
+
+        } catch (DataAccessException | InvalidMoveException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Make Move Failure")
+    public void makeMoveFailure() {
+        int gameID1 = 1;
+        int gameID2 = 2;
+        String gameName1 = "game1";
+        String gameName2 = "game2";
+        ChessGame game1 = new ChessGame();
+        ChessGame game2 = new ChessGame();
+        GameData gameData1 = new GameData(gameID1, null, null, gameName1, game1);
+        GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
+        try {
+            // Create 2 games
+            gameDAO.createGame(gameData1);
+            gameDAO.createGame(gameData2);
+
+
+            // Make move for game 1
+            ChessPosition startPos = new ChessPosition(2,4);
+            ChessPosition endPos = new ChessPosition(4,4);
+            ChessMove move = new ChessMove(startPos, endPos, null);
+            game1.makeMove(move);
+
+            // Update game in database
+            gameData1.setGame(game1);
+            gameDAO.updateGame(gameData1);
+
+            // Get game2 and its board
+            GameData foundGame = gameDAO.getGame(gameID2);
+            ChessBoard foundBoard = foundGame.getGame().getBoard();
+
+            // Verify move did not register for game 2
+            Assertions.assertNull(foundBoard.getPiece(endPos));
+
+        } catch (DataAccessException | InvalidMoveException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Test
+    @Order(13)
+    @DisplayName("List Games Success")
+    public void listGamesSuccess() {
+        
+
+
     }
 
 }

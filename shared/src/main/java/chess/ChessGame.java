@@ -148,6 +148,8 @@ public class ChessGame {
                 board.addPiece(endPos, capturePiece);
             }
         }
+
+        // Remove all invalid moves
         validMoves.removeAll(movesToRemove);
         return validMoves;
     }
@@ -163,6 +165,8 @@ public class ChessGame {
         // Save ChessPosition and ChessPiece
         ChessPosition startPos = move.getStartPosition();
         ChessPiece piece = board.getPiece(startPos);
+
+        // Verify starting square contains a piece
         if (piece == null) {
             throw new InvalidMoveException();
         }
@@ -177,6 +181,8 @@ public class ChessGame {
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException();
         }
+
+        // If move requires a promotion, update the piece
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(team, move.getPromotionPiece());
         }
@@ -185,6 +191,7 @@ public class ChessGame {
         board.addPiece(move.getEndPosition(), piece);
         board.removePiece(move.getStartPosition());
 
+        // Switch to next player's turn
         team = (team == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
 
     }
