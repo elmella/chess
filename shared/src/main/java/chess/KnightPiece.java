@@ -44,44 +44,44 @@ public class KnightPiece extends ChessPiece {
         if (row < max - 1) {
 
             // 2 up, 1 right
-            addMoves(rightEdge, row + 2, col + 1);
+            addKnightMoves(rightEdge, row + 2, col + 1);
 
             // 2 up, 1 left
-            addMoves(leftEdge, row + 2, col - 1);
+            addKnightMoves(leftEdge, row + 2, col - 1);
         }
 
         // 2+ above min
         if (row > min + 1) {
 
             // 2 down, 1 right
-            addMoves(rightEdge, row - 2, col + 1);
+            addKnightMoves(rightEdge, row - 2, col + 1);
 
             // 2 down, 1 left
-            addMoves(leftEdge, row - 2, col - 1);
+            addKnightMoves(leftEdge, row - 2, col - 1);
         }
 
         // 2+ left max
         if (col < max - 1) {
 
             // 1 up, 2 right
-            addMoves(topEdge, row + 1, col + 2);
+            addKnightMoves(topEdge, row + 1, col + 2);
 
             // 1 down, 2 right
-            addMoves(bottomEdge, row - 1, col + 2);
+            addKnightMoves(bottomEdge, row - 1, col + 2);
         }
 
         // 2+ right min
         if (col > min + 1) {
 
             // 1 up, 2 left
-            addMoves(topEdge, row + 1, col - 2);
+            addKnightMoves(topEdge, row + 1, col - 2);
 
             // 1 down, 2 left
-            addMoves(bottomEdge, row - 1, col - 2);
+            addKnightMoves(bottomEdge, row - 1, col - 2);
         }
     }
 
-    private void addMoves(boolean edge, int row, int col) {
+    private void addKnightMoves(boolean edge, int row, int col) {
         if (!edge) {
             ChessPosition pos = new ChessPosition(row, col);
             ChessMove move = new ChessMove(myPosition, pos, null);

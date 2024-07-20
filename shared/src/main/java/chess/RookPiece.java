@@ -40,26 +40,26 @@ public class RookPiece extends ChessPiece {
         int min = 1;
         for (int i = min; i <= max - row; i++) {
             // Up
-            addMoves(upBlocked, row + i, col);
+            addRookMoves(upBlocked, row + i, col);
         }
 
         // Add down moves
         for (int i = min; i <= row - min; i++) {
-            addMoves(downBlocked, row - i, col);
+            addRookMoves(downBlocked, row - i, col);
         }
 
         // Right
         for (int i = min; i <= max - col; i++) {
-            addMoves(rightBlocked, row, col + i);
+            addRookMoves(rightBlocked, row, col + i);
         }
 
         // Left
         for (int i = min; i <= col - min; i++) {
-            addMoves(leftBlocked, row, col - i);
+            addRookMoves(leftBlocked, row, col - i);
         }
     }
 
-    private void addMoves(BooleanWrapper blocked, int row, int col) {
+    private void addRookMoves(BooleanWrapper blocked, int row, int col) {
         if (!blocked.value) {
             ChessPosition pos = new ChessPosition(row, col);
             ChessMove move = new ChessMove(myPosition, pos, null);

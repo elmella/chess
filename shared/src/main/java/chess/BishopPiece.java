@@ -47,11 +47,11 @@ public class BishopPiece extends ChessPiece {
 
             // Up left
             if (!leftEdge && !upLeftBlocked.value) {
-                addMoves(upLeftBlocked, row + i, col - i);
+                addBishopMoves(upLeftBlocked, row + i, col - i);
             }
             // Up right
             if (!rightEdge && !upRightBlocked.value) {
-                addMoves(upRightBlocked, row + i, col + i);
+                addBishopMoves(upRightBlocked, row + i, col + i);
             }
         }
 
@@ -63,16 +63,16 @@ public class BishopPiece extends ChessPiece {
 
             // Down left
             if (!leftEdge && !downLeftBlocked.value) {
-                addMoves(downLeftBlocked, row - i, col - i);
+                addBishopMoves(downLeftBlocked, row - i, col - i);
             }
             // Down right
             if (!rightEdge && !downRightBlocked.value) {
-                addMoves(downRightBlocked, row - i, col + i);
+                addBishopMoves(downRightBlocked, row - i, col + i);
             }
         }
     }
 
-    private void addMoves(BooleanWrapper blocked, int row, int col) {
+    private void addBishopMoves(BooleanWrapper blocked, int row, int col) {
         ChessPosition pos = new ChessPosition(row, col);
         ChessMove move = new ChessMove(myPosition, pos, null);
         if (board.getPiece(pos) != null) {

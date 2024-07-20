@@ -70,7 +70,7 @@ public class PawnPiece extends ChessPiece {
         // No blocking pieces
         if (board.getPiece(pos) == null) {
             // Promotion
-            addMoves(couldPromote, pos);
+            addPawnMoves(couldPromote, pos);
         }
 
 
@@ -78,7 +78,7 @@ public class PawnPiece extends ChessPiece {
             ChessPosition foe1 = new ChessPosition(row + direction, col + 1);
             if (board.getPiece(foe1) != null) {
                 if (board.getPiece(foe1).getTeamColor() != myTeam) {
-                    addMoves(couldPromote, foe1);
+                    addPawnMoves(couldPromote, foe1);
                 }
             }
         }
@@ -87,13 +87,13 @@ public class PawnPiece extends ChessPiece {
             ChessPosition foe2 = new ChessPosition(row + direction, col - 1);
             if (board.getPiece(foe2) != null) {
                 if (board.getPiece(foe2).getTeamColor() != myTeam) {
-                    addMoves(couldPromote, foe2);
+                    addPawnMoves(couldPromote, foe2);
                 }
             }
         }
     }
 
-    private void addMoves(boolean couldPromote, ChessPosition pos) {
+    private void addPawnMoves(boolean couldPromote, ChessPosition pos) {
 
         if (couldPromote) {
             // Iterate through all possible promotions

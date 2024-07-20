@@ -45,39 +45,39 @@ public class KingPiece extends ChessPiece {
         // Add down moves
         if (!bottomEdge) {
             // Down left
-            addMoves(leftEdge, row - 1, col - 1);
+            addKingMoves(leftEdge, row - 1, col - 1);
 
             // Down right
-            addMoves(rightEdge, row - 1, col + 1);
+            addKingMoves(rightEdge, row - 1, col + 1);
 
 
             // Down
-            addMoves(false, row - 1, col);
+            addKingMoves(false, row - 1, col);
 
         }
 
         // Add up moves
         if (!topEdge) {
             // Up left
-            addMoves(leftEdge, row + 1, col - 1);
+            addKingMoves(leftEdge, row + 1, col - 1);
 
             // Up right
-            addMoves(rightEdge, row + 1, col + 1);
+            addKingMoves(rightEdge, row + 1, col + 1);
 
 
             // Up
-            addMoves(false, row + 1, col);
+            addKingMoves(false, row + 1, col);
         }
 
         // Right
-        addMoves(rightEdge, row, col + 1);
+        addKingMoves(rightEdge, row, col + 1);
 
         // Left
-        addMoves(leftEdge, row, col - 1);
+        addKingMoves(leftEdge, row, col - 1);
 
     }
 
-    private void addMoves(boolean blocked, int row, int col) {
+    private void addKingMoves(boolean blocked, int row, int col) {
         if (!blocked) {
             ChessPosition pos = new ChessPosition(row, col);
             ChessMove move = new ChessMove(myPosition, pos, null);
