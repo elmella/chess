@@ -502,4 +502,85 @@ public class DAOTests {
         }
     }
 
+    @Test
+    @Order(21)
+    @DisplayName("User Clear Success")
+    public void userClearSuccess() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Clear table
+            userDAO.clearUser();
+
+            // Attempt to get user, verify found userData is null
+            Assertions.assertNull(userDAO.getUser(username, password));
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(22)
+    @DisplayName("Game Clear Success")
+    public void gameClearSuccess() {
+        int gameID1 = 1;
+        int gameID2 = 2;
+        String gameName1 = "game1";
+        String gameName2 = "game2";
+        ChessGame game1 = new ChessGame();
+        ChessGame game2 = new ChessGame();
+        GameData gameData1 = new GameData(gameID1, null, null, gameName1, game1);
+        GameData gameData2 = new GameData(gameID2, null, null, gameName2, game2);
+        try {
+            // Create 2 games
+            gameDAO.createGame(gameData1);
+            gameDAO.createGame(gameData2);
+
+            // Clear table
+            gameDAO.clearGame();
+
+            // Assert no games are listed
+            Assertions.assertEquals(gameDAO.listGames().size(), 0);
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("Auth Clear Success")
+    public void authClearSuccess() {
+        String username = "emily";
+        String password = "iambeautiful";
+        String email = "email@email.com";
+        UserData userData = new UserData(username, password, email);
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
+
+            // Create auth
+            authDAO.createAuth(authData);
+
+            // Clear table
+            authDAO.clearAuth();
+
+            // Assert found authToken is null after clearing
+            Assertions.assertNull(authDAO.getAuth(authToken).authToken());
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
