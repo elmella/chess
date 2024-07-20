@@ -325,4 +325,17 @@ public class DAOTests {
         }
     }
 
+    @Test
+    @Order(14)
+    @DisplayName("List Games Failure")
+    public void listGamesFailure() {
+        try {
+            // Assert list games is empty
+            Assertions.assertEquals(gameDAO.listGames().size(), 0);
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
