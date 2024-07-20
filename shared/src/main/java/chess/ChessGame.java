@@ -21,6 +21,16 @@ public class ChessGame {
         board.resetBoard();
     }
 
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "team=" + team +
+                ", board=" + board +
+                ", whiteMoves=" + whiteMoves +
+                ", blackMoves=" + blackMoves +
+                '}';
+    }
+
     /**
      * @return Which team's turn it is
      */
