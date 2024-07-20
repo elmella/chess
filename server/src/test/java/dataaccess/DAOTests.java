@@ -239,8 +239,8 @@ public class DAOTests {
 
 
             // Make move
-            ChessPosition startPos = new ChessPosition(2,4);
-            ChessPosition endPos = new ChessPosition(4,4);
+            ChessPosition startPos = new ChessPosition(2, 4);
+            ChessPosition endPos = new ChessPosition(4, 4);
             ChessMove move = new ChessMove(startPos, endPos, null);
             game.makeMove(move);
 
@@ -279,8 +279,8 @@ public class DAOTests {
 
 
             // Make move for game 1
-            ChessPosition startPos = new ChessPosition(2,4);
-            ChessPosition endPos = new ChessPosition(4,4);
+            ChessPosition startPos = new ChessPosition(2, 4);
+            ChessPosition endPos = new ChessPosition(4, 4);
             ChessMove move = new ChessMove(startPos, endPos, null);
             game1.makeMove(move);
 

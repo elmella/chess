@@ -199,7 +199,7 @@ public class StandardAPITests {
         assertHttpOk(joinResult);
 
         TestListResult listResult = serverFacade.listGames(existingAuth);
-        System.out.println(Arrays.toString(listResult.getGames()));
+
         Assertions.assertEquals(1, listResult.getGames().length);
         Assertions.assertEquals(existingUser.getUsername(), listResult.getGames()[0].getWhiteUsername());
         Assertions.assertNull(listResult.getGames()[0].getBlackUsername());
@@ -291,7 +291,7 @@ public class StandardAPITests {
         TestUser userA = new TestUser("a", "A", "a.A");
         TestUser userB = new TestUser("b", "B", "b.B");
         TestUser userC = new TestUser("c", "C", "c.C");
-
+        
         TestAuthResult authA = serverFacade.register(userA);
         TestAuthResult authB = serverFacade.register(userB);
         TestAuthResult authC = serverFacade.register(userC);

@@ -21,8 +21,7 @@ public class AuthDAO implements AuthDAOInterface {
     @Override
     public void createAuth(AuthData a) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("INSERT INTO auth " +
-                    "(authToken, username) VALUES(?, ?)")) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO auth " + "(authToken, username) VALUES(?, ?)")) {
                 preparedStatement.setString(1, a.authToken());
                 preparedStatement.setString(2, a.username());
                 preparedStatement.executeUpdate();
@@ -37,8 +36,7 @@ public class AuthDAO implements AuthDAOInterface {
         String foundAuthToken = null;
         String foundUsername = null;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT * FROM auth a " +
-                    "WHERE a.authToken = ?")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM auth a " + "WHERE a.authToken = ?")) {
                 preparedStatement.setString(1, authToken);
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
@@ -56,8 +54,7 @@ public class AuthDAO implements AuthDAOInterface {
     @Override
     public void deleteAuth(AuthData a) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("DELETE FROM auth a " +
-                    "WHERE (a.authToken = ? AND a.username = ?)")) {
+            try (var preparedStatement = conn.prepareStatement("DELETE FROM auth a " + "WHERE (a.authToken = ? AND a.username = ?)")) {
                 preparedStatement.setString(1, a.authToken());
                 preparedStatement.setString(2, a.username());
                 preparedStatement.executeUpdate();

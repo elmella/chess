@@ -1,6 +1,8 @@
 package dataaccess;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -55,27 +57,23 @@ public class DatabaseManager {
      */
     public static void createTables() throws DataAccessException {
         try {
-            String[] statements = {
-                    """
+            String[] statements = {"""
                     USE chess
-                    """,
-                    """
+                    """, """
                     CREATE TABLE IF NOT EXISTS user (
                     	username VARCHAR(255) NOT NULL
                     ,	password VARCHAR(255) NOT NULL
                     ,	email VARCHAR(255) NOT NULL
                     ,	PRIMARY KEY (username)
                     )
-                    """,
-                    """
+                    """, """
                     CREATE TABLE IF NOT EXISTS auth (
                     	authToken VARCHAR(255) NOT NULL
                     ,	username VARCHAR(255) NOT NULL
                     ,	PRIMARY KEY (authToken)
                     ,	FOREIGN KEY (username) REFERENCES user(username)
                     )
-                    """,
-                    """
+                    """, """
                     CREATE TABLE IF NOT EXISTS game (
                     	gameID INT NOT NULL
                     ,	whiteUsername VARCHAR(255)
@@ -86,8 +84,7 @@ public class DatabaseManager {
                     ,	FOREIGN KEY (whiteUsername) REFERENCES user(username)
                     ,	FOREIGN KEY (blackUsername) REFERENCES user(username)
                     )
-                    """
-            };
+                    """};
             System.out.println(Arrays.toString(statements));
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             for (String statement : statements) {

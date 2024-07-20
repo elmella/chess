@@ -3,7 +3,6 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import handler.UseGson;
-import model.AuthData;
 import model.GameData;
 
 import java.sql.SQLException;
@@ -26,8 +25,7 @@ public class GameDAO implements GameDAOInterface {
     @Override
     public void createGame(GameData g) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("INSERT INTO game " +
-                    "(gameID, whiteUsername, blackUsername, gameName, game) VALUES(?, ?, ?, ?, ?)")) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO game " + "(gameID, whiteUsername, blackUsername, gameName, game) VALUES(?, ?, ?, ?, ?)")) {
                 preparedStatement.setString(1, String.valueOf(g.getGameID()));
                 preparedStatement.setString(2, g.getWhiteUsername());
                 preparedStatement.setString(3, g.getBlackUsername());
@@ -51,8 +49,7 @@ public class GameDAO implements GameDAOInterface {
 
         try (var conn = DatabaseManager.getConnection()) {
 
-            try (var preparedStatement = conn.prepareStatement("SELECT * FROM game g " +
-                    "WHERE g.gameID = ?")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM game g " + "WHERE g.gameID = ?")) {
                 preparedStatement.setString(1, String.valueOf(gameID));
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
@@ -98,8 +95,7 @@ public class GameDAO implements GameDAOInterface {
     @Override
     public void updateGame(GameData g) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("UPDATE game " +
-                    "SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?")) {
+            try (var preparedStatement = conn.prepareStatement("UPDATE game " + "SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?")) {
                 preparedStatement.setString(1, g.getWhiteUsername());
                 preparedStatement.setString(2, g.getBlackUsername());
                 preparedStatement.setString(3, g.getGameName());

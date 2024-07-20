@@ -4,7 +4,6 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class UserDAO implements UserDAOInterface {
     private static UserDAO instance;
@@ -27,8 +26,7 @@ public class UserDAO implements UserDAOInterface {
     @Override
     public void createUser(UserData u) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("INSERT INTO user " +
-                    "(username, password, email) VALUES(?, ?, ?)")) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO user " + "(username, password, email) VALUES(?, ?, ?)")) {
                 preparedStatement.setString(1, u.username());
                 preparedStatement.setString(2, hashPassword(u.password()));
                 preparedStatement.setString(3, u.email());
@@ -45,8 +43,7 @@ public class UserDAO implements UserDAOInterface {
         String foundPassword = null;
         String foundEmail = null;
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT * FROM user u " +
-                    "WHERE u.username = ?")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM user u " + "WHERE u.username = ?")) {
                 preparedStatement.setString(1, username);
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {

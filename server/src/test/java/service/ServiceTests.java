@@ -15,7 +15,7 @@ public class ServiceTests {
     private final UserService user = new UserService(UserDAO.getInstance(), AuthDAO.getInstance());
     private final AuthService auth = new AuthService(AuthDAO.getInstance());
 
-    @AfterEach
+    @BeforeEach
     public void clear() throws DataAccessException {
         clear.clear();
     }
