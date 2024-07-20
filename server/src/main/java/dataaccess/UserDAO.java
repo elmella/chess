@@ -54,7 +54,7 @@ public class UserDAO implements UserDAOInterface {
                         foundPassword = rs.getString("password");
                         foundEmail = rs.getString("email");
                     }
-                    if (BCrypt.checkpw(password, foundPassword)) {
+                    if (foundPassword != null && BCrypt.checkpw(password, foundPassword)) {
                         return new UserData(foundUsername, foundPassword, foundEmail);
                     }
                 }

@@ -13,7 +13,7 @@ public class JoinGameHandler extends Handler {
 
         JoinGameRequest request = (JoinGameRequest) UseGson.fromJson(req.body(), JoinGameRequest.class);
 
-        GameService gameService = new GameService(MemoryGameDAO.getInstance(), AuthDAO.getInstance());
+        GameService gameService = new GameService(GameDAO.getInstance(), AuthDAO.getInstance());
 
         try {
             // Authorize request

@@ -118,9 +118,9 @@ public class DAOTests {
     }
 
     @Test
-    @Order(3)
-    @DisplayName("Make Move Success")
-    public void createGameSuccess() {
+    @Order(5)
+    @DisplayName("Update Game Success")
+    public void updateGameSuccess() {
         int gameID = 1;
         String whiteUsername = null;
         String blackUsername = null;

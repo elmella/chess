@@ -32,7 +32,6 @@ public class GameDAO implements GameDAOInterface {
                 preparedStatement.setString(2, g.getWhiteUsername());
                 preparedStatement.setString(3, g.getBlackUsername());
                 preparedStatement.setString(4, g.getGameName());
-                System.out.println(UseGson.toJson(g.getGame()));
                 preparedStatement.setString(5, UseGson.toJson(g.getGame()));
                 preparedStatement.executeUpdate();
             }
@@ -73,7 +72,27 @@ public class GameDAO implements GameDAOInterface {
 
     @Override
     public ArrayList<GameData> listGames() throws DataAccessException {
-        return null;
+        ArrayList<GameData> games = new ArrayList<>();
+        Gson gson = new Gson();
+
+        try (var conn = DatabaseManager.getConnection()) {
+
+            try (var preparedStatement = conn.prepareStatement("SELECT * FROM game")) {
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        int foundGameID = rs.getInt("gameID");
+                        String foundWhiteUsername = rs.getString("whiteUsername");
+                        String foundBlackUsername = rs.getString("blackUsername");
+                        String foundGameName = rs.getString("gameName");
+                        ChessGame foundGame = gson.fromJson(rs.getString("game"), ChessGame.class);
+                        games.add(new GameData(foundGameID, foundWhiteUsername, foundBlackUsername, foundGameName, foundGame));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.toString());
+        }
+        return games;
     }
 
     @Override
@@ -84,7 +103,6 @@ public class GameDAO implements GameDAOInterface {
                 preparedStatement.setString(1, g.getWhiteUsername());
                 preparedStatement.setString(2, g.getBlackUsername());
                 preparedStatement.setString(3, g.getGameName());
-                System.out.println(UseGson.toJson(g.getGame()));
                 preparedStatement.setString(4, UseGson.toJson(g.getGame()));
                 preparedStatement.setString(5, String.valueOf(g.getGameID()));
 

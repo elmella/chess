@@ -12,6 +12,6 @@ public class AuthService {
     }
 
     public boolean authorize(String authToken) throws DataAccessException {
-        return authDAO.getAuth(authToken) != null;
+        return authDAO.getAuth(authToken).authToken() != null;
     }
 }

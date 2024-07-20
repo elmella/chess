@@ -60,7 +60,7 @@ public class GameService extends Service {
 
         // Get current game before updating it
         currentGame = gameDAO.getGame(gameID);
-        if (currentGame == null) {
+        if (currentGame.getGameName() == null) {
             throw new BadRequestException("Error: bad request");
         }
         gameName = currentGame.getGameName();
@@ -95,7 +95,7 @@ public class GameService extends Service {
     private int createGameID() throws DataAccessException {
         Random r = new Random();
         int gameID = r.nextInt(8999) + 1000;
-        while ((gameDAO.getGame(gameID) != null)) {
+        while ((gameDAO.getGame(gameID).getGameName() != null)) {
             gameID = r.nextInt(8999) + 1000;
         }
         return gameID;

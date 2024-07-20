@@ -1,9 +1,6 @@
 package handler;
 
-import dataaccess.DataAccessException;
-import dataaccess.AuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.UnauthorizedException;
+import dataaccess.*;
 import result.ListGamesResponse;
 import service.GameService;
 import spark.Request;
@@ -13,7 +10,7 @@ public class ListGamesHandler extends Handler {
 
     public String handleRequest(Request req, Response res) {
 
-        GameService game = new GameService(MemoryGameDAO.getInstance(), AuthDAO.getInstance());
+        GameService game = new GameService(GameDAO.getInstance(), AuthDAO.getInstance());
 
         ListGamesResponse result = null;
         try {
