@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.*;
+import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -9,10 +10,10 @@ import service.ClearService;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DAOTests {
 
-    private final MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    private final AuthDAO authDAO = new AuthDAO();
     private final UserDAO userDAO = new UserDAO();
     private final GameDAO gameDAO = new GameDAO();
-    private final ClearService clear = new ClearService(MemoryAuthDAO.getInstance(), GameDAO.getInstance(), UserDAO.getInstance());
+    private final ClearService clear = new ClearService(AuthDAO.getInstance(), GameDAO.getInstance(), UserDAO.getInstance());
 
     @BeforeEach
     public void clear() throws DataAccessException {
@@ -346,8 +347,18 @@ public class DAOTests {
         String password = "iambeautiful";
         String email = "email@email.com";
         UserData userData = new UserData(username, password, email);
-        // Create user, make sure no errors are thrown
-        Assertions.assertDoesNotThrow(() -> userDAO.createUser(userData));
+        try {
+            // Create user
+            userDAO.createUser(userData);
+
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
+            // Create auth, make sure no errors are thrown
+            Assertions.assertDoesNotThrow(() -> authDAO.createAuth(authData));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -362,8 +373,14 @@ public class DAOTests {
             // Create user
             userDAO.createUser(userData);
 
-            // Try creating user again, should fail primary key condition
-            Assertions.assertThrows(DataAccessException.class, () -> userDAO.createUser(userData));
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
+            // Create auth
+            authDAO.createAuth(authData);
+
+            // Try creating auth again, should fail primary key condition
+            Assertions.assertThrows(DataAccessException.class, () -> authDAO.createAuth(authData));
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -382,8 +399,15 @@ public class DAOTests {
             // Create user
             userDAO.createUser(userData);
 
-            // Get user, verify usernames are equal
-            Assertions.assertEquals(username, userDAO.getUser(username, password).username());
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
+
+            // Create auth, make sure no errors are thrown
+            authDAO.createAuth(authData);
+
+            // Assert found authToken is equal to the one assigned
+            Assertions.assertEquals(authToken, authDAO.getAuth(authToken).authToken());
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
@@ -396,21 +420,24 @@ public class DAOTests {
     public void getAuthFailure() {
         String username = "emily";
         String password = "iambeautiful";
-        String wrongPassword = "iamugly";
         String email = "email@email.com";
         UserData userData = new UserData(username, password, email);
         try {
             // Create user
             userDAO.createUser(userData);
 
-            // Get user with wrong password, should return null
-            UserData foundUserData = userDAO.getUser(username, wrongPassword);
+            // Create auth for user
+            String authToken = "let me in";
+            AuthData authData = new AuthData(authToken, username);
 
-            Assertions.assertNull(foundUserData);
+            // Create auth, make sure no errors are thrown
+            authDAO.createAuth(authData);
+
+            // Assert found authToken is null using wrong authToken
+            Assertions.assertEquals(authToken, authDAO.getAuth(authToken).authToken());
 
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-    }
 
 }
