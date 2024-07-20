@@ -55,9 +55,7 @@ public class DatabaseManager {
      */
     public static void createTables() throws DataAccessException {
         try {
-            String[] statements = {"USE" + DATABASE_NAME + """
-                    USE chess
-                    """, """
+            String[] statements = {"USE" + DATABASE_NAME, """
                     CREATE TABLE IF NOT EXISTS user (
                     	username VARCHAR(255) NOT NULL
                     ,	password VARCHAR(255) NOT NULL
