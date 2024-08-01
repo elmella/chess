@@ -7,64 +7,41 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 public class ServerFacade {
-
-
-    public void doGet(String urlString) throws IOException {
-        HttpURLConnection connection = getHttpURLConnection(urlString, "GET", false, "");
-
-        // Set HTTP request headers, if necessary
-        // connection.addRequestProperty("Accept", "text/html");
-        // connection.addRequestProperty("Authorization", "fjaklc8sdfjklakl");
-
-        connection.connect();
-
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            // Get HTTP response headers, if necessary
-            // Map<String, List<String>> headers = connection.getHeaderFields();
-
-            // OR
-
-            //connection.getHeaderField("Content-Length");
-
-            try (InputStream responseBody = connection.getInputStream()) {
-                InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                System.out.println(new Gson().fromJson(inputStreamReader, Map.class));
-            }
-            // Read and process response body from InputStream ...
-        } else {
-            // SERVER RETURNED AN HTTP ERROR
-
-            InputStream responseBody = connection.getErrorStream();
-            // Read and process error response body from InputStream ...
-        }
+    public static void main(String[] args) throws Exception {
+        ServerFacade s = new ServerFacade();
+        Map<String, String> headers = Map.of(
+                "Authorization", "efc76910-0c03-424f-a639-048901c4b59f"
+        );
+        Object response = s.doGet("http://localhost:8080/game", headers);
+        System.out.println(response);
     }
 
-    public void doPost(String urlString) throws IOException {
-        HttpURLConnection connection = getHttpURLConnection(urlString, "POST", true, "");
+//    public void login();
 
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            // Get HTTP response headers, if necessary
-            // Map<String, List<String>> headers = connection.getHeaderFields();
 
-            // OR
 
-            //connection.getHeaderField("Content-Length");
-
-            InputStream responseBody = connection.getInputStream();
-            // Read response body from InputStream ...
-        }
-        else {
-            // SERVER RETURNED AN HTTP ERROR
-
-            InputStream responseBody = connection.getErrorStream();
-            // Read and process error response body from InputStream ...
-        }
+    private Object doGet(String urlString, Map<String, String> headers) throws IOException {
+        HttpURLConnection connection = getHttpURLConnection(urlString, "GET", false, headers, "");
+        return readResponseBody(connection);
     }
 
-    private static HttpURLConnection getHttpURLConnection(String urlString, String method, boolean doOutput, String body) throws IOException {
+    private Object doPost(String urlString, Map<String, String> headers, String body) throws IOException {
+        HttpURLConnection connection = getHttpURLConnection(urlString, "POST", true,  headers, body);
+        return readResponseBody(connection);
+    }
+
+    private Object doPut(String urlString, Map<String, String> headers, String body) throws IOException {
+        HttpURLConnection connection = getHttpURLConnection(urlString, "PUT", true,  headers, body);
+        return readResponseBody(connection);
+
+    }
+
+    private static HttpURLConnection getHttpURLConnection(String urlString, String method, boolean doOutput,
+                                                          Map<String, String> headers, String body) throws IOException {
         URL url = new URL(urlString);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -74,7 +51,7 @@ public class ServerFacade {
         connection.setDoOutput(doOutput);
 
         // Set HTTP request headers, if necessary
-        // connection.addRequestProperty("Accept", "text/html");
+        addHeaders(headers, connection);
 
         connection.connect();
 
@@ -88,6 +65,27 @@ public class ServerFacade {
             try (OutputStream outputStream = connection.getOutputStream()) {
                 outputStream.write(body.getBytes());
             }
+        }
+    }
+
+    private static void addHeaders(Map<String,String> headers, HttpURLConnection connection) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+             connection.addRequestProperty(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private static Object readResponseBody(HttpURLConnection connection) throws IOException {
+        Object responseObject = "";
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            try (InputStream responseBody = connection.getInputStream()) {
+                InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
+                responseObject = new Gson().fromJson(inputStreamReader, Map.class);
+            }
+            return responseObject;
+        } else {
+            InputStream responseBody = connection.getErrorStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
+            return new Gson().fromJson(inputStreamReader, Map.class);
         }
     }
 }
