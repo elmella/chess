@@ -7,20 +7,131 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ServerFacade {
+
+    private final Gson gson = new Gson();
     public static void main(String[] args) throws Exception {
         ServerFacade s = new ServerFacade();
-        Map<String, String> headers = Map.of(
-                "Authorization", "efc76910-0c03-424f-a639-048901c4b59f"
-        );
-        Object response = s.doGet("http://localhost:8080/game", headers);
-        System.out.println(response);
+        String baseURL = "http://localhost:8080";
+//        Map<String, String> headers = Map.of(
+//                "Authorization", "efc76910-0c03-424f-a639-048901c4b59f"
+//        );
+//        Object response = s.doGet("http://localhost:8080/game", headers);
+//        System.out.println(response);
+        String command = args[0];
+        switch (command) {
+            case "register":
+                if (args.length != 4) {
+                    System.out.println("Incorrect amount of arguments");
+                    break;
+                }
+
+                s.register(args[1], args[2], args[3], baseURL);
+                break;
+
+            case "login":
+                if (args.length != 3) {
+                    System.out.println("Incorrect amount of arguments");
+                    break;
+                }
+
+                s.login(args[1], args[2], baseURL);
+                break;
+        }
     }
 
-//    public void login();
+    public Object clear(String baseURL) throws IOException {
+        String route = "/db";
+        String URL = baseURL + route;
+
+        return doDelete(URL, null);
+    }
+
+    public Object register(String username, String password, String email, String baseURL) throws IOException {
+        String route = "/user";
+        String URL = baseURL + route;
+
+        Map<String, String> bodyMap = new HashMap<>();
+        bodyMap.put("username", username);
+        bodyMap.put("password", password);
+        bodyMap.put("email", email);
+
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
+
+        return doPost(URL, null, bodyJSON);
+    }
+
+    public Object login(String username, String password, String baseURL) throws IOException {
+        String route = "/session";
+        String URL = baseURL + route;
+
+        Map<String, String> bodyMap = new HashMap<>();
+        bodyMap.put("username", username);
+        bodyMap.put("password", password);
+
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
+
+        return doPost(URL, null, bodyJSON);
+    }
+
+    public Object logout(String authToken, String baseURL) throws IOException {
+        String route = "/session";
+        String URL = baseURL + route;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", authToken);
+
+        return doDelete(URL, headers);
+    }
+
+    public Object listGames(String authToken, String baseURL) throws IOException {
+        String route = "/game";
+        String URL = baseURL + route;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", authToken);
+
+        return doGet(URL, headers);
+    }
+
+    public Object createGame(String gameName, String authToken, String baseURL) throws IOException {
+        String route = "/game";
+        String URL = baseURL + route;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", authToken);
+
+        Map<String, String> bodyMap = new HashMap<>();
+        bodyMap.put("gameName", gameName);
+
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
+
+        return doPost(URL, headers, bodyJSON);
+    }
+
+    public Object joinGame(String playerColor, String gameID, String authToken, String baseURL) throws IOException {
+        String route = "/game";
+        String URL = baseURL + route;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", authToken);
+
+        Map<String, String> bodyMap = new HashMap<>();
+        bodyMap.put("playerColor", playerColor);
+        bodyMap.put("gameID", gameID);
+
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
+
+        return doPost(URL, headers, bodyJSON);
+    }
+
+
+
+
 
 
 
@@ -37,10 +148,14 @@ public class ServerFacade {
     private Object doPut(String urlString, Map<String, String> headers, String body) throws IOException {
         HttpURLConnection connection = getHttpURLConnection(urlString, "PUT", true,  headers, body);
         return readResponseBody(connection);
-
     }
 
-    private static HttpURLConnection getHttpURLConnection(String urlString, String method, boolean doOutput,
+    private Object doDelete(String urlString, Map<String, String> headers) throws IOException {
+        HttpURLConnection connection = getHttpURLConnection(urlString, "DELETE", true,  headers, null);
+        return readResponseBody(connection);
+    }
+
+    private HttpURLConnection getHttpURLConnection(String urlString, String method, boolean doOutput,
                                                           Map<String, String> headers, String body) throws IOException {
         URL url = new URL(urlString);
 
@@ -59,7 +174,7 @@ public class ServerFacade {
         return connection;
     }
 
-    private static void writeRequestBody(String body, HttpURLConnection connection) throws IOException {
+    private void writeRequestBody(String body, HttpURLConnection connection) throws IOException {
         if (!body.isEmpty()) {
             connection.setDoOutput(true);
             try (OutputStream outputStream = connection.getOutputStream()) {
@@ -68,24 +183,24 @@ public class ServerFacade {
         }
     }
 
-    private static void addHeaders(Map<String,String> headers, HttpURLConnection connection) {
+    private void addHeaders(Map<String,String> headers, HttpURLConnection connection) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
              connection.addRequestProperty(entry.getKey(), entry.getValue());
         }
     }
 
-    private static Object readResponseBody(HttpURLConnection connection) throws IOException {
+    private Object readResponseBody(HttpURLConnection connection) throws IOException {
         Object responseObject = "";
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             try (InputStream responseBody = connection.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                responseObject = new Gson().fromJson(inputStreamReader, Map.class);
+                responseObject = gson.fromJson(inputStreamReader, Map.class);
             }
             return responseObject;
         } else {
             InputStream responseBody = connection.getErrorStream();
             InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-            return new Gson().fromJson(inputStreamReader, Map.class);
+            return gson.fromJson(inputStreamReader, Map.class);
         }
     }
 }

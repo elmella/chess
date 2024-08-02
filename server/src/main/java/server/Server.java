@@ -38,8 +38,8 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/session", loginHandler::handleRequest);
         Spark.post("/user", registerHandler::handleRequest);
+        Spark.post("/session", loginHandler::handleRequest);
         Spark.delete("/db", clearHandler::handleRequest);
         Spark.delete("/session", logoutHandler::handleRequest);
         Spark.get("/game", listGamesHandler::handleRequest);

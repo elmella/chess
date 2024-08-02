@@ -63,6 +63,8 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ArrayList<ChessMove> rookMoves;
+        ArrayList<ChessMove> bishopMoves;
 
         switch (type) {
 
@@ -72,8 +74,8 @@ public class ChessPiece {
                 break;
 
             case QUEEN:
-                ArrayList<ChessMove> rookMoves = new RookPiece(pieceColor, type, board, myPosition).getRookMoves();
-                ArrayList<ChessMove> bishopMoves = new BishopPiece(pieceColor, type, board, myPosition).getBishopMoves();
+                rookMoves = new RookPiece(pieceColor, type, board, myPosition).getRookMoves();
+                bishopMoves = new BishopPiece(pieceColor, type, board, myPosition).getBishopMoves();
                 validMoves.addAll(rookMoves);
                 validMoves.addAll(bishopMoves);
                 break;
