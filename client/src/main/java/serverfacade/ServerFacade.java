@@ -14,35 +14,6 @@ import java.util.Map;
 public class ServerFacade {
 
     private final Gson gson = new Gson();
-    public static void main(String[] args) throws Exception {
-        ServerFacade s = new ServerFacade();
-        String baseURL = "http://localhost:8080";
-//        Map<String, String> headers = Map.of(
-//                "Authorization", "efc76910-0c03-424f-a639-048901c4b59f"
-//        );
-//        Object response = s.doGet("http://localhost:8080/game", headers);
-//        System.out.println(response);
-        String command = args[0];
-        switch (command) {
-            case "register":
-                if (args.length != 4) {
-                    System.out.println("Incorrect amount of arguments");
-                    break;
-                }
-
-                s.register(args[1], args[2], args[3], baseURL);
-                break;
-
-            case "login":
-                if (args.length != 3) {
-                    System.out.println("Incorrect amount of arguments");
-                    break;
-                }
-
-                s.login(args[1], args[2], baseURL);
-                break;
-        }
-    }
 
     public Object clear(String baseURL) throws IOException {
         String route = "/db";
@@ -126,11 +97,8 @@ public class ServerFacade {
 
         String bodyJSON = gson.toJson(bodyMap, Map.class);
 
-        return doPost(URL, headers, bodyJSON);
+        return doPut(URL, headers, bodyJSON);
     }
-
-
-
 
 
 
@@ -166,7 +134,9 @@ public class ServerFacade {
         connection.setDoOutput(doOutput);
 
         // Set HTTP request headers, if necessary
-        addHeaders(headers, connection);
+        if (headers != null) {
+            addHeaders(headers, connection);
+        }
 
         connection.connect();
 
@@ -176,7 +146,6 @@ public class ServerFacade {
 
     private void writeRequestBody(String body, HttpURLConnection connection) throws IOException {
         if (!body.isEmpty()) {
-            connection.setDoOutput(true);
             try (OutputStream outputStream = connection.getOutputStream()) {
                 outputStream.write(body.getBytes());
             }
