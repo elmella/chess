@@ -129,28 +129,15 @@ public class Main {
                         break;
 
                     case "list":
-                        if (command.length != 1) {
-                            System.out.println("Incorrect amount of arguments");
-                            break;
-                        }
-
-                        try {
-                            JsonObject response = s.listGames(authToken, baseURL);
-                            if (response.get("success").getAsBoolean()) {
-                                JsonArray gameArray = response.get("games").getAsJsonArray();
-                                for (int i = 1; i < gameArray.size() + 1; i++) {
-                                    gameMap.put(i, gameArray.get(i - 1));
-                                }
-                                System.out.println(gameMap);
-
-                            }
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        list(command, s, authToken, baseURL, gameMap);
                         break;
 
 
                     case "join":
+                        if (gameMap.isEmpty()) {
+                            list(command, s, authToken, baseURL, gameMap);
+                            break;
+                        }
                         if (command.length != 3) {
                             System.out.println("Incorrect amount of arguments");
                             break;
@@ -171,6 +158,10 @@ public class Main {
                         break;
 
                     case "observe":
+                        if (gameMap.isEmpty()) {
+                            list(command, s, authToken, baseURL, gameMap);
+                            break;
+                        }
                         if (command.length != 2) {
                             System.out.println("Incorrect amount of arguments");
                             break;
@@ -184,7 +175,7 @@ public class Main {
                         drawHeaders(out);
                         drawChessBoard(out, board);
                         drawHeaders(out);
-                        
+
 
                         System.out.println(gameMap.get(gameNumber).getAsJsonObject());
                         break;
@@ -212,8 +203,30 @@ public class Main {
                             "observe <ID> - a game %n" +
                             "logout - when you are done %n" +
                             "quit - playing chess %n" +
-                            "help - with possible commands"
+                            "help - with possible commands %n"
             );
+        }
+    }
+
+    private static void list(String[] command, ServerFacade s, String authToken,
+                             String baseURL, HashMap<Integer, JsonElement> gameMap) {
+        if (command.length != 1) {
+            System.out.println("Incorrect amount of arguments");
+        } else {
+
+            try {
+                JsonObject response = s.listGames(authToken, baseURL);
+                if (response.get("success").getAsBoolean()) {
+                    JsonArray gameArray = response.get("games").getAsJsonArray();
+                    for (int i = 1; i < gameArray.size() + 1; i++) {
+                        gameMap.put(i, gameArray.get(i - 1));
+                    }
+                    System.out.println(gameMap);
+
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

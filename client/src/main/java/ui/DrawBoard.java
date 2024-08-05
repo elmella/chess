@@ -119,6 +119,10 @@ public class DrawBoard {
                     int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
                     out.print(EMPTY.repeat(prefixLength));
+
+                    // draw piece
+                    System.out.println(boardRow);
+                    System.out.println(boardCol);
                     ChessPiece piece = board.getPiece(new ChessPosition(boardRow, boardCol));
                     if (piece != null) {
                         out.print(printPiece(piece));
