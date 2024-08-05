@@ -17,17 +17,17 @@ import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
 public class Main {
-    // Initialize scanner, booleans, and authTokens
-    private final Gson gson = new Gson();
-    private static Scanner scanner = new Scanner(System.in);
     private static final ServerFacade s = new ServerFacade();
     private static final String baseURL = "http://localhost:8080";
+    private static final Scanner scanner = new Scanner(System.in);
     private static boolean loggedOut = true;
     private static String authToken = "";
-    private static HashMap<Integer, JsonElement> gameMap = new HashMap<>();
+    private static final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
     private static int gameNumber;
     private static String gameID;
-    private static BooleanWrapper quit = new BooleanWrapper(false);
+    private static final BooleanWrapper quit = new BooleanWrapper(false);
+    // Initialize scanner, booleans, and authTokens
+    private final Gson gson = new Gson();
 
     public static void main(String[] args) {
 
@@ -38,15 +38,21 @@ public class Main {
 
 
         // Begin log out options loop
-        while (!quit.value) {
-            if (loggedOut) {
-                loggedOutMenu();
-            }
+        try {
 
-            // Begin logged in options
-            else {
-                loggedInMenu();
+            while (!quit.value) {
+                if (loggedOut) {
+                    loggedOutMenu();
+
+                }
+
+                // Begin the logged in options
+                else {
+                    loggedInMenu();
+                }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -66,8 +72,7 @@ public class Main {
         }
     }
 
-    private static void list(String[] command, ServerFacade s, String authToken,
-                             String baseURL, HashMap<Integer, JsonElement> gameMap, int commandLength) {
+    private static void list(String[] command, int commandLength) {
         if (command.length != commandLength) {
             out.println("Incorrect amount of arguments");
         } else {
@@ -88,11 +93,12 @@ public class Main {
         }
     }
 
-    private static void loggedOutMenu() {
+    private static void loggedOutMenu() throws IOException {
         out.print("[LOGGED_OUT] >>> ");
         String line = scanner.nextLine();
         String[] command = line.split(" ");
         String baseCommand = command[0];
+        JsonObject response;
 
         switch (baseCommand) {
             case "help":
@@ -107,16 +113,12 @@ public class Main {
                     break;
                 }
 
-                try {
-                    JsonObject response = s.register(command[1], command[2], command[3], baseURL);
-                    out.println(response);
-                    if (response.get("success").getAsBoolean()) {
-                        authToken = response.get("authToken").getAsString();
-                        out.println("Logged in as " + command[1]);
-                        loggedOut = false;
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                response = s.register(command[1], command[2], command[3], baseURL);
+                out.println(response);
+                if (response.get("success").getAsBoolean()) {
+                    authToken = response.get("authToken").getAsString();
+                    out.println("Logged in as " + command[1]);
+                    loggedOut = false;
                 }
                 break;
 
@@ -126,15 +128,11 @@ public class Main {
                     break;
                 }
 
-                try {
-                    JsonObject response = s.login(command[1], command[2], baseURL);
-                    if (response.get("success").getAsBoolean()) {
-                        authToken = response.get("authToken").getAsString();
-                        out.println("Logged in as " + command[1]);
-                        loggedOut = false;
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                response = s.login(command[1], command[2], baseURL);
+                if (response.get("success").getAsBoolean()) {
+                    authToken = response.get("authToken").getAsString();
+                    out.println("Logged in as " + command[1]);
+                    loggedOut = false;
                 }
                 break;
 
@@ -144,11 +142,12 @@ public class Main {
         }
     }
 
-    private static void loggedInMenu() {
+    private static void loggedInMenu() throws IOException {
         out.print("[LOGGED_IN] >>> ");
         String line = scanner.nextLine();
         String[] command = line.split(" ");
         String baseCommand = command[0];
+        JsonObject response;
 
         switch (baseCommand) {
             case "help":
@@ -160,16 +159,12 @@ public class Main {
                 break;
 
             case "logout":
-                try {
-                    JsonObject response = s.logout(authToken, baseURL);
-                    out.println(response);
-                    if (response.get("success").getAsBoolean()) {
-                        out.println("Logged out");
-                        authToken = "";
-                        loggedOut = true;
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                response = s.logout(authToken, baseURL);
+                out.println(response);
+                if (response.get("success").getAsBoolean()) {
+                    out.println("Logged out");
+                    authToken = "";
+                    loggedOut = true;
                 }
                 break;
 
@@ -178,26 +173,21 @@ public class Main {
                     out.println("Incorrect amount of arguments");
                     break;
                 }
-
-                try {
-                    JsonObject response = s.createGame(command[1], authToken, baseURL);
-                    out.println(response);
-                    if (response.get("success").getAsBoolean()) {
-                        out.println("Created game " + command[1]);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                response = s.createGame(command[1], authToken, baseURL);
+                out.println(response);
+                if (response.get("success").getAsBoolean()) {
+                    out.println("Created game " + command[1]);
                 }
                 break;
 
             case "list":
-                list(command, s, authToken, baseURL, gameMap, 1);
+                list(command, 1);
                 break;
 
 
             case "join":
                 if (gameMap.isEmpty()) {
-                    list(command, s, authToken, baseURL, gameMap, 3);
+                    list(command, 3);
                     break;
                 }
                 if (command.length != 3) {
@@ -216,23 +206,18 @@ public class Main {
                     out.println("Game does not exist");
                     break;
                 }
-
                 gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
 
-                try {
-                    JsonObject response = s.joinGame(command[1], gameID, authToken, baseURL);
-                    out.println(response);
-                    if (response.get("success").getAsBoolean()) {
-                        out.println("Joined game with ID " + command[1] + " as color " + command[2]);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                response = s.joinGame(command[1], gameID, authToken, baseURL);
+                out.println(response);
+                if (response.get("success").getAsBoolean()) {
+                    out.println("Joined game with ID " + command[1] + " as color " + command[2]);
                 }
                 break;
 
             case "observe":
                 if (gameMap.isEmpty()) {
-                    list(command, s, authToken, baseURL, gameMap, 2);
+                    list(command, 2);
                     break;
                 }
                 if (command.length != 2) {
@@ -257,11 +242,8 @@ public class Main {
                 board.resetBoard();
                 out.println(board);
                 out.print(ERASE_SCREEN);
-
                 drawChessBoard(out, board, false);
                 drawChessBoard(out, board, true);
-
-
                 out.print(SET_BG_COLOR_BLACK);
                 out.print(SET_TEXT_COLOR_WHITE);
 
