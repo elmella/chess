@@ -18,14 +18,14 @@ public class ServerFacade {
 
     public JsonObject clear(String baseURL) throws IOException {
         String route = "/db";
-        String URL = baseURL + route;
+        String url = baseURL + route;
 
-        return doDelete(URL, null);
+        return doDelete(url, null);
     }
 
-    public JsonObject register(String username, String password, String email, String baseURL) throws IOException {
+    public JsonObject register(String username, String password, String email, String baseUrl) throws IOException {
         String route = "/user";
-        String URL = baseURL + route;
+        String url = baseUrl + route;
 
         Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("username", username);
@@ -34,12 +34,12 @@ public class ServerFacade {
 
         String bodyJSON = gson.toJson(bodyMap, Map.class);
 
-        return doPost(URL, null, bodyJSON);
+        return doPost(url, null, bodyJSON);
     }
 
-    public JsonObject login(String username, String password, String baseURL) throws IOException {
+    public JsonObject login(String username, String password, String baseUrl) throws IOException {
         String route = "/session";
-        String URL = baseURL + route;
+        String url = baseUrl + route;
 
         Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("username", username);
@@ -47,32 +47,32 @@ public class ServerFacade {
 
         String bodyJSON = gson.toJson(bodyMap, Map.class);
 
-        return doPost(URL, null, bodyJSON);
+        return doPost(url, null, bodyJSON);
     }
 
-    public JsonObject logout(String authToken, String baseURL) throws IOException {
+    public JsonObject logout(String authToken, String baseUrl) throws IOException {
         String route = "/session";
-        String URL = baseURL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
 
-        return doDelete(URL, headers);
+        return doDelete(url, headers);
     }
 
-    public JsonObject listGames(String authToken, String baseURL) throws IOException {
+    public JsonObject listGames(String authToken, String baseUrl) throws IOException {
         String route = "/game";
-        String URL = baseURL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
 
-        return doGet(URL, headers);
+        return doGet(url, headers);
     }
 
-    public JsonObject createGame(String gameName, String authToken, String baseURL) throws IOException {
+    public JsonObject createGame(String gameName, String authToken, String baseUrl) throws IOException {
         String route = "/game";
-        String URL = baseURL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
@@ -82,12 +82,12 @@ public class ServerFacade {
 
         String bodyJSON = gson.toJson(bodyMap, Map.class);
 
-        return doPost(URL, headers, bodyJSON);
+        return doPost(url, headers, bodyJSON);
     }
 
-    public JsonObject joinGame(String playerColor, String gameID, String authToken, String baseURL) throws IOException {
+    public JsonObject joinGame(String playerColor, String gameID, String authToken, String baseUrl) throws IOException {
         String route = "/game";
-        String URL = baseURL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
@@ -98,7 +98,7 @@ public class ServerFacade {
 
         String bodyJSON = gson.toJson(bodyMap, Map.class);
 
-        return doPut(URL, headers, bodyJSON);
+        return doPut(url, headers, bodyJSON);
     }
 
 
