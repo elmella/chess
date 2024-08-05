@@ -111,6 +111,20 @@ public class Main {
                         quit = true;
                         break;
 
+                    case "logout":
+                        try {
+                            JsonObject response = s.logout(authToken, baseURL);
+                            System.out.println(response);
+                            if (response.get("success").getAsBoolean()) {
+                                System.out.println("Logged out");
+                                authToken = "";
+                                loggedOut = true;
+                            }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+
                     case "create":
                         if (command.length != 2) {
                             System.out.println("Incorrect amount of arguments");
@@ -176,8 +190,9 @@ public class Main {
                         drawChessBoard(out, board);
                         drawHeaders(out);
 
-
-                        System.out.println(gameMap.get(gameNumber).getAsJsonObject());
+                        out.print(SET_BG_COLOR_BLACK);
+                        out.print(SET_TEXT_COLOR_WHITE);
+                        
                         break;
                 }
             }

@@ -146,7 +146,7 @@ public class ServerFacade {
     }
 
     private void writeRequestBody(String body, HttpURLConnection connection) throws IOException {
-        if (!body.isEmpty()) {
+        if (body != null && !body.isEmpty()) {
             try (OutputStream outputStream = connection.getOutputStream()) {
                 outputStream.write(body.getBytes());
             }

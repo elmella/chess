@@ -43,8 +43,6 @@ public class DrawBoard {
     private static final String X = " X ";
     private static final String O = " O ";
 
-    private static Random rand = new Random();
-
 
     public static void drawHeaders(PrintStream out) {
 
@@ -121,9 +119,7 @@ public class DrawBoard {
                     out.print(EMPTY.repeat(prefixLength));
 
                     // draw piece
-                    System.out.println(boardRow);
-                    System.out.println(boardCol);
-                    ChessPiece piece = board.getPiece(new ChessPosition(boardRow, boardCol));
+                    ChessPiece piece = board.getPiece(new ChessPosition(boardRow + 1, boardCol + 1));
                     if (piece != null) {
                         out.print(printPiece(piece));
                     }
