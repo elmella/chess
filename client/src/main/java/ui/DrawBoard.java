@@ -6,10 +6,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static ui.EscapeSequences.*;
 
@@ -40,15 +37,12 @@ public class DrawBoard {
 
     // Padded characters.
     private static final String EMPTY = "   ";
-    private static final String X = " X ";
-    private static final String O = " O ";
 
 
     public static void drawHeaders(PrintStream out) {
-
         setBlack(out);
 
-        String[] headers = { " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h " };
+        String[] headers = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
         printHeaderText(out, " ");
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
@@ -57,7 +51,6 @@ public class DrawBoard {
             if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
                 out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
             }
-
         }
         printHeaderText(out, " ");
 
@@ -82,35 +75,37 @@ public class DrawBoard {
         setBlack(out);
     }
 
-
-
     public static void drawChessBoard(PrintStream out, ChessBoard board) {
+        drawHeaders(out);
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-
             drawRowOfSquares(out, boardRow, board);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                // Draw horizontal row separator.
                 drawHorizontalLine(out);
                 setBlack(out);
             }
         }
+
+        drawHeaders(out);
     }
 
     private static void drawRowOfSquares(PrintStream out, int boardRow, ChessBoard board) {
-
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
             if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
                 printHeaderText(out, String.valueOf(BOARD_SIZE_IN_SQUARES - boardRow));
             } else {
                 printHeaderText(out, " ");
-
             }
 
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                setWhite(out);
-
+                // Determine the color of the square
+                boolean isWhiteSquare = (boardRow + boardCol) % 2 == 0;
+                if (isWhiteSquare) {
+                    setWhite(out);
+                } else {
+                    setBlackSquare(out);
+                }
 
                 if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
                     int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
@@ -121,60 +116,58 @@ public class DrawBoard {
                     // draw piece
                     ChessPiece piece = board.getPiece(new ChessPosition(boardRow + 1, boardCol + 1));
                     if (piece != null) {
-                        out.print(printPiece(piece));
-                    }
-                    else {
+                        printPlayer(out, printPiece(piece), isWhiteSquare);
+                    } else {
                         out.print(EMPTY);
                     }
                     out.print(EMPTY.repeat(suffixLength));
-                }
-                else {
+                } else {
                     out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
                 }
 
                 if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                    // Draw vertical column separator.
-
                     setRed(out);
-                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                    for (int i = 0; i < LINE_WIDTH_IN_PADDED_CHARS; i++) {
+                        out.print(" ");
+                    }
                 }
-
-                setBlack(out);
             }
 
             if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
                 printHeaderText(out, String.valueOf(BOARD_SIZE_IN_SQUARES - boardRow));
             } else {
                 printHeaderText(out, " ");
-
             }
 
             out.println();
-
         }
     }
 
     private static void drawHorizontalLine(PrintStream out) {
-
         printHeaderText(out, " ");
-
 
         int boardSizeInSpaces = BOARD_SIZE_IN_SQUARES * SQUARE_SIZE_IN_PADDED_CHARS +
                 (BOARD_SIZE_IN_SQUARES - 1) * LINE_WIDTH_IN_PADDED_CHARS;
 
         for (int lineRow = 0; lineRow < LINE_WIDTH_IN_PADDED_CHARS; ++lineRow) {
             setRed(out);
-            out.print(EMPTY.repeat(boardSizeInSpaces));
+            for (int i = 0; i < boardSizeInSpaces; i++) {
+                out.print(" ");
+            }
 
             setBlack(out);
             printHeaderText(out, " ");
             out.println();
         }
-
     }
 
     private static void setWhite(PrintStream out) {
         out.print(SET_BG_COLOR_WHITE);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setBlackSquare(PrintStream out) {
+        out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
@@ -188,13 +181,14 @@ public class DrawBoard {
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
-    private static void printPlayer(PrintStream out, String player) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_BLACK);
+    private static void printPlayer(PrintStream out, String player, boolean isWhiteSquare) {
+        if (isWhiteSquare) {
+            out.print(SET_TEXT_COLOR_BLACK);
+        } else {
+            out.print(SET_TEXT_COLOR_WHITE);
 
+        }
         out.print(player);
-
-        setWhite(out);
     }
 
     private static String printPiece(ChessPiece piece) {

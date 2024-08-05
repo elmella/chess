@@ -184,15 +184,15 @@ public class Main {
                         gameNumber = Integer.parseInt(command[1]);
                         gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
                         ChessBoard board = new ChessBoard();
+                        board.resetBoard();
+                        System.out.println(board);
                         out.print(ERASE_SCREEN);
 
-                        drawHeaders(out);
                         drawChessBoard(out, board);
-                        drawHeaders(out);
 
                         out.print(SET_BG_COLOR_BLACK);
                         out.print(SET_TEXT_COLOR_WHITE);
-                        
+
                         break;
                 }
             }
