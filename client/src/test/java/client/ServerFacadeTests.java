@@ -236,5 +236,44 @@ public class ServerFacadeTests {
         Assertions.assertFalse(joinGameResponse.get("success").getAsBoolean());
     }
 
+    @Test
+    @Order(13)
+    @DisplayName("Clear Success")
+    public void clearSuccess() throws IOException {
+
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
+
+        // Create game
+        JsonObject createGameResponse = facade.createGame("game", authToken, baseURL);
+
+        facade.clear(baseURL);
+
+        // listGames
+        JsonObject listGamesResponse = facade.listGames(authToken, baseURL);
+
+        // Assert empty
+        Assertions.assertNull(listGamesResponse.get("games"));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Clear Failure")
+    public void clearFailure() throws IOException {
+
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
+
+        facade.clear(baseURL);
+
+        // Login
+        JsonObject response = facade.login(username, password, baseURL);
+
+        // Assert not empty and logged in
+        Assertions.assertFalse(response.get("success").getAsBoolean());
+    }
+
 
 }

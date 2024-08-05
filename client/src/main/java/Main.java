@@ -141,8 +141,7 @@ public class Main {
 
     private static void loggedInMenu() throws IOException {
         out.print("[LOGGED_IN] >>> ");
-        String line = SCANNER.nextLine();
-        String[] command = line.split(" ");
+        String[] command = SCANNER.nextLine().split(" ");;
         String baseCommand = command[0];
         JsonObject response;
         String gameID;
@@ -183,7 +182,6 @@ public class Main {
                 list(command, 1);
                 break;
 
-
             case "join":
                 if (GAME_MAP.isEmpty()) {
                     list(command, 3);
@@ -223,31 +221,30 @@ public class Main {
                     out.println("Incorrect amount of arguments");
                     break;
                 }
-
                 try {
                     gameNumber = Integer.parseInt(command[1]);
                 } catch (Exception e) {
                     out.println("Could not parse game ID");
                     break;
                 }
-
                 if (gameNumber > GAME_MAP.size()) {
                     out.println("Game does not exist");
                     break;
                 }
-
-                gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
-                ChessBoard board = new ChessBoard();
-                board.resetBoard();
-                out.println(board);
-                out.print(ERASE_SCREEN);
-                drawChessBoard(out, board, false);
-                drawChessBoard(out, board, true);
-                out.print(SET_BG_COLOR_BLACK);
-                out.print(SET_TEXT_COLOR_WHITE);
-
+                drawBoard();
                 break;
         }
+    }
+
+    private static void drawBoard() {
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        out.println(board);
+        out.print(ERASE_SCREEN);
+        drawChessBoard(out, board, false);
+        drawChessBoard(out, board, true);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
     }
 
 }
