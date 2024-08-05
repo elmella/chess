@@ -1,5 +1,6 @@
 package serverfacade;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,7 @@ public class ServerFacade {
         return doDelete(URL, null);
     }
 
-    public Object register(String username, String password, String email, String baseURL) throws IOException {
+    public JsonObject register(String username, String password, String email, String baseURL) throws IOException {
         String route = "/user";
         String URL = baseURL + route;
 
@@ -36,7 +37,7 @@ public class ServerFacade {
         return doPost(URL, null, bodyJSON);
     }
 
-    public Object login(String username, String password, String baseURL) throws IOException {
+    public JsonObject login(String username, String password, String baseURL) throws IOException {
         String route = "/session";
         String URL = baseURL + route;
 
@@ -49,7 +50,7 @@ public class ServerFacade {
         return doPost(URL, null, bodyJSON);
     }
 
-    public Object logout(String authToken, String baseURL) throws IOException {
+    public JsonObject logout(String authToken, String baseURL) throws IOException {
         String route = "/session";
         String URL = baseURL + route;
 
@@ -59,7 +60,7 @@ public class ServerFacade {
         return doDelete(URL, headers);
     }
 
-    public Object listGames(String authToken, String baseURL) throws IOException {
+    public JsonObject listGames(String authToken, String baseURL) throws IOException {
         String route = "/game";
         String URL = baseURL + route;
 
@@ -69,7 +70,7 @@ public class ServerFacade {
         return doGet(URL, headers);
     }
 
-    public Object createGame(String gameName, String authToken, String baseURL) throws IOException {
+    public JsonObject createGame(String gameName, String authToken, String baseURL) throws IOException {
         String route = "/game";
         String URL = baseURL + route;
 
@@ -84,7 +85,7 @@ public class ServerFacade {
         return doPost(URL, headers, bodyJSON);
     }
 
-    public Object joinGame(String playerColor, String gameID, String authToken, String baseURL) throws IOException {
+    public JsonObject joinGame(String playerColor, String gameID, String authToken, String baseURL) throws IOException {
         String route = "/game";
         String URL = baseURL + route;
 
@@ -103,22 +104,22 @@ public class ServerFacade {
 
 
 
-    private Object doGet(String urlString, Map<String, String> headers) throws IOException {
+    private JsonObject doGet(String urlString, Map<String, String> headers) throws IOException {
         HttpURLConnection connection = getHttpURLConnection(urlString, "GET", false, headers, "");
         return readResponseBody(connection);
     }
 
-    private Object doPost(String urlString, Map<String, String> headers, String body) throws IOException {
+    private JsonObject doPost(String urlString, Map<String, String> headers, String body) throws IOException {
         HttpURLConnection connection = getHttpURLConnection(urlString, "POST", true,  headers, body);
         return readResponseBody(connection);
     }
 
-    private Object doPut(String urlString, Map<String, String> headers, String body) throws IOException {
+    private JsonObject doPut(String urlString, Map<String, String> headers, String body) throws IOException {
         HttpURLConnection connection = getHttpURLConnection(urlString, "PUT", true,  headers, body);
         return readResponseBody(connection);
     }
 
-    private Object doDelete(String urlString, Map<String, String> headers) throws IOException {
+    private JsonObject doDelete(String urlString, Map<String, String> headers) throws IOException {
         HttpURLConnection connection = getHttpURLConnection(urlString, "DELETE", true,  headers, null);
         return readResponseBody(connection);
     }
@@ -158,18 +159,18 @@ public class ServerFacade {
         }
     }
 
-    private Object readResponseBody(HttpURLConnection connection) throws IOException {
-        Object responseObject = "";
+    private JsonObject readResponseBody(HttpURLConnection connection) throws IOException {
+        JsonObject responseObject = null;
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             try (InputStream responseBody = connection.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                responseObject = gson.fromJson(inputStreamReader, Map.class);
+                responseObject = gson.fromJson(inputStreamReader, JsonObject.class);
             }
             return responseObject;
         } else {
             InputStream responseBody = connection.getErrorStream();
             InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-            return gson.fromJson(inputStreamReader, Map.class);
+            return gson.fromJson(inputStreamReader, JsonObject.class);
         }
     }
 }
