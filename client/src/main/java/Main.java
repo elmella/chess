@@ -17,15 +17,13 @@ import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
 public class Main {
-    private static final ServerFacade s = new ServerFacade();
-    private static final String baseURL = "http://localhost:8080";
-    private static final Scanner scanner = new Scanner(System.in);
+    private static final ServerFacade FACADE = new ServerFacade();
+    private static final String BASE_URL = "http://localhost:8080";
+    private static final Scanner SCANNER = new Scanner(System.in);
     private static boolean loggedOut = true;
     private static String authToken = "";
-    private static final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
-    private static int gameNumber;
-    private static String gameID;
-    private static final BooleanWrapper quit = new BooleanWrapper(false);
+    private static final HashMap<Integer, JsonElement> GAME_MAP = new HashMap<>();
+    private static BooleanWrapper quit = new BooleanWrapper(false);
     // Initialize scanner, booleans, and authTokens
     private final Gson gson = new Gson();
 
@@ -78,13 +76,13 @@ public class Main {
         } else {
 
             try {
-                JsonObject response = s.listGames(authToken, baseURL);
+                JsonObject response = FACADE.listGames(authToken, BASE_URL);
                 if (response.get("success").getAsBoolean()) {
                     JsonArray gameArray = response.get("games").getAsJsonArray();
                     for (int i = 1; i < gameArray.size() + 1; i++) {
-                        gameMap.put(i, gameArray.get(i - 1));
+                        GAME_MAP.put(i, gameArray.get(i - 1));
                     }
-                    out.println(gameMap);
+                    out.println(GAME_MAP);
 
                 }
             } catch (IOException e) {
@@ -95,7 +93,7 @@ public class Main {
 
     private static void loggedOutMenu() throws IOException {
         out.print("[LOGGED_OUT] >>> ");
-        String line = scanner.nextLine();
+        String line = SCANNER.nextLine();
         String[] command = line.split(" ");
         String baseCommand = command[0];
         JsonObject response;
@@ -113,8 +111,7 @@ public class Main {
                     break;
                 }
 
-                response = s.register(command[1], command[2], command[3], baseURL);
-                out.println(response);
+                response = FACADE.register(command[1], command[2], command[3], BASE_URL);
                 if (response.get("success").getAsBoolean()) {
                     authToken = response.get("authToken").getAsString();
                     out.println("Logged in as " + command[1]);
@@ -128,7 +125,7 @@ public class Main {
                     break;
                 }
 
-                response = s.login(command[1], command[2], baseURL);
+                response = FACADE.login(command[1], command[2], BASE_URL);
                 if (response.get("success").getAsBoolean()) {
                     authToken = response.get("authToken").getAsString();
                     out.println("Logged in as " + command[1]);
@@ -144,11 +141,13 @@ public class Main {
 
     private static void loggedInMenu() throws IOException {
         out.print("[LOGGED_IN] >>> ");
-        String line = scanner.nextLine();
+        String line = SCANNER.nextLine();
         String[] command = line.split(" ");
         String baseCommand = command[0];
         JsonObject response;
+        String gameID;
 
+        int gameNumber;
         switch (baseCommand) {
             case "help":
                 help(true);
@@ -159,7 +158,7 @@ public class Main {
                 break;
 
             case "logout":
-                response = s.logout(authToken, baseURL);
+                response = FACADE.logout(authToken, BASE_URL);
                 out.println(response);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Logged out");
@@ -173,7 +172,7 @@ public class Main {
                     out.println("Incorrect amount of arguments");
                     break;
                 }
-                response = s.createGame(command[1], authToken, baseURL);
+                response = FACADE.createGame(command[1], authToken, BASE_URL);
                 out.println(response);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Created game " + command[1]);
@@ -186,7 +185,7 @@ public class Main {
 
 
             case "join":
-                if (gameMap.isEmpty()) {
+                if (GAME_MAP.isEmpty()) {
                     list(command, 3);
                     break;
                 }
@@ -202,13 +201,13 @@ public class Main {
                     break;
                 }
 
-                if (gameNumber > gameMap.size()) {
+                if (gameNumber > GAME_MAP.size()) {
                     out.println("Game does not exist");
                     break;
                 }
-                gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
+                gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
 
-                response = s.joinGame(command[1], gameID, authToken, baseURL);
+                response = FACADE.joinGame(command[1], gameID, authToken, BASE_URL);
                 out.println(response);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Joined game with ID " + command[1] + " as color " + command[2]);
@@ -216,7 +215,7 @@ public class Main {
                 break;
 
             case "observe":
-                if (gameMap.isEmpty()) {
+                if (GAME_MAP.isEmpty()) {
                     list(command, 2);
                     break;
                 }
@@ -232,12 +231,12 @@ public class Main {
                     break;
                 }
 
-                if (gameNumber > gameMap.size()) {
+                if (gameNumber > GAME_MAP.size()) {
                     out.println("Game does not exist");
                     break;
                 }
 
-                gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
+                gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
                 ChessBoard board = new ChessBoard();
                 board.resetBoard();
                 out.println(board);
