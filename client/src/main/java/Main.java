@@ -223,15 +223,21 @@ public class Main {
 
     private static void help(boolean loggedIn) {
         if (!loggedIn) {
-            System.out.printf("register <USERNAME> <PASSWORD> <EMAIL> - to create an account %n" + "login <USERNAME> <PASSWORD> - to play chess %n" + "quit - playing chess %n" + "help - with possible commands %n"
+            System.out.printf("register <USERNAME> <PASSWORD> <EMAIL> - to create an account %n" +
+                    "login <USERNAME> <PASSWORD> - to play chess %n" + "quit - playing chess %n" +
+                    "help - with possible commands %n"
 
             );
         } else {
-            System.out.printf("create <NAME> - a game %n" + "list - games %n" + "join <ID> [WHITE|BLACK] - a game %n" + "observe <ID> - a game %n" + "logout - when you are done %n" + "quit - playing chess %n" + "help - with possible commands %n");
+            System.out.printf("create <NAME> - a game %n" + "list - games %n" +
+                    "join <ID> [WHITE|BLACK] - a game %n" + "observe <ID> - a game %n" +
+                    "logout - when you are done %n" + "quit - playing chess %n" +
+                    "help - with possible commands %n");
         }
     }
 
-    private static void list(String[] command, ServerFacade s, String authToken, String baseURL, HashMap<Integer, JsonElement> gameMap, int commandLength) {
+    private static void list(String[] command, ServerFacade s, String authToken,
+                             String baseURL, HashMap<Integer, JsonElement> gameMap, int commandLength) {
         if (command.length != commandLength) {
             System.out.println("Incorrect amount of arguments");
         } else {

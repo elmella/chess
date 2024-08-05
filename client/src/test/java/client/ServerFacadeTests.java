@@ -2,7 +2,6 @@ package client;
 
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.*;
-import result.ListGamesResponse;
 import server.Server;
 import serverfacade.ServerFacade;
 
@@ -11,12 +10,12 @@ import java.io.IOException;
 
 public class ServerFacadeTests {
 
-    private static Server server;
+    private static final String baseURL = "http://localhost:8080";
     static ServerFacade facade;
+    private static Server server;
     private final String username = "username";
     private final String password = "password";
     private final String email = "email";
-    private static final String baseURL = "http://localhost:8080";
 
     @BeforeAll
     public static void init() throws IOException {
@@ -24,7 +23,6 @@ public class ServerFacadeTests {
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade();
-        facade.clear(baseURL);
     }
 
     @AfterAll
@@ -32,6 +30,10 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    @BeforeEach
+    public void clear() throws IOException {
+        facade.clear(baseURL);
+    }
 
     @Test
     @Order(1)
@@ -60,6 +62,10 @@ public class ServerFacadeTests {
     @DisplayName("Login Success")
     public void loginSuccess() throws IOException {
 
+        // Register
+        facade.register(username, password, email, baseURL);
+
+        // Login
         JsonObject response = facade.login(username, password, baseURL);
 
         // Assert successful
@@ -71,6 +77,10 @@ public class ServerFacadeTests {
     @DisplayName("Login Failure")
     public void loginFailure() throws IOException {
 
+        // Register
+        facade.register(username, password, email, baseURL);
+
+        // Login
         JsonObject response = facade.login(username, null, baseURL);
 
         // Assert not successful
@@ -82,11 +92,12 @@ public class ServerFacadeTests {
     @DisplayName("Logout Success")
     public void logoutSuccess() throws IOException {
 
-        // login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
 
         // logout
-        JsonObject logoutResponse  = facade.logout(loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject logoutResponse = facade.logout(authToken, baseURL);
 
         // Assert successful
         Assertions.assertTrue(logoutResponse.get("success").getAsBoolean());
@@ -97,11 +108,11 @@ public class ServerFacadeTests {
     @DisplayName("Login Failure")
     public void logoutFailure() throws IOException {
 
-        // login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
 
         // logout, wrong authToken
-        JsonObject logoutResponse  = facade.logout("wrong authToken", baseURL);
+        JsonObject logoutResponse = facade.logout("wrong authToken", baseURL);
 
         // Assert not successful
         Assertions.assertFalse(logoutResponse.get("success").getAsBoolean());
@@ -113,11 +124,12 @@ public class ServerFacadeTests {
     @DisplayName("List Games Success")
     public void listGamesSuccess() throws IOException {
 
-        // login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
 
         // listGames
-        JsonObject listGamesResponse = facade.listGames(loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject listGamesResponse = facade.listGames(authToken, baseURL);
 
         // Assert successful
         Assertions.assertTrue(listGamesResponse.get("success").getAsBoolean());
@@ -128,8 +140,8 @@ public class ServerFacadeTests {
     @DisplayName("List Games Failure")
     public void listGamesFailure() throws IOException {
 
-        // login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
 
         // listGames
         JsonObject listGamesResponse = facade.listGames("wrong authToken", baseURL);
@@ -143,14 +155,15 @@ public class ServerFacadeTests {
     @DisplayName("Create Game Success")
     public void createGameSuccess() throws IOException {
 
-        // login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
 
         // Create game
-        JsonObject createGameResponse = facade.createGame("game", loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject createGameResponse = facade.createGame("game", authToken, baseURL);
 
         // listGames
-        JsonObject listGamesResponse = facade.listGames(loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject listGamesResponse = facade.listGames(authToken, baseURL);
 
         // Assert not empty
         Assertions.assertFalse(listGamesResponse.get("games").getAsJsonArray().isEmpty());
@@ -161,8 +174,8 @@ public class ServerFacadeTests {
     @DisplayName("Create Game Failure")
     public void createGameFailure() throws IOException {
 
-        // Login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
 
         // Create game
         JsonObject createGameResponse = facade.createGame("game", "wrong authToken", baseURL);
@@ -176,26 +189,51 @@ public class ServerFacadeTests {
     @DisplayName("Join Game Success")
     public void joinGameSuccess() throws IOException {
 
-        // login
-        JsonObject loginResponse = facade.login(username, password, baseURL);
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
 
         // Create game
-        JsonObject createGameResponse = facade.createGame("game", loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject createGameResponse = facade.createGame("game", authToken, baseURL);
 
         // listGames
-        JsonObject listGamesResponse = facade.listGames(loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject listGamesResponse = facade.listGames(authToken, baseURL);
 
         // Get gameID
         String gameID = listGamesResponse.get("games").getAsJsonArray().get(0).getAsJsonObject().get("gameID").getAsString();
 
         // Join game as white
-        JsonObject joinGameResponse = facade.joinGame("WHITE", gameID, loginResponse.get("authToken").getAsString(), baseURL);
+        JsonObject joinGameResponse = facade.joinGame("WHITE", gameID, authToken, baseURL);
 
         // Assert successful
         Assertions.assertTrue(joinGameResponse.get("success").getAsBoolean());
     }
-    
 
+
+    @Test
+    @Order(12)
+    @DisplayName("Join Game Failure")
+    public void joinGameFailure() throws IOException {
+
+        // Register
+        JsonObject registerResponse = facade.register(username, password, email, baseURL);
+        String authToken = registerResponse.get("authToken").getAsString();
+
+        // Create game
+        JsonObject createGameResponse = facade.createGame("game", authToken, baseURL);
+
+        // listGames
+        JsonObject listGamesResponse = facade.listGames(authToken, baseURL);
+
+        // Get gameID
+        String gameID = listGamesResponse.get("games").getAsJsonArray().get(0).getAsJsonObject().get("gameID").getAsString();
+
+        // Join game as white
+        JsonObject joinGameResponse = facade.joinGame("WHITE", gameID, "wrong authToken", baseURL);
+
+        // Assert failure
+        Assertions.assertFalse(joinGameResponse.get("success").getAsBoolean());
+    }
 
 
 }

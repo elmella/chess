@@ -16,7 +16,7 @@ public class ServerFacade {
 
     private final Gson gson = new Gson();
 
-    public Object clear(String baseURL) throws IOException {
+    public JsonObject clear(String baseURL) throws IOException {
         String route = "/db";
         String URL = baseURL + route;
 

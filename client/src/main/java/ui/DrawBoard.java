@@ -12,23 +12,15 @@ import static ui.EscapeSequences.*;
 
 public class DrawBoard {
 
-    private static final Map<ChessPiece.PieceType, String> WHITE_PIECE_MAP = Map.of(
-            ChessPiece.PieceType.KING, " K ",
-            ChessPiece.PieceType.QUEEN, " Q ",
-            ChessPiece.PieceType.BISHOP, " B ",
-            ChessPiece.PieceType.KNIGHT, " N ",
-            ChessPiece.PieceType.ROOK, " R ",
-            ChessPiece.PieceType.PAWN, " P "
-    );
+    private static final Map<ChessPiece.PieceType, String> WHITE_PIECE_MAP = Map.of(ChessPiece.PieceType.KING, " K ",
+            ChessPiece.PieceType.QUEEN, " Q ", ChessPiece.PieceType.BISHOP,
+            " B ", ChessPiece.PieceType.KNIGHT, " N ", ChessPiece.PieceType.ROOK,
+            " R ", ChessPiece.PieceType.PAWN, " P ");
 
-    private static final Map<ChessPiece.PieceType, String> BLACK_PIECE_MAP = Map.of(
-            ChessPiece.PieceType.KING, " k ",
-            ChessPiece.PieceType.QUEEN, " q ",
-            ChessPiece.PieceType.BISHOP, " b ",
-            ChessPiece.PieceType.KNIGHT, " n ",
-            ChessPiece.PieceType.ROOK, " r ",
-            ChessPiece.PieceType.PAWN, " p "
-    );
+    private static final Map<ChessPiece.PieceType, String> BLACK_PIECE_MAP = Map.of(ChessPiece.PieceType.KING, " k ",
+            ChessPiece.PieceType.QUEEN, " q ", ChessPiece.PieceType.BISHOP,
+            " b ", ChessPiece.PieceType.KNIGHT, " n ", ChessPiece.PieceType.ROOK,
+            " r ", ChessPiece.PieceType.PAWN, " p ");
 
     // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
@@ -53,9 +45,7 @@ public class DrawBoard {
                     out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
                 }
             }
-        }
-
-        else {
+        } else {
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 drawHeader(out, headers[boardCol]);
 
@@ -134,9 +124,9 @@ public class DrawBoard {
 
                     // draw piece
                     if (reverse) {
-                        piece = board.getPiece(new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow, BOARD_SIZE_IN_SQUARES - boardCol));
-                    }
-                    else {
+                        piece = board.getPiece(new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow,
+                                BOARD_SIZE_IN_SQUARES - boardCol));
+                    } else {
                         piece = board.getPiece(new ChessPosition(boardRow + 1, boardCol + 1));
                     }
                     if (piece != null) {
