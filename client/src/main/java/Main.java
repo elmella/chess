@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import static ui.DrawBoard.*;
 import static ui.EscapeSequences.*;
 
 public class Main {
@@ -32,18 +33,8 @@ public class Main {
 
         System.out.println("Welcome to 240 chess. Type help to get started");
 
-        DrawBoard db = new DrawBoard();
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-        out.print(ERASE_SCREEN);
-
-        db.drawHeaders(out);
-
-        db.drawTicTacToeBoard(out);
-
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
 
         // Begin log out options loop
         while (!quit) {
