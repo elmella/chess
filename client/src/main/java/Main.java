@@ -178,6 +178,13 @@ public class Main {
 
                         gameNumber = Integer.parseInt(command[1]);
                         gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
+                        ChessBoard board = new ChessBoard();
+                        out.print(ERASE_SCREEN);
+
+                        drawHeaders(out);
+                        drawChessBoard(out, board);
+                        drawHeaders(out);
+                        
 
                         System.out.println(gameMap.get(gameNumber).getAsJsonObject());
                         break;
