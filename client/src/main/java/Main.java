@@ -1,19 +1,17 @@
-import chess.*;
+import chess.ChessBoard;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import serverfacade.ServerFacade;
-import ui.DrawBoard;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
-import static ui.DrawBoard.*;
+import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
 public class Main {
@@ -78,7 +76,6 @@ public class Main {
 
                         try {
                             JsonObject response = s.login(command[1], command[2], baseURL);
-                            System.out.println(response);
                             if (response.get("success").getAsBoolean()) {
                                 authToken = response.get("authToken").getAsString();
                                 System.out.println("Logged in as " + command[1]);
@@ -143,13 +140,13 @@ public class Main {
                         break;
 
                     case "list":
-                        list(command, s, authToken, baseURL, gameMap);
+                        list(command, s, authToken, baseURL, gameMap, 1);
                         break;
 
 
                     case "join":
                         if (gameMap.isEmpty()) {
-                            list(command, s, authToken, baseURL, gameMap);
+                            list(command, s, authToken, baseURL, gameMap, 3);
                             break;
                         }
                         if (command.length != 3) {
@@ -157,7 +154,18 @@ public class Main {
                             break;
                         }
 
-                        gameNumber = Integer.parseInt(command[2]);
+                        try {
+                            gameNumber = Integer.parseInt(command[1]);
+                        } catch (Exception e) {
+                            System.out.println("Could not parse game ID");
+                            break;
+                        }
+
+                        if (gameNumber > gameMap.size()) {
+                            System.out.println("Game does not exist");
+                            break;
+                        }
+
                         gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
 
                         try {
@@ -173,7 +181,7 @@ public class Main {
 
                     case "observe":
                         if (gameMap.isEmpty()) {
-                            list(command, s, authToken, baseURL, gameMap);
+                            list(command, s, authToken, baseURL, gameMap, 2);
                             break;
                         }
                         if (command.length != 2) {
@@ -181,14 +189,27 @@ public class Main {
                             break;
                         }
 
-                        gameNumber = Integer.parseInt(command[1]);
+                        try {
+                            gameNumber = Integer.parseInt(command[1]);
+                        } catch (Exception e) {
+                            System.out.println("Could not parse game ID");
+                            break;
+                        }
+
+                        if (gameNumber > gameMap.size()) {
+                            System.out.println("Game does not exist");
+                            break;
+                        }
+
                         gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
                         ChessBoard board = new ChessBoard();
                         board.resetBoard();
                         System.out.println(board);
                         out.print(ERASE_SCREEN);
 
-                        drawChessBoard(out, board);
+                        drawChessBoard(out, board, false);
+                        drawChessBoard(out, board, true);
+
 
                         out.print(SET_BG_COLOR_BLACK);
                         out.print(SET_TEXT_COLOR_WHITE);
@@ -202,30 +223,16 @@ public class Main {
 
     private static void help(boolean loggedIn) {
         if (!loggedIn) {
-            System.out.printf(
-                    "register <USERNAME> <PASSWORD> <EMAIL> - to create an account %n" +
-                            "login <USERNAME> <PASSWORD> - to play chess %n" +
-                            "quit - playing chess %n" +
-                            "help - with possible commands %n"
+            System.out.printf("register <USERNAME> <PASSWORD> <EMAIL> - to create an account %n" + "login <USERNAME> <PASSWORD> - to play chess %n" + "quit - playing chess %n" + "help - with possible commands %n"
 
             );
-        }
-        else {
-            System.out.printf(
-                    "create <NAME> - a game %n" +
-                            "list - games %n" +
-                            "join <ID> [WHITE|BLACK] - a game %n" +
-                            "observe <ID> - a game %n" +
-                            "logout - when you are done %n" +
-                            "quit - playing chess %n" +
-                            "help - with possible commands %n"
-            );
+        } else {
+            System.out.printf("create <NAME> - a game %n" + "list - games %n" + "join <ID> [WHITE|BLACK] - a game %n" + "observe <ID> - a game %n" + "logout - when you are done %n" + "quit - playing chess %n" + "help - with possible commands %n");
         }
     }
 
-    private static void list(String[] command, ServerFacade s, String authToken,
-                             String baseURL, HashMap<Integer, JsonElement> gameMap) {
-        if (command.length != 1) {
+    private static void list(String[] command, ServerFacade s, String authToken, String baseURL, HashMap<Integer, JsonElement> gameMap, int commandLength) {
+        if (command.length != commandLength) {
             System.out.println("Incorrect amount of arguments");
         } else {
 

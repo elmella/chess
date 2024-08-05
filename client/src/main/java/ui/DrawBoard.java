@@ -39,19 +39,36 @@ public class DrawBoard {
     private static final String EMPTY = "   ";
 
 
-    public static void drawHeaders(PrintStream out) {
+    public static void drawHeaders(PrintStream out, boolean reverse) {
         setBlack(out);
 
         String[] headers = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
         printHeaderText(out, " ");
 
-        for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-            drawHeader(out, headers[boardCol]);
+        if (reverse) {
+            for (int boardCol = BOARD_SIZE_IN_SQUARES - 1; boardCol >= 0; --boardCol) {
+                drawHeader(out, headers[boardCol]);
 
-            if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                if (boardCol > 0) {
+                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                }
             }
         }
+
+        else {
+            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+                drawHeader(out, headers[boardCol]);
+
+                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
+                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                }
+            }
+        }
+
+        int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
+        int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
+        out.print(EMPTY.repeat(suffixLength));
+
         printHeaderText(out, " ");
 
         out.println();
@@ -63,7 +80,7 @@ public class DrawBoard {
 
         out.print(EMPTY.repeat(prefixLength));
         printHeaderText(out, headerText);
-        out.print(EMPTY.repeat(suffixLength));
+//        out.print(EMPTY.repeat(suffixLength));
     }
 
     private static void printHeaderText(PrintStream out, String player) {
@@ -75,25 +92,27 @@ public class DrawBoard {
         setBlack(out);
     }
 
-    public static void drawChessBoard(PrintStream out, ChessBoard board) {
-        drawHeaders(out);
+    public static void drawChessBoard(PrintStream out, ChessBoard board, boolean reverse) {
+        drawHeaders(out, reverse);
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            drawRowOfSquares(out, boardRow, board);
+            drawRowOfSquares(out, boardRow, board, reverse);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                drawHorizontalLine(out);
                 setBlack(out);
             }
         }
 
-        drawHeaders(out);
+        drawHeaders(out, reverse);
     }
 
-    private static void drawRowOfSquares(PrintStream out, int boardRow, ChessBoard board) {
+    private static void drawRowOfSquares(PrintStream out, int boardRow, ChessBoard board, boolean reverse) {
+        String intChar = String.valueOf(reverse ? boardRow + 1 : BOARD_SIZE_IN_SQUARES - boardRow);
+        ChessPiece piece;
+
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
             if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-                printHeaderText(out, String.valueOf(BOARD_SIZE_IN_SQUARES - boardRow));
+                printHeaderText(out, intChar);
             } else {
                 printHeaderText(out, " ");
             }
@@ -114,7 +133,12 @@ public class DrawBoard {
                     out.print(EMPTY.repeat(prefixLength));
 
                     // draw piece
-                    ChessPiece piece = board.getPiece(new ChessPosition(boardRow + 1, boardCol + 1));
+                    if (reverse) {
+                        piece = board.getPiece(new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow, BOARD_SIZE_IN_SQUARES - boardCol));
+                    }
+                    else {
+                        piece = board.getPiece(new ChessPosition(boardRow + 1, boardCol + 1));
+                    }
                     if (piece != null) {
                         printPlayer(out, printPiece(piece), isWhiteSquare);
                     } else {
@@ -124,17 +148,10 @@ public class DrawBoard {
                 } else {
                     out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
                 }
-
-                if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                    setRed(out);
-                    for (int i = 0; i < LINE_WIDTH_IN_PADDED_CHARS; i++) {
-                        out.print(" ");
-                    }
-                }
             }
 
             if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-                printHeaderText(out, String.valueOf(BOARD_SIZE_IN_SQUARES - boardRow));
+                printHeaderText(out, intChar);
             } else {
                 printHeaderText(out, " ");
             }
@@ -143,23 +160,6 @@ public class DrawBoard {
         }
     }
 
-    private static void drawHorizontalLine(PrintStream out) {
-        printHeaderText(out, " ");
-
-        int boardSizeInSpaces = BOARD_SIZE_IN_SQUARES * SQUARE_SIZE_IN_PADDED_CHARS +
-                (BOARD_SIZE_IN_SQUARES - 1) * LINE_WIDTH_IN_PADDED_CHARS;
-
-        for (int lineRow = 0; lineRow < LINE_WIDTH_IN_PADDED_CHARS; ++lineRow) {
-            setRed(out);
-            for (int i = 0; i < boardSizeInSpaces; i++) {
-                out.print(" ");
-            }
-
-            setBlack(out);
-            printHeaderText(out, " ");
-            out.println();
-        }
-    }
 
     private static void setWhite(PrintStream out) {
         out.print(SET_BG_COLOR_WHITE);
