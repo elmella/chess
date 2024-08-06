@@ -68,9 +68,7 @@ public class Main {
     }
 
     private static void list(String[] command, int commandLength) throws IOException {
-        if (command.length != commandLength) {
-            out.println("Incorrect amount of arguments");
-        } else {
+        if (!verifyArguments(command, commandLength)) {
 
             JsonObject response = FACADE.listGames(authToken, BASE_URL);
             if (response.get("success").getAsBoolean()) {
@@ -121,12 +119,8 @@ public class Main {
                 break;
 
             case "register":
-
                 // Verify proper structure
-                if (command.length != 4) {
-                    out.println("Incorrect amount of arguments");
-                    break;
-                }
+                if (verifyArguments(command, 4)) { break; }
 
                 response = FACADE.register(command[1], command[2], command[3], BASE_URL);
                 if (response.get("success").getAsBoolean()) {
@@ -137,10 +131,8 @@ public class Main {
                 break;
 
             case "login":
-                if (command.length != 3) {
-                    out.println("Incorrect amount of arguments");
-                    break;
-                }
+                if (verifyArguments(command, 3)) { break; }
+
 
                 response = FACADE.login(command[1], command[2], BASE_URL);
                 if (response.get("success").getAsBoolean()) {
@@ -190,10 +182,7 @@ public class Main {
                 break;
 
             case "create":
-                if (command.length != 2) {
-                    out.println("Incorrect amount of arguments");
-                    break;
-                }
+                if (verifyArguments(command, 2)) { break; }
                 response = FACADE.createGame(command[1], authToken, BASE_URL);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Created game " + command[1]);
@@ -209,11 +198,7 @@ public class Main {
                     list(command, 3);
                     break;
                 }
-                if (command.length != 3) {
-                    out.println("Incorrect amount of arguments");
-                    break;
-                }
-
+                if (verifyArguments(command, 3)) { break; }
                 try {
                     gameNumber = Integer.parseInt(command[1]);
                 } catch (Exception e) {
@@ -246,10 +231,7 @@ public class Main {
                     list(command, 2);
                     break;
                 }
-                if (command.length != 2) {
-                    out.println("Incorrect amount of arguments");
-                    break;
-                }
+                if (verifyArguments(command, 2)) { break; }
                 try {
                     gameNumber = Integer.parseInt(command[1]);
                 } catch (Exception e) {
@@ -275,8 +257,13 @@ public class Main {
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void verifyArguments(int correctAmount) {
-        out.println("Incorrect amount of arguments");
+    private static boolean verifyArguments(String[] command, int correctAmount) {
+        if (command.length != correctAmount) {
+            out.println("Incorrect amount of arguments");
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
