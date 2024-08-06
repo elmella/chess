@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import static java.lang.System.out;
@@ -17,31 +18,27 @@ import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
 public class Main {
+    
+    // Initialize scanner, booleans, and authTokens
     private static final ServerFacade FACADE = new ServerFacade();
     private static final String BASE_URL = "http://localhost:8080";
     private static final Scanner SCANNER = new Scanner(System.in);
     private static boolean loggedOut = true;
     private static String authToken = "";
     private static final HashMap<Integer, JsonElement> GAME_MAP = new HashMap<>();
-    private static BooleanWrapper quit = new BooleanWrapper(false);
-    // Initialize scanner, booleans, and authTokens
-    private final Gson gson = new Gson();
+    private static final BooleanWrapper QUIT = new BooleanWrapper(false);
 
     public static void main(String[] args) {
 
 
         out.println("Welcome to 240 chess. Type help to get started");
 
-        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-
         // Begin log out options loop
         try {
 
-            while (!quit.value) {
+            while (!QUIT.value) {
                 if (loggedOut) {
                     loggedOutMenu();
-
                 }
 
                 // Begin the logged in options
@@ -82,7 +79,16 @@ public class Main {
                     for (int i = 1; i < gameArray.size() + 1; i++) {
                         GAME_MAP.put(i, gameArray.get(i - 1));
                     }
-                    out.println(GAME_MAP);
+                    if (GAME_MAP.isEmpty()) {
+                        out.println("No games");
+                    }
+                    for (Map.Entry<Integer, JsonElement> entry : GAME_MAP.entrySet()) {
+                        JsonObject game = entry.getValue().getAsJsonObject();
+                        out.println("Game number: " + entry.getKey() + ", game ID: " +
+                                game.get("gameID").getAsString() + ", game name: " +
+                                game.get("gameName").getAsString());
+
+                    }
 
                 }
             } catch (IOException e) {
@@ -93,8 +99,11 @@ public class Main {
 
     private static void loggedOutMenu() throws IOException {
         out.print("[LOGGED_OUT] >>> ");
-        String line = SCANNER.nextLine();
-        String[] command = line.split(" ");
+        String[] command = SCANNER.nextLine().split(" ");
+        while (command.length == 0) {
+            out.print("[LOGGED_OUT] >>> ");
+            command = SCANNER.nextLine().split(" ");
+        }
         String baseCommand = command[0];
         JsonObject response;
 
@@ -130,18 +139,25 @@ public class Main {
                     authToken = response.get("authToken").getAsString();
                     out.println("Logged in as " + command[1]);
                     loggedOut = false;
+                } else {
+                    out.println("failed to login");
+
                 }
                 break;
 
             case "quit":
-                quit.value = true;
+                QUIT.value = true;
                 break;
         }
     }
 
     private static void loggedInMenu() throws IOException {
         out.print("[LOGGED_IN] >>> ");
-        String[] command = SCANNER.nextLine().split(" ");;
+        String[] command = SCANNER.nextLine().split(" ");
+        while (command.length == 0) {
+            out.print("[LOGGED_IN] >>> ");
+            command = SCANNER.nextLine().split(" ");
+        }
         String baseCommand = command[0];
         JsonObject response;
         String gameID;
@@ -153,12 +169,11 @@ public class Main {
                 break;
 
             case "quit":
-                quit.value = true;
+                QUIT.value = true;
                 break;
 
             case "logout":
                 response = FACADE.logout(authToken, BASE_URL);
-                out.println(response);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Logged out");
                     authToken = "";
@@ -172,7 +187,6 @@ public class Main {
                     break;
                 }
                 response = FACADE.createGame(command[1], authToken, BASE_URL);
-                out.println(response);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Created game " + command[1]);
                 }
@@ -206,7 +220,6 @@ public class Main {
                 gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
 
                 response = FACADE.joinGame(command[1], gameID, authToken, BASE_URL);
-                out.println(response);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Joined game with ID " + command[1] + " as color " + command[2]);
                 }
