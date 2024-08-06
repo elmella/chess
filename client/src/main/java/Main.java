@@ -67,44 +67,41 @@ public class Main {
         }
     }
 
-    private static void list(String[] command, int commandLength) {
+    private static void list(String[] command, int commandLength) throws IOException {
         if (command.length != commandLength) {
             out.println("Incorrect amount of arguments");
         } else {
 
-            try {
-                JsonObject response = FACADE.listGames(authToken, BASE_URL);
-                if (response.get("success").getAsBoolean()) {
-                    JsonArray gameArray = response.get("games").getAsJsonArray();
-                    for (int i = 1; i < gameArray.size() + 1; i++) {
-                        GAME_MAP.put(i, gameArray.get(i - 1));
+            JsonObject response = FACADE.listGames(authToken, BASE_URL);
+            if (response.get("success").getAsBoolean()) {
+                JsonArray gameArray = response.get("games").getAsJsonArray();
+                for (int i = 1; i < gameArray.size() + 1; i++) {
+                    GAME_MAP.put(i, gameArray.get(i - 1));
+                }
+                if (GAME_MAP.isEmpty()) {
+                    out.println("No games");
+                }
+                for (Map.Entry<Integer, JsonElement> entry : GAME_MAP.entrySet()) {
+                    JsonObject game = entry.getValue().getAsJsonObject();
+                    JsonElement whiteElement = game.get("whiteUsername");
+                    JsonElement blackElement = game.get("blackUsername");
+                    String whiteUsername = "none";
+                    String blackUsername = "none";
+                    if (whiteElement != null) {
+                        whiteUsername = whiteElement.getAsString();
                     }
-                    if (GAME_MAP.isEmpty()) {
-                        out.println("No games");
+                    if (blackElement != null) {
+                        blackUsername = blackElement.getAsString();
                     }
-                    for (Map.Entry<Integer, JsonElement> entry : GAME_MAP.entrySet()) {
-                        JsonObject game = entry.getValue().getAsJsonObject();
-                        JsonElement whiteElement = game.get("whiteUsername");
-                        JsonElement blackElement = game.get("blackUsername");
-                        String whiteUsername = "none";
-                        String blackUsername = "none";
-                        if (whiteElement != null) {
-                            whiteUsername = whiteElement.getAsString();
-                        }
-                        if (blackElement != null) {
-                            blackUsername = blackElement.getAsString();
-                        }
-                        out.println("Game number: " + entry.getKey() + ", game name: " +
-                                game.get("gameName").getAsString()
-                        + ", white username: " + whiteUsername
-                         + ", black username: " + blackUsername);
-
-                    }
+                    out.println("Game number: " + entry.getKey() + ", game name: " +
+                            game.get("gameName").getAsString()
+                            + ", white username: " + whiteUsername
+                            + ", black username: " + blackUsername);
 
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+
             }
+
         }
     }
 
@@ -276,6 +273,11 @@ public class Main {
         drawChessBoard(out, board, true);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    private static void verifyArguments(int correctAmount) {
+        out.println("Incorrect amount of arguments");
+
     }
 
 }
