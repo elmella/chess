@@ -84,9 +84,20 @@ public class Main {
                     }
                     for (Map.Entry<Integer, JsonElement> entry : GAME_MAP.entrySet()) {
                         JsonObject game = entry.getValue().getAsJsonObject();
-                        out.println("Game number: " + entry.getKey() + ", game ID: " +
-                                game.get("gameID").getAsString() + ", game name: " +
-                                game.get("gameName").getAsString());
+                        JsonElement whiteElement = game.get("whiteUsername");
+                        JsonElement blackElement = game.get("blackUsername");
+                        String whiteUsername = "none";
+                        String blackUsername = "none";
+                        if (whiteElement != null) {
+                            whiteUsername = whiteElement.getAsString();
+                        }
+                        if (blackElement != null) {
+                            blackUsername = blackElement.getAsString();
+                        }
+                        out.println("Game number: " + entry.getKey() + ", game name: " +
+                                game.get("gameName").getAsString()
+                        + ", white username: " + whiteUsername
+                         + ", black username: " + blackUsername);
 
                     }
 
@@ -217,11 +228,19 @@ public class Main {
                     out.println("Game does not exist");
                     break;
                 }
+
+                if (!command[2].equals("WHITE") && !command[2].equals("BLACK")) {
+                    out.println("Invalid color");
+                    break;
+                }
+
                 gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
 
-                response = FACADE.joinGame(command[1], gameID, authToken, BASE_URL);
+                response = FACADE.joinGame(command[2], gameID, authToken, BASE_URL);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Joined game with ID " + command[1] + " as color " + command[2]);
+                } else {
+                    out.println("Failed to join game");
                 }
                 break;
 
@@ -252,7 +271,6 @@ public class Main {
     private static void drawBoard() {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        out.println(board);
         out.print(ERASE_SCREEN);
         drawChessBoard(out, board, false);
         drawChessBoard(out, board, true);
