@@ -10,7 +10,7 @@ public class ListGamesHandler extends Handler {
 
     public String handleRequest(Request req, Response res) {
 
-        GameService game = new GameService(GameDAO.getInstance(), AuthDAO.getInstance());
+        GameService game = new GameService(GameDAO.getInstance());
 
         ListGamesResponse result = null;
         try {

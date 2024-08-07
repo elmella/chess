@@ -18,4 +18,11 @@ public class Handler {
             throw new UnauthorizedException("Error: unauthorized");
         }
     }
+
+    public String getUsername(Request req, Response res) throws UnauthorizedException, DataAccessException {
+        String authToken = req.headers("authorization");
+        AuthService auth = new AuthService(AuthDAO.getInstance());
+
+        return auth.getUsername(authToken);
+    }
 }

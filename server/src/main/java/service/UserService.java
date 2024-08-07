@@ -57,13 +57,4 @@ public class UserService extends Service {
         }
         throw new UnauthorizedException("Error: unauthorized");
     }
-
-    public Response logout(String authToken) throws DataAccessException, UnauthorizedException {
-        AuthData auth = authDAO.getAuth(authToken);
-        if (auth.authToken() == null) {
-            throw new UnauthorizedException("Error: unauthorized");
-        }
-        authDAO.deleteAuth(auth);
-        return new Response(null, true);
-    }
 }

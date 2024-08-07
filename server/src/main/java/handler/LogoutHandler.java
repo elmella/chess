@@ -1,7 +1,7 @@
 package handler;
 
 import dataaccess.*;
-import service.UserService;
+import service.AuthService;
 import spark.Request;
 import spark.Response;
 
@@ -10,10 +10,10 @@ public class LogoutHandler extends Handler {
     public String handleRequest(Request req, Response res) {
 
         String authToken = req.headers("authorization");
-        UserService user = new UserService(UserDAO.getInstance(), AuthDAO.getInstance());
+        AuthService auth = new AuthService(AuthDAO.getInstance());
 
         try {
-            result.Response result = user.logout(authToken);
+            result.Response result = auth.logout(authToken);
             return UseGson.toJson(result);
         } catch (DataAccessException e) {
             res.status(500);

@@ -13,7 +13,7 @@ public class CreateGameHandler extends Handler {
 
         CreateGameRequest request = (CreateGameRequest) UseGson.fromJson(req.body(), CreateGameRequest.class);
 
-        GameService game = new GameService(GameDAO.getInstance(), AuthDAO.getInstance());
+        GameService game = new GameService(GameDAO.getInstance());
 
         CreateGameResponse result = null;
         try {

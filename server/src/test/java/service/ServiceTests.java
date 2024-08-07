@@ -10,7 +10,7 @@ import result.LoginResponse;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceTests {
 
-    private final GameService game = new GameService(GameDAO.getInstance(), AuthDAO.getInstance());
+    private final GameService game = new GameService(GameDAO.getInstance());
     private final ClearService clear = new ClearService(AuthDAO.getInstance(), GameDAO.getInstance(), UserDAO.getInstance());
     private final UserService user = new UserService(UserDAO.getInstance(), AuthDAO.getInstance());
     private final AuthService auth = new AuthService(AuthDAO.getInstance());
@@ -106,7 +106,7 @@ public class ServiceTests {
             boolean preLogout = auth.authorize(authToken);
 
             // Log out user
-            user.logout(authToken);
+            auth.logout(authToken);
 
             // Attempt to authorize, should return false
             boolean postLogout = auth.authorize(authToken);
@@ -134,10 +134,10 @@ public class ServiceTests {
             String authToken = response.getAuthToken();
 
             // Log out user
-            user.logout(authToken);
+            auth.logout(authToken);
 
             // Attempt to log out again, should throw UnauthorizedException
-            Assertions.assertThrows(UnauthorizedException.class, () -> user.logout(authToken));
+            Assertions.assertThrows(UnauthorizedException.class, () -> auth.logout(authToken));
 
         } catch (DataAccessException | AlreadyTakenException | UnauthorizedException | BadRequestException e) {
             throw new RuntimeException(e);

@@ -15,11 +15,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GameService extends Service {
-    private final AuthDAOInterface authDAO;
     private final GameDAOInterface gameDAO;
 
-    public GameService(GameDAOInterface gameDAO, AuthDAOInterface authDAO) {
-        this.authDAO = authDAO;
+    public GameService(GameDAOInterface gameDAO) {
         this.gameDAO = gameDAO;
     }
 
@@ -44,19 +42,15 @@ public class GameService extends Service {
         return new CreateGameResponse(gameID, true, null);
     }
 
-    public Response joinGame(JoinGameRequest request, String authToken) throws AlreadyTakenException, BadRequestException, DataAccessException {
+    public Response joinGame(JoinGameRequest request, String username) throws AlreadyTakenException, BadRequestException, DataAccessException {
         hasNullFields(request);
         int gameID = request.gameID();
         String color = request.playerColor();
         GameData currentGame;
-        String username;
         String whiteUsername;
         String blackUsername;
         String gameName;
         ChessGame game;
-        // Get username
-        AuthData auth = authDAO.getAuth(authToken);
-        username = auth.username();
 
         // Get current game before updating it
         currentGame = gameDAO.getGame(gameID);
