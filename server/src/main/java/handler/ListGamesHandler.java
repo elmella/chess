@@ -15,7 +15,7 @@ public class ListGamesHandler extends Handler {
         ListGamesResponse result = null;
         try {
             // Authorize
-            authorize(req, res);
+            authorize(req);
 
             // List games
             result = game.getGames();

@@ -10,6 +10,9 @@ import request.JoinGameRequest;
 import result.GameResponse;
 import result.ListGamesResponse;
 import result.Response;
+import websocket.commands.ConnectCommand;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -86,6 +89,11 @@ public class GameService extends Service {
         return new Response(null, true);
     }
 
+    public LoadGameMessage loadGame(ConnectCommand command) throws DataAccessException {
+        GameData gameData = gameDAO.getGame(command.getGameID());
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData);
+    }
+
     private int createGameID() throws DataAccessException {
         Random r = new Random();
         int gameID = r.nextInt(8999) + 1000;
@@ -94,5 +102,6 @@ public class GameService extends Service {
         }
         return gameID;
     }
+
 
 }

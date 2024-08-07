@@ -18,7 +18,7 @@ public class CreateGameHandler extends Handler {
         CreateGameResponse result = null;
         try {
             // Authorize
-            authorize(req, res);
+            authorize(req);
             result = game.createGame(request);
         } catch (DataAccessException e) {
             res.status(500);

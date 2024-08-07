@@ -10,14 +10,16 @@ import spark.Response;
 public class JoinGameHandler extends Handler {
 
     public String handleRequest(Request req, Response res) {
+        String authToken = req.headers("authorization");
+
         JoinGameRequest request = (JoinGameRequest) UseGson.fromJson(req.body(), JoinGameRequest.class);
 
         GameService gameService = new GameService(GameDAO.getInstance());
 
         try {
             // Authorize request
-            authorize(req, res);
-            String username = getUsername(req, res);
+            authorize(req);
+            String username = getUsername(req);
             result.Response result = gameService.joinGame(request, username);
             return UseGson.toJson(result);
         } catch (AlreadyTakenException e) {

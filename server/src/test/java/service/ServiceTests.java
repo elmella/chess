@@ -14,6 +14,9 @@ public class ServiceTests {
     private final ClearService clear = new ClearService(AuthDAO.getInstance(), GameDAO.getInstance(), UserDAO.getInstance());
     private final UserService user = new UserService(UserDAO.getInstance(), AuthDAO.getInstance());
     private final AuthService auth = new AuthService(AuthDAO.getInstance());
+    private final RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
+    private final LoginRequest loginRequest = new LoginRequest("emily", "iambeautiful");
+    private final CreateGameRequest gameRequest = new CreateGameRequest("game");
 
     @BeforeEach
     public void clear() throws DataAccessException {
@@ -24,7 +27,6 @@ public class ServiceTests {
     @Order(1)
     @DisplayName("Register Success")
     public void registerSuccess() {
-        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
         // Register user
         try {
             LoginResponse registerResponse = user.register(registerRequest);
@@ -38,8 +40,6 @@ public class ServiceTests {
     @Order(2)
     @DisplayName("Register Failure")
     public void registerFailure() {
-        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
-
         // Register user
         try {
             user.register(registerRequest);
@@ -55,8 +55,6 @@ public class ServiceTests {
     @Order(3)
     @DisplayName("Login Success")
     public void loginSuccess() {
-        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
-        LoginRequest loginRequest = new LoginRequest("emily", "iambeautiful");
 
         try {
             // Register user
@@ -73,8 +71,6 @@ public class ServiceTests {
     @Order(4)
     @DisplayName("Login Failure")
     public void loginFailure() {
-        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
-        LoginRequest loginRequest = new LoginRequest("emily", "iamgorgeous");
 
         // Register user
         try {
@@ -84,15 +80,13 @@ public class ServiceTests {
         }
 
         // Try logging in, wrong password, should throw unauthorized
-        Assertions.assertThrows(UnauthorizedException.class, () -> user.login(loginRequest));
+        Assertions.assertThrows(UnauthorizedException.class, () -> user.login(new LoginRequest("emily", "wrong password")));
     }
 
     @Test
     @Order(5)
     @DisplayName("Logout Success")
     public void logoutSuccess() {
-        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
-        LoginRequest loginRequest = new LoginRequest("emily", "iambeautiful");
 
         try {
             // Register user
@@ -122,8 +116,6 @@ public class ServiceTests {
     @Order(6)
     @DisplayName("Logout Failure")
     public void logoutFailure() {
-        RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
-        LoginRequest loginRequest = new LoginRequest("emily", "iambeautiful");
 
         try {
             // Register user
@@ -148,8 +140,6 @@ public class ServiceTests {
     @Order(7)
     @DisplayName("Create Game Success")
     public void createGameSuccess() {
-        CreateGameRequest gameRequest = new CreateGameRequest("game");
-
         // Verify createGame does not throw any errors
         Assertions.assertDoesNotThrow(() -> game.createGame(gameRequest));
     }
@@ -170,9 +160,6 @@ public class ServiceTests {
     @DisplayName("List Games Success")
     public void listGamesSuccess() {
         try {
-
-            CreateGameRequest gameRequest = new CreateGameRequest("game");
-
             // Create game
             game.createGame(gameRequest);
 
@@ -207,12 +194,9 @@ public class ServiceTests {
     public void joinGameSuccess() {
         try {
             // Register, save authToken
-            RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
             LoginResponse loginResponse = user.register(registerRequest);
             String authToken = loginResponse.getAuthToken();
 
-            // Add a game
-            CreateGameRequest gameRequest = new CreateGameRequest("game");
             // Create game
             CreateGameResponse gameResponse = game.createGame(gameRequest);
 
@@ -220,7 +204,7 @@ public class ServiceTests {
 
             // Join game
             JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE", gameID);
-            game.joinGame(joinGameRequest, authToken);
+            game.joinGame(joinGameRequest,  "emily");
 
             // List games, verify username saved
             ListGamesResponse listGamesResponse = game.getGames();
@@ -237,16 +221,12 @@ public class ServiceTests {
     public void joinGameFailure() {
         try {
             // Register, save authToken, do twice
-            RegisterRequest registerRequest = new RegisterRequest("emily", "email@email.com", "iambeautiful");
             RegisterRequest registerRequest2 = new RegisterRequest("matt", "email@email.com", "iamlessbeautiful");
             LoginResponse loginResponse = user.register(registerRequest);
             LoginResponse loginResponse2 = user.register(registerRequest2);
             String authToken = loginResponse.getAuthToken();
             String authToken2 = loginResponse2.getAuthToken();
 
-
-            // Add a game
-            CreateGameRequest gameRequest = new CreateGameRequest("game");
 
             // Create game
             CreateGameResponse gameResponse = game.createGame(gameRequest);
@@ -255,7 +235,7 @@ public class ServiceTests {
 
             // Join game
             JoinGameRequest joinGameRequest = new JoinGameRequest("WHITE", gameID);
-            game.joinGame(joinGameRequest, authToken);
+            game.joinGame(joinGameRequest, "emily");
 
             // Attempt to join game as same color, should fail
             JoinGameRequest joinGameRequest2 = new JoinGameRequest("WHITE", gameID);
@@ -272,20 +252,18 @@ public class ServiceTests {
     @DisplayName("Clear success")
     public void clearSuccess() {
         // Add a game
-        CreateGameRequest gameRequest = new CreateGameRequest("game");
         try {
             game.createGame(gameRequest);
 
             // Add a user, will also create an auth
-            RegisterRequest userRequest = new RegisterRequest("username", "email@email.com", "password");
-            user.register(userRequest);
+            user.register(registerRequest);
 
 
             // Clear the data
             clear.clear();
 
             // Try to log in, should fail
-            Assertions.assertThrows(UnauthorizedException.class, () -> user.login(new LoginRequest("username", "password")));
+            Assertions.assertThrows(UnauthorizedException.class, () -> user.login(loginRequest));
 
             // Get games, should be empty
             Assertions.assertTrue(game.getGames().getGameResponses().isEmpty());
