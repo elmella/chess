@@ -1,14 +1,11 @@
 import chess.BooleanWrapper;
 import chess.ChessBoard;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import serverfacade.ServerFacade;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,7 +14,7 @@ import static java.lang.System.out;
 import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
-public class Main {
+public class Client {
     
     // Initialize scanner, booleans, and authTokens
     private static final ServerFacade FACADE = new ServerFacade();
