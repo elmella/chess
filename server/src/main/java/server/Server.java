@@ -3,6 +3,11 @@ package server;
 import dataaccess.*;
 import handler.*;
 import spark.*;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+
+import java.util.HashMap;
 
 public class Server {
 
@@ -13,6 +18,7 @@ public class Server {
     private final ListGamesHandler listGamesHandler;
     private final CreateGameHandler createGameHandler;
     private final JoinGameHandler joinGameHandler;
+    private final WSServer wsServer;
 
     public Server() {
         this.loginHandler = new LoginHandler();
@@ -22,6 +28,7 @@ public class Server {
         this.listGamesHandler = new ListGamesHandler();
         this.createGameHandler = new CreateGameHandler();
         this.joinGameHandler = new JoinGameHandler();
+        this.wsServer = new WSServer();
     }
 
     public int run(int desiredPort) {
@@ -34,8 +41,10 @@ public class Server {
             throw new RuntimeException(e);
         }
 
-
         Spark.staticFiles.location("web");
+
+        // Initialize WebSocket before defining any routes
+        Spark.webSocket("/ws", wsServer);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", registerHandler::handleRequest);
@@ -45,11 +54,6 @@ public class Server {
         Spark.get("/game", listGamesHandler::handleRequest);
         Spark.post("/game", createGameHandler::handleRequest);
         Spark.put("/game", joinGameHandler::handleRequest);
-
-
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-//        Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();

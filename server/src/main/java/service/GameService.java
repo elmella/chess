@@ -11,6 +11,7 @@ import result.GameResponse;
 import result.ListGamesResponse;
 import result.Response;
 import websocket.commands.ConnectCommand;
+import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
@@ -89,9 +90,9 @@ public class GameService extends Service {
         return new Response(null, true);
     }
 
-    public LoadGameMessage loadGame(ConnectCommand command) throws DataAccessException {
+    public LoadGameMessage loadGame(UserGameCommand command) throws DataAccessException {
         GameData gameData = gameDAO.getGame(command.getGameID());
-        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData);
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame());
     }
 
     private int createGameID() throws DataAccessException {

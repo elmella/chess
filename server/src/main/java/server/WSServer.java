@@ -1,39 +1,39 @@
+package server;
+
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
-import handler.Handler;
-import handler.UseGson;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import service.AuthService;
-import spark.Request;
-import spark.Spark;
 import websocket.LoadGame;
 import websocket.commands.UserGameCommand;
 import websocket.commands.*;
-import websocket.messages.ErrorMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WSServer {
-    private Gson gson;
+    private final Gson commandSerializer = CommandSerializer.createSerializer();
+    private final Gson messageSerializer = MessageSerializer.createSerializer();
 
-    HashMap<Integer, HashMap<String, Session>> gameUserSessionMap = new HashMap<>();
+    private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Session>> gameUserSessionMap = new ConcurrentHashMap<>();
 
-    public static void main(String[] args) {
-        Spark.port(8080);
-        Spark.webSocket("/ws", WSServer.class);
-        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-    }
+//    public static void main(String[] args) {
+//        Spark.port(8080);
+//        Spark.webSocket("/ws", WSServer.class);
+//        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
+//    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         try {
-            UserGameCommand command = (UserGameCommand) UseGson.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = commandSerializer.fromJson(message, UserGameCommand.class);
 
             // Throws a custom UnauthorizedException. Yours may work differently.
             authorize(command);
@@ -58,7 +58,9 @@ public class WSServer {
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage message) {
         try {
-            remote.sendString("WebSocket response: " + message);
+            String jsonResponse = MessageSerializer.createSerializer().toJson(message);
+            System.out.println(jsonResponse);
+            remote.sendString(jsonResponse);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -80,13 +82,34 @@ public class WSServer {
     }
 
     private void saveSession(int gameID, String username, Session session) {
-        gameUserSessionMap.get(gameID).put(username, session);
+        gameUserSessionMap
+                .computeIfAbsent(gameID, k -> new ConcurrentHashMap<>())
+                .put(username, session);
     }
 
     private void connect(Session session, String username, ConnectCommand command) {
-        //
-        ServerMessage serverMessage = new LoadGame().handleRequest(command);
-        sendMessage(session.getRemote(), serverMessage);
+
+        // Load game for others
+        LoadGameMessage loadGameMessage = (LoadGameMessage) new LoadGame().handleRequest(command);
+        sendMessage(session.getRemote(), loadGameMessage);
+
+        // Create notification
+        String notification;
+        String color = command.color();
+        if (color == null) {
+            notification = username + " joined as an observer";
+        } else {
+            notification = username + " joined as player " + color;
+        }
+        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notification);
+
+        ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
+        for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
+            if (!entry.getKey().equals(username)) {
+                sendMessage(entry.getValue().getRemote(), notificationMessage);
+            }
+        }
+
 
 
     }

@@ -59,8 +59,8 @@ public class WSClient extends Endpoint {
         System.out.println(error);
     }
 
-    private void loadGame(GameData gameData) {
-        ChessBoard board = gameData.getGame().getBoard();
+    private void loadGame(ChessGame game) {
+        ChessBoard board = game.getBoard();
         board.resetBoard();
         out.print(ERASE_SCREEN);
         drawChessBoard(out, board, false);

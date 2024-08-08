@@ -28,8 +28,11 @@ public class LoadGame extends WebsocketHandler {
             // Authorize
             authorize(command);
 
-            // List games
-            result = game.loadGame((ConnectCommand) command);
+            // Load the game
+            result = game.loadGame(command);
+            if (result.getGame() == null) {
+                return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");
+            }
         } catch (DataAccessException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());
         } catch (UnauthorizedException e) {
