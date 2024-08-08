@@ -19,7 +19,6 @@ public class LeaveGame extends WebsocketHandler {
 
     public ServerMessage handleRequest(UserGameCommand command) {
 
-
         GameService game = new GameService(GameDAO.getInstance());
 
         LeaveGameCommand leaveGameCommand = (LeaveGameCommand) command;
@@ -28,7 +27,6 @@ public class LeaveGame extends WebsocketHandler {
         try {
             // Authorize
             authorize(command);
-
 
             // Get client color
             ChessGame.TeamColor clientColor = getColor(command);
@@ -45,7 +43,7 @@ public class LeaveGame extends WebsocketHandler {
         } catch (DataAccessException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());
         } catch (UnauthorizedException e) {
-            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized");
+            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
         }
 
         return notificationMessage;

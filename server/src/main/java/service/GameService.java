@@ -1,10 +1,7 @@
 package service;
 
 import chess.*;
-import dataaccess.AlreadyTakenException;
-import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAOInterface;
+import dataaccess.*;
 import model.GameData;
 import request.CreateGameRequest;
 import request.CreateGameResponse;
@@ -115,13 +112,17 @@ public class GameService extends Service {
         gameDAO.updateGame(gameData);
     }
 
-    public void resign(ResignCommand command) throws DataAccessException {
+    public void resign(ResignCommand command) throws DataAccessException, GameOverException {
         GameData gameData = gameDAO.getGame(command.getGameID());
+        ChessGame game = gameData.getGame();
+        if (game.isGameOver()) {
+            throw new GameOverException("Error, game is over");
+        }
         gameData.getGame().setGameOver(true);
         gameDAO.updateGame(gameData);
     }
 
-    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor) throws DataAccessException, InvalidMoveException {
+    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor) throws DataAccessException, InvalidMoveException, GameOverException {
 
         Map<Integer, String> alphaIntMap = Map.of(1, "a", 2, "b", 3, "c", 4,
                 "d", 5, "e", 6, "f", 7, "g", 8, "h");
@@ -142,7 +143,7 @@ public class GameService extends Service {
 
         // Verify game is not over
         if (game.isGameOver()) {
-            throw new InvalidMoveException("Error: game is over");
+            throw new GameOverException("Error: game is over");
         }
 
 

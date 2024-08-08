@@ -5,6 +5,7 @@ import chess.ChessMove;
 import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import dataaccess.GameOverException;
 import dataaccess.UnauthorizedException;
 import service.GameService;
 import websocket.commands.MakeMoveCommand;
@@ -39,11 +40,8 @@ public class MakeMove extends WebsocketHandler {
             }
         } catch (DataAccessException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());
-        } catch (UnauthorizedException e) {
-            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized");
-        } catch (InvalidMoveException e) {
-            System.out.println("invalid move occured");
-            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: invalid move");
+        } catch (UnauthorizedException | InvalidMoveException | GameOverException e) {
+            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
         }
 
         return result;

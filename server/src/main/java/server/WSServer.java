@@ -12,6 +12,7 @@ import service.AuthService;
 import websocket.LeaveGame;
 import websocket.LoadGame;
 import websocket.MakeMove;
+import websocket.Resign;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -41,7 +42,7 @@ public class WSServer {
                 case CONNECT -> connect(session, username, (ConnectCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
                 case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
-//                case RESIGN -> resign(session, username, (ResignCommand) command);
+                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
         } catch (UnauthorizedException e) {
             // Serializes and sends the error message
@@ -144,6 +145,8 @@ public class WSServer {
     }
 
     private void leaveGame(Session session, String username, LeaveGameCommand command) {
+
+        // Get all game clients
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
 
         // Leave the game
@@ -153,7 +156,7 @@ public class WSServer {
 
         userSessions.remove(username, session);
 
-        // Add username to message
+        // Add username to notification
         leaveNotification.setMessage(username + leaveNotification.getMessage());
 
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
@@ -161,6 +164,22 @@ public class WSServer {
         }
 
         gameUserSessionMap.put(command.getGameID(), userSessions);
+    }
+
+    private void resign(Session session, String username, ResignCommand command) {
+
+        // Get all game clients
+        ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
+
+        // Resign
+        NotificationMessage resignNotification = (NotificationMessage) new Resign().handleRequest(command);
+
+        // Add username to notification
+        resignNotification.setMessage(username + resignNotification.getMessage());
+
+        for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
+            sendMessage(entry.getValue().getRemote(), resignNotification);
+        }
     }
 
     private NotificationMessage createNotification(String message) {

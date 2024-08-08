@@ -36,7 +36,7 @@ public class LoadGame extends WebsocketHandler {
         } catch (DataAccessException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());
         } catch (UnauthorizedException e) {
-            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized");
+            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
         }
 
         return result;
