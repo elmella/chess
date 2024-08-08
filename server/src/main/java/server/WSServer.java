@@ -1,16 +1,17 @@
 package server;
 
-import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
-import org.eclipse.jetty.websocket.api.annotations.*;
-import org.eclipse.jetty.websocket.api.*;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.AuthService;
+import websocket.LeaveGame;
 import websocket.LoadGame;
 import websocket.MakeMove;
-import websocket.commands.UserGameCommand;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -24,12 +25,6 @@ public class WSServer {
     private final Gson messageSerializer = MessageSerializer.createSerializer();
 
     private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Session>> gameUserSessionMap = new ConcurrentHashMap<>();
-
-//    public static void main(String[] args) {
-//        Spark.port(8080);
-//        Spark.webSocket("/ws", WSServer.class);
-//        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-//    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
@@ -45,7 +40,7 @@ public class WSServer {
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (ConnectCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
-//                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
+                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
 //                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
         } catch (UnauthorizedException e) {
@@ -85,9 +80,7 @@ public class WSServer {
     }
 
     private void saveSession(int gameID, String username, Session session) {
-        gameUserSessionMap
-                .computeIfAbsent(gameID, k -> new ConcurrentHashMap<>())
-                .put(username, session);
+        gameUserSessionMap.computeIfAbsent(gameID, k -> new ConcurrentHashMap<>()).put(username, session);
     }
 
     private void connect(Session session, String username, ConnectCommand command) {
@@ -130,7 +123,6 @@ public class WSServer {
         NotificationMessage stalemate = createNotification(loadGameMessage.getStalemateNotification());
 
 
-
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
             RemoteEndpoint remote = entry.getValue().getRemote();
 
@@ -151,10 +143,29 @@ public class WSServer {
         }
     }
 
+    private void leaveGame(Session session, String username, LeaveGameCommand command) {
+        ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
+
+        // Leave the game
+        NotificationMessage leaveNotification = (NotificationMessage) new LeaveGame().handleRequest(command);
+
+        gameUserSessionMap.remove(command.getGameID());
+
+        userSessions.remove(username, session);
+
+        // Add username to message
+        leaveNotification.setMessage(username + leaveNotification.getMessage());
+
+        for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
+                sendMessage(entry.getValue().getRemote(), leaveNotification);
+        }
+
+        gameUserSessionMap.put(command.getGameID(), userSessions);
+    }
+
     private NotificationMessage createNotification(String message) {
         if (message != null) {
-            return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    message);
+            return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         }
         return null;
     }

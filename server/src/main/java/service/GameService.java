@@ -12,9 +12,12 @@ import request.JoinGameRequest;
 import result.GameResponse;
 import result.ListGamesResponse;
 import result.Response;
+import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
@@ -102,6 +105,22 @@ public class GameService extends Service {
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(), null, null, null, null);
     }
 
+    public void leaveGame(LeaveGameCommand command, ChessGame.TeamColor leaveColor) throws DataAccessException {
+        GameData gameData = gameDAO.getGame(command.getGameID());
+        if (leaveColor.equals(ChessGame.TeamColor.WHITE)) {
+            gameData.setWhiteUsername(null);
+        } else {
+            gameData.setBlackUsername(null);
+        }
+        gameDAO.updateGame(gameData);
+    }
+
+    public void resign(ResignCommand command) throws DataAccessException {
+        GameData gameData = gameDAO.getGame(command.getGameID());
+        gameData.getGame().setGameOver(true);
+        gameDAO.updateGame(gameData);
+    }
+
     public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor) throws DataAccessException, InvalidMoveException {
 
         Map<Integer, String> alphaIntMap = Map.of(1, "a", 2, "b", 3, "c", 4,
@@ -115,9 +134,17 @@ public class GameService extends Service {
         ChessPosition endPos = move.getEndPosition();
         ChessPiece piece = game.getBoard().getPiece(startPos);
         ChessGame.TeamColor teamColor = piece.getTeamColor();
+
+        // Verify requester is correct color
         if (!teamColor.equals(clientColor)) {
             throw new InvalidMoveException("Error: not correct color");
         }
+
+        // Verify game is not over
+        if (game.isGameOver()) {
+            throw new InvalidMoveException("Error: game is over");
+        }
+
 
         // Piece together move notification
         String startPosString = startPos.getRow() + " " + alphaIntMap.get(startPos.getColumn());

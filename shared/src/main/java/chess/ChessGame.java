@@ -14,11 +14,13 @@ public class ChessGame {
     private ChessBoard board;
     private ArrayList<ChessMove> whiteMoves;
     private ArrayList<ChessMove> blackMoves;
+    private boolean gameOver;
 
     public ChessGame() {
         team = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
+        gameOver = false;
     }
 
     @Override
@@ -233,7 +235,11 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
 
         // In Checkmate if in check and there are no valid moves
-        return isInCheck(teamColor) && hasValidMoves(teamColor);
+        if (isInCheck(teamColor) && hasValidMoves(teamColor)) {
+            gameOver = true;
+            return true;
+        }
+        return false;
     }
 
 
@@ -247,7 +253,11 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
 
         // In Stalemate if not in check and there are no valid moves
-        return !isInCheck(teamColor) && hasValidMoves(teamColor);
+        if (!isInCheck(teamColor) && hasValidMoves(teamColor)) {
+            gameOver = true;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -297,6 +307,14 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     /**
