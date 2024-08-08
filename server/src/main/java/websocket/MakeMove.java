@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
@@ -26,9 +27,11 @@ public class MakeMove extends WebsocketHandler {
             // Authorize
             authorize(command);
 
-            // Load the game
-            result = game.makeMove((MakeMoveCommand) command);
+            // Get client color
+            ChessGame.TeamColor clientColor = getColor(command);
 
+            // Load the game
+            result = game.makeMove((MakeMoveCommand) command, clientColor);
 
 
             if (result.getGame() == null) {

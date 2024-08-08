@@ -93,12 +93,16 @@ public class GameService extends Service {
         return new Response(null, true);
     }
 
+    public GameData getGame(int gameID) throws DataAccessException {
+        return gameDAO.getGame(gameID);
+    }
+
     public LoadGameMessage loadGame(UserGameCommand command) throws DataAccessException {
         GameData gameData = gameDAO.getGame(command.getGameID());
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(), null, null, null, null);
     }
 
-    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand) throws DataAccessException, InvalidMoveException {
+    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor) throws DataAccessException, InvalidMoveException {
 
         Map<Integer, String> alphaIntMap = Map.of(1, "a", 2, "b", 3, "c", 4,
                 "d", 5, "e", 6, "f", 7, "g", 8, "h");
@@ -107,11 +111,13 @@ public class GameService extends Service {
         GameData gameData = gameDAO.getGame(makeMoveCommand.getGameID());
         ChessMove move = makeMoveCommand.getMove();
         ChessGame game = gameData.getGame();
-        System.out.println(game.getTeamTurn());
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         ChessPiece piece = game.getBoard().getPiece(startPos);
         ChessGame.TeamColor teamColor = piece.getTeamColor();
+        if (!teamColor.equals(clientColor)) {
+            throw new InvalidMoveException("Error: not correct color");
+        }
 
         // Piece together move notification
         String startPosString = startPos.getRow() + " " + alphaIntMap.get(startPos.getColumn());
