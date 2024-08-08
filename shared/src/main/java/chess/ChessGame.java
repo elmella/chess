@@ -161,7 +161,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-
+        
         // Save ChessPosition and ChessPiece
         ChessPosition startPos = move.getStartPosition();
         ChessPiece piece = board.getPiece(startPos);
@@ -173,6 +173,7 @@ public class ChessGame {
 
         // Check if it is the corresponding team's turn
         if (piece.getTeamColor() != team) {
+            System.out.println("wrong team");
             throw new InvalidMoveException();
         }
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(startPos);

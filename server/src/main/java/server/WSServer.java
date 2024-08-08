@@ -58,12 +58,14 @@ public class WSServer {
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage message) {
-        try {
-            // Serialize the message
-            String jsonResponse = MessageSerializer.createSerializer().toJson(message);
-            remote.sendString(jsonResponse);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (message != null) {
+            try {
+                // Serialize the message
+                String jsonResponse = MessageSerializer.createSerializer().toJson(message);
+                remote.sendString(jsonResponse);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -118,20 +120,32 @@ public class WSServer {
         // Make move, then load game for everyone
         LoadGameMessage loadGameMessage = (LoadGameMessage) new MakeMove().handleRequest(command);
 
+        // Get game sessions
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
-        NotificationMessage moveNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                loadGameMessage.getMoveNotification());
+
+        // Create notifications
+        NotificationMessage move = createNotification(loadGameMessage.getMoveNotification());
+        NotificationMessage check = createNotification(loadGameMessage.getCheckNotification());
+        NotificationMessage checkmate = createNotification(loadGameMessage.getCheckmateNotification());
+        NotificationMessage stalemate = createNotification(loadGameMessage.getStalemateNotification());
+
 
 
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
-            String sessionUsername = entry.getKey();
+            RemoteEndpoint remote = entry.getValue().getRemote();
 
             // Send load game to everyone
             sendMessage(entry.getValue().getRemote(), loadGameMessage);
 
+            // Send move to everyone else
             if (!entry.getKey().equals(username)) {
-                sendMessage(entry.getValue().getRemote(), moveNotification);
+                sendMessage(remote, move);
             }
+
+            // Send statuses (will not send if null)
+            sendMessage(remote, check);
+            sendMessage(remote, checkmate);
+            sendMessage(remote, stalemate);
 
 
         }
@@ -142,6 +156,7 @@ public class WSServer {
             return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     message);
         }
+        return null;
     }
 
 }

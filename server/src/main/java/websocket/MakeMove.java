@@ -39,6 +39,7 @@ public class MakeMove extends WebsocketHandler {
         } catch (UnauthorizedException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized");
         } catch (InvalidMoveException e) {
+            System.out.println("invalid move occured");
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: invalid move");
         }
 

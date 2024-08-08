@@ -1,8 +1,10 @@
 package service;
 
 import chess.*;
-import dataaccess.*;
-import model.AuthData;
+import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
+import dataaccess.DataAccessException;
+import dataaccess.GameDAOInterface;
 import model.GameData;
 import request.CreateGameRequest;
 import request.CreateGameResponse;
@@ -10,14 +12,12 @@ import request.JoinGameRequest;
 import result.GameResponse;
 import result.ListGamesResponse;
 import result.Response;
-import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -100,34 +100,33 @@ public class GameService extends Service {
 
     public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand) throws DataAccessException, InvalidMoveException {
 
-        Map<Integer, String> alphaIntMap = Map.of(
-                1, "a",
-                2, "b",
-                3, "c",
-                4, "d",
-                5, "e",
-                6, "f",
-                7, "g",
-                8, "h"
-        );
+        Map<Integer, String> alphaIntMap = Map.of(1, "a", 2, "b", 3, "c", 4,
+                "d", 5, "e", 6, "f", 7, "g", 8, "h");
+
+        // Get chess data from database
         GameData gameData = gameDAO.getGame(makeMoveCommand.getGameID());
         ChessMove move = makeMoveCommand.getMove();
         ChessGame game = gameData.getGame();
+        System.out.println(game.getTeamTurn());
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         ChessPiece piece = game.getBoard().getPiece(startPos);
         ChessGame.TeamColor teamColor = piece.getTeamColor();
 
+        // Piece together move notification
         String startPosString = startPos.getRow() + " " + alphaIntMap.get(startPos.getColumn());
         String endPosString = endPos.getRow() + " " + alphaIntMap.get(endPos.getColumn());
 
-        String moveNotification = teamColor + " moves " + piece.getPieceType() + "from " + startPosString
-                + " to " + endPosString;
+        String moveNotification = teamColor + " moves " + piece.getPieceType() + "from " + startPosString + " to " + endPosString;
         if (move.getPromotionPiece() != null) {
             moveNotification += ", promoting it to " + move.getPromotionPiece();
         }
+
+        // Make move and add it to database
         game.makeMove(move);
         gameDAO.updateGame(gameData);
+
+        // Create game status notifications
         String checkNotification = null;
         String checkmateNotification = null;
         String stalemateNotification = null;
@@ -137,12 +136,14 @@ public class GameService extends Service {
         }
         if (game.isInCheckmate(newTeam)) {
             checkmateNotification = newTeam + " is in checkmate";
+
+            // Avoid redundant notification for check if in checkmate
+            checkNotification = null;
         }
         if (game.isInStalemate(newTeam)) {
             stalemateNotification = newTeam + " is in stalemate";
         }
-        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(),
-                checkNotification, checkmateNotification, stalemateNotification, moveNotification);
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(), checkNotification, checkmateNotification, stalemateNotification, moveNotification);
     }
 
     private int createGameID() throws DataAccessException {
