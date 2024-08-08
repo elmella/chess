@@ -117,10 +117,12 @@ public class WSServer {
 
         // Make move, then load game for everyone
         LoadGameMessage loadGameMessage = (LoadGameMessage) new MakeMove().handleRequest(command);
-        ChessMove move = command.getMove();
 
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
-        String notificationMessage =
+        NotificationMessage moveNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                loadGameMessage.getMoveNotification());
+
+
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
             String sessionUsername = entry.getKey();
 
@@ -128,8 +130,17 @@ public class WSServer {
             sendMessage(entry.getValue().getRemote(), loadGameMessage);
 
             if (!entry.getKey().equals(username)) {
-                sendMessage(entry.getValue().getRemote(), notificationMessage);
+                sendMessage(entry.getValue().getRemote(), moveNotification);
             }
+
+
+        }
+    }
+
+    private NotificationMessage createNotification(String message) {
+        if (message != null) {
+            return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    message);
         }
     }
 

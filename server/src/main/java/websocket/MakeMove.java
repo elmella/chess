@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -16,6 +17,10 @@ public class MakeMove extends WebsocketHandler {
 
         GameService game = new GameService(GameDAO.getInstance());
 
+        MakeMoveCommand makeMoveCommand = (MakeMoveCommand) command;
+
+        ChessMove move = makeMoveCommand.getMove();
+
         LoadGameMessage result = null;
         try {
             // Authorize
@@ -23,6 +28,9 @@ public class MakeMove extends WebsocketHandler {
 
             // Load the game
             result = game.makeMove((MakeMoveCommand) command);
+
+
+
             if (result.getGame() == null) {
                 return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");
             }

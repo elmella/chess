@@ -5,15 +5,17 @@ import chess.ChessGame;
 public class LoadGameMessage extends ServerMessage {
 
     private ChessGame game;
-    private boolean isCheck;
-    private boolean isCheckmate;
-    private boolean isStalemate;
-    public LoadGameMessage(ServerMessageType type, ChessGame game, boolean isCheck, boolean isCheckmate, boolean isStalemate) {
+    private String checkNotification;
+    private String checkmateNotification;
+    private String stalemateNotification;
+    private String moveNotification;
+    public LoadGameMessage(ServerMessageType type, ChessGame game, String checkNotification, String checkmateNotification, String stalemateNotification, String moveNotification) {
         super(type);
         this.game = game;
-        this.isCheck = isCheck;
-        this.isCheckmate = isCheckmate;
-        this.isStalemate = isStalemate;
+        this.checkNotification = checkNotification;
+        this.checkmateNotification = checkmateNotification;
+        this.stalemateNotification = stalemateNotification;
+        this.moveNotification = moveNotification;
     }
 
     public ChessGame getGame() {
@@ -24,27 +26,35 @@ public class LoadGameMessage extends ServerMessage {
         this.game = game;
     }
 
-    public boolean isCheck() {
-        return isCheck;
+    public String getCheckNotification() {
+        return checkNotification;
     }
 
-    public void setCheck(boolean check) {
-        isCheck = check;
+    public void setCheckNotification(String checkNotification) {
+        this.checkNotification = checkNotification;
     }
 
-    public boolean isCheckmate() {
-        return isCheckmate;
+    public String getCheckmateNotification() {
+        return checkmateNotification;
     }
 
-    public void setCheckmate(boolean checkmate) {
-        isCheckmate = checkmate;
+    public void setCheckmateNotification(String checkmateNotification) {
+        this.checkmateNotification = checkmateNotification;
     }
 
-    public boolean isStalemate() {
-        return isStalemate;
+    public String getStalemateNotification() {
+        return stalemateNotification;
     }
 
-    public void setStalemate(boolean stalemate) {
-        isStalemate = stalemate;
+    public void setStalemateNotification(String stalemateNotification) {
+        this.stalemateNotification = stalemateNotification;
+    }
+
+    public String getMoveNotification() {
+        return moveNotification;
+    }
+
+    public void setMoveNotification(String moveNotification) {
+        this.moveNotification = moveNotification;
     }
 }
