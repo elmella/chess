@@ -43,7 +43,7 @@ public class WSServer {
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, (ConnectCommand) command);
-//                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
 //                case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
 //                case RESIGN -> resign(session, username, (ResignCommand) command);
             }
@@ -58,8 +58,8 @@ public class WSServer {
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage message) {
         try {
+            // Serialize the message
             String jsonResponse = MessageSerializer.createSerializer().toJson(message);
-            System.out.println(jsonResponse);
             remote.sendString(jsonResponse);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -110,8 +110,8 @@ public class WSServer {
             }
         }
 
-
-
     }
+
+    private void makeMove(Session session, String username, ConnectCommand command)
 
 }
