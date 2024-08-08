@@ -11,7 +11,7 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
-public class MakeMove extends WebsocketHandler {
+public class MoveString  extends WebsocketHandler {
     public ServerMessage handleRequest(UserGameCommand command) {
 
         GameService game = new GameService(GameDAO.getInstance());

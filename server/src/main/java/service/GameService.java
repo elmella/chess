@@ -1,6 +1,6 @@
 package service;
 
-import chess.ChessGame;
+import chess.*;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -11,6 +11,7 @@ import result.GameResponse;
 import result.ListGamesResponse;
 import result.Response;
 import websocket.commands.ConnectCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
@@ -92,7 +93,20 @@ public class GameService extends Service {
 
     public LoadGameMessage loadGame(UserGameCommand command) throws DataAccessException {
         GameData gameData = gameDAO.getGame(command.getGameID());
-        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame());
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(), false, false, false);
+    }
+
+    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand) throws DataAccessException, InvalidMoveException {
+        GameData gameData = gameDAO.getGame(makeMoveCommand.getGameID());
+        ChessMove move = makeMoveCommand.getMove();
+        ChessGame game = gameData.getGame();
+        ChessPosition pos = move.getStartPosition();
+        ChessPiece piece = game.getBoard().getPiece(pos);
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
+        game.makeMove(move);
+        gameDAO.updateGame(gameData);
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(),
+                game.isInCheck(teamColor), game.isInCheckmate(teamColor), game.isInStalemate(teamColor));
     }
 
     private int createGameID() throws DataAccessException {

@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -8,12 +9,12 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import service.AuthService;
 import websocket.LoadGame;
+import websocket.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.commands.*;
 import websocket.messages.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -112,6 +113,24 @@ public class WSServer {
 
     }
 
-    private void makeMove(Session session, String username, ConnectCommand command)
+    private void makeMove(Session session, String username, MakeMoveCommand command) {
+
+        // Make move, then load game for everyone
+        LoadGameMessage loadGameMessage = (LoadGameMessage) new MakeMove().handleRequest(command);
+        ChessMove move = command.getMove();
+
+        ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
+        String notificationMessage =
+        for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
+            String sessionUsername = entry.getKey();
+
+            // Send load game to everyone
+            sendMessage(entry.getValue().getRemote(), loadGameMessage);
+
+            if (!entry.getKey().equals(username)) {
+                sendMessage(entry.getValue().getRemote(), notificationMessage);
+            }
+        }
+    }
 
 }
