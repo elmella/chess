@@ -14,7 +14,7 @@ import static java.lang.System.out;
 import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
-public class Client {
+public class ClientMain {
     
     // Initialize scanner, booleans, and authTokens
     private static final ServerFacade FACADE = new ServerFacade();
