@@ -1,9 +1,15 @@
 import chess.BooleanWrapper;
 import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import serverfacade.ServerFacade;
+import websocket.ServerMessageHandler;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,11 +20,11 @@ import static java.lang.System.out;
 import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
-public class ClientMain {
+public class ClientMain implements ServerMessageHandler {
     
     // Initialize scanner, booleans, and authTokens
-    private static final ServerFacade FACADE = new ServerFacade();
     private static final String BASE_URL = "http://localhost:8080";
+    private static final ServerFacade FACADE = new ServerFacade(BASE_URL);
     private static final Scanner SCANNER = new Scanner(System.in);
     private static boolean loggedOut = true;
     private static String authToken = "";
@@ -67,7 +73,7 @@ public class ClientMain {
     private static void list(String[] command, int commandLength) throws IOException {
         if (!verifyArguments(command, commandLength)) {
 
-            JsonObject response = FACADE.listGames(authToken, BASE_URL);
+            JsonObject response = FACADE.listGames(authToken);
             if (response.get("success").getAsBoolean()) {
                 JsonArray gameArray = response.get("games").getAsJsonArray();
                 for (int i = 1; i < gameArray.size() + 1; i++) {
@@ -119,7 +125,7 @@ public class ClientMain {
                 // Verify proper structure
                 if (verifyArguments(command, 4)) { break; }
 
-                response = FACADE.register(command[1], command[2], command[3], BASE_URL);
+                response = FACADE.register(command[1], command[2], command[3]);
                 if (response.get("success").getAsBoolean()) {
                     authToken = response.get("authToken").getAsString();
                     out.println("Logged in as " + command[1]);
@@ -131,7 +137,7 @@ public class ClientMain {
                 if (verifyArguments(command, 3)) { break; }
 
 
-                response = FACADE.login(command[1], command[2], BASE_URL);
+                response = FACADE.login(command[1], command[2]);
                 if (response.get("success").getAsBoolean()) {
                     authToken = response.get("authToken").getAsString();
                     out.println("Logged in as " + command[1]);
@@ -170,7 +176,7 @@ public class ClientMain {
                 break;
 
             case "logout":
-                response = FACADE.logout(authToken, BASE_URL);
+                response = FACADE.logout(authToken);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Logged out");
                     authToken = "";
@@ -180,7 +186,7 @@ public class ClientMain {
 
             case "create":
                 if (verifyArguments(command, 2)) { break; }
-                response = FACADE.createGame(command[1], authToken, BASE_URL);
+                response = FACADE.createGame(command[1], authToken);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Created game " + command[1]);
                 }
@@ -215,7 +221,7 @@ public class ClientMain {
 
                 gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
 
-                response = FACADE.joinGame(command[2], gameID, authToken, BASE_URL);
+                response = FACADE.joinGame(command[2], gameID, authToken);
                 if (response.get("success").getAsBoolean()) {
                     out.println("Joined game with ID " + command[1] + " as color " + command[2]);
                 } else {
@@ -262,6 +268,33 @@ public class ClientMain {
             return false;
         }
 
+    }
+
+    public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+        }
+    }
+
+
+    private void displayNotification(String notification) {
+        System.out.println(notification);
+    }
+
+    private void displayError(String error) {
+        System.out.println(error);
+    }
+
+    private void loadGame(ChessGame game) {
+        ChessBoard board = game.getBoard();
+        board.resetBoard();
+        out.print(ERASE_SCREEN);
+        drawChessBoard(out, board, false);
+        drawChessBoard(out, board, true);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
     }
 
 }
