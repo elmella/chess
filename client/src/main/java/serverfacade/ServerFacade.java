@@ -15,11 +15,11 @@ public class ServerFacade {
 
     private final Gson gson = new Gson();
 
-    public JsonObject clear(String baseURL) throws IOException {
+    public void clear(String baseURL) throws IOException {
         String route = "/db";
         String url = baseURL + route;
 
-        return doDelete(url, null);
+        doDelete(url, null);
     }
 
     public JsonObject register(String username, String password, String email, String baseUrl) throws IOException {

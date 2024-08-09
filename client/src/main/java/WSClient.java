@@ -1,6 +1,7 @@
 import chess.ChessBoard;
 import chess.ChessGame;
 import model.GameData;
+import websocket.ServerMessageHandler;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -14,17 +15,7 @@ import static java.lang.System.out;
 import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
-public class WSClient extends Endpoint {
-
-    public static void main(String[] args) throws Exception {
-        var ws = new WSClient();
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter a message you want to echo");
-        while (true) {
-            ws.send(scanner.nextLine());
-        }
-    }
+public class WSClient implements ServerMessageHandler {
 
     public Session session;
 
@@ -40,10 +31,7 @@ public class WSClient extends Endpoint {
         this.session.getBasicRemote().sendText(msg);
     }
 
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
-    }
-
-    private void notify(ServerMessage message) {
+    public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
             case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());

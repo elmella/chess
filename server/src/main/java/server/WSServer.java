@@ -22,18 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WSServer {
-    private final Gson commandSerializer = CommandSerializer.createSerializer();
-    private final Gson messageSerializer = MessageSerializer.createSerializer();
 
     private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Session>> gameUserSessionMap = new ConcurrentHashMap<>();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         try {
-            UserGameCommand command = commandSerializer.fromJson(message, UserGameCommand.class);
+            UserGameCommand command = CommandSerializer.createSerializer().fromJson(message, UserGameCommand.class);
 
             // Throws a custom UnauthorizedException. Yours may work differently.
-            authorize(command);
             String username = getUsername(command);
 
             saveSession(command.getGameID(), username, session);
@@ -48,7 +45,6 @@ public class WSServer {
             // Serializes and sends the error message
             sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: unauthorized"));
         } catch (Exception e) {
-            e.printStackTrace();
             sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage()));
         }
     }
@@ -62,16 +58,6 @@ public class WSServer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    private void authorize(UserGameCommand command) throws UnauthorizedException, DataAccessException {
-
-        String authToken = command.getAuthToken();
-        AuthService auth = new AuthService(AuthDAO.getInstance());
-
-        if (!auth.authorize(authToken)) {
-            throw new UnauthorizedException("Error: unauthorized");
         }
     }
 
