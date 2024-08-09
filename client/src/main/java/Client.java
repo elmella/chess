@@ -24,6 +24,8 @@ public class Client {
     private final ServerMessageHandler serverMessageHandler;
     private String authToken;
     private boolean loggedIn;
+    private boolean player;
+    private boolean inGameplay;
     private final Gson GSON = new Gson();
     private static final HashMap<Integer, JsonElement> GAME_MAP = new HashMap<>();
 
@@ -32,77 +34,117 @@ public class Client {
         this.serverMessageHandler = serverMessageHandler;
         FACADE = new ServerFacade(BASE_URL);
         loggedIn = false;
+        inGameplay = false;
+        player = false;
     }
 
-    public String loggedOutMenu(String input) {
-        try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String baseCommand = (tokens.length > 0) ? tokens[0] : "help";
-            String[] command = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (baseCommand) {
-                case "login" -> login(command);
-                case "register" -> register(command);
-                case "quit" -> "quit";
-                default -> loggedOutHelp();
-            };
-        } catch (ResponseException | IOException e) {
-            return e.getMessage();
-        }
+    public boolean isLoggedIn() {
+        return loggedIn;
     }
 
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
 
+    public boolean isInGameplay() {
+        return inGameplay;
+    }
 
+    public void setInGameplay(boolean inGameplay) {
+        this.inGameplay = inGameplay;
+    }
 
+    public boolean isPlayer() {
+        return player;
+    }
+
+    public void setPlayer(boolean player) {
+        this.player = player;
+    }
+
+    public String loggedOutMenu(String input) throws ResponseException, IOException {
+        String[] command = input.toLowerCase().split(" ");
+        String baseCommand = command[0];
+        return switch (baseCommand) {
+            case "login" -> login(command);
+            case "register" -> register(command);
+            case "quit" -> "quit";
+            default -> loggedOutHelp();
+        };
+    }
+
+    public String loggedInMenu(String input) throws ResponseException, IOException {
+        String[] command = input.toLowerCase().split(" ");
+        String baseCommand = command[0];
+        return switch (baseCommand) {
+            case "create" -> create(command);
+            case "list" -> list(command);
+            case "join" -> join(command);
+            case "observe" -> observe(command);
+            case "logout" -> logout(command);
+            case "quit" -> "quit";
+            default -> loggedInHelp();
+        };
+    }
 
     public String gamePlayMenu(String input) {
-        try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String baseCommand = (tokens.length > 0) ? tokens[0] : "help";
-            String[] command = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (baseCommand) {
-                case "create" -> create(command);
-                case "list" -> list(command);
-                case "join" -> join(command);
-                case "observe" -> observe(command);
-                case "logout" -> logout(command);
-                case "quit" -> "quit";
-                default -> loggedInHelp();
-            };
-        } catch (ResponseException | IOException e) {
-            return e.getMessage();
-        }
+        String[] command = input.toLowerCase().split(" ");
+        String baseCommand = command[0];
+        return switch (baseCommand) {
+            case "move" -> move(command);
+            case "leave" -> leave(command);
+            case "resign" -> resign(command);
+            case "redraw" -> redraw(command);
+            case "highlight" -> highlight(command);
+            case "quit" -> "quit";
+            default -> gamePlayHelp();
+        };
     }
 
     public String loggedOutHelp() {
-            return "register <USERNAME> <PASSWORD> <EMAIL> - to create an account %n" +
-                    "login <USERNAME> <PASSWORD> - to play chess %n" + "quit - playing chess %n" +
-                    "help - with possible commands %n";
-
+            return """
+                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account\s
+                    login <USERNAME> <PASSWORD> - to play chess \s
+                    quit - playing chess\s
+                    help - with possible commands\s
+                    """;
     }
 
     public String loggedInHelp() {
-        return "create <NAME> - a game %n" +
-                "list - games %n" +
-                "join <ID> [WHITE|BLACK] - a game %n" +
-                "observe <ID> - a game %n" +
-                "logout - when you are done %n" +
-                "quit - playing chess %n" +
-                "help - with possible commands %n";
+        return """
+                create <NAME> - a game\s
+                list - games\s
+                join <ID> [WHITE|BLACK] - a game\s
+                observe <ID> - a game\s
+                logout - when you are done\s
+                quit - playing chess\s
+                help - with possible commands\s
+                """;
     }
 
     public String gamePlayHelp() {
-        return "move <START_ROW> <START_COL> <END_ROW> <END_COL> - make move (move 2 a 4 a)" +
-                "leave - leave the game" +
-                "resign - end the game and lose" +
-                "redraw - redraws the board" +
-                "highlight <ROW> <COL> - highlight all of the legal moves from the square";
+        if (player) {
+            return """
+                    move <START_ROW> <START_COL> <END_ROW> <END_COL> - make move (move 2 a 4 a)\s
+                    leave - leave the game\s
+                    resign - end the game and lose\s
+                    redraw - redraws the board\s
+                    highlight <ROW> <COL> - highlight all of the legal moves from the square\s
+                    """;
+        } else {
+            return """
+                    leave - leave the game\s
+                    redraw - redraws the board\s
+                    highlight <ROW> <COL> - highlight all of the legal moves from the square\s
+                    """;
+        }
     }
 
 
     private String register(String[] command) throws ResponseException, IOException {
         JsonObject response;
         verifyArguments(command, 4,
-                "register <USERNAME> <PASSWORD> <EMAIL>");
+                "register <USERNAME> <PASSWORD> <EMAIL> \n");
 
         response = FACADE.register(command[1], command[2], command[3]);
         JsonObject jsonObject = GSON.fromJson(response, JsonObject.class);
@@ -118,7 +160,7 @@ public class Client {
     private String login(String[] command) throws ResponseException, IOException {
         JsonObject response;
         verifyArguments(command, 3,
-                "login <USERNAME> <PASSWORD>");
+                "login <USERNAME> <PASSWORD> \n");
 
         response = FACADE.login(command[1], command[2]);
         if (response.get("success").getAsBoolean()) {
@@ -140,7 +182,7 @@ public class Client {
     }
 
     private String create(String[] command) throws IOException, ResponseException {
-        verifyArguments(command, 2, "create <NAME>");
+        verifyArguments(command, 2, "create <NAME> \n");
         JsonObject response = FACADE.createGame(command[1], authToken);
         if (response.get("success").getAsBoolean()) {
             out.println("Created game " + command[1]);
@@ -192,7 +234,7 @@ public class Client {
         }
 
         verifyArguments(command, 3,
-                "join <ID> [WHITE|BLACK]");
+                "join <ID> [WHITE|BLACK] \n");
         try {
             gameNumber = Integer.parseInt(command[1]);
         } catch (Exception e) {
@@ -211,6 +253,8 @@ public class Client {
 
         JsonObject response = FACADE.joinGame(command[2], gameIDString, authToken);
         WS_FACADE = new WebSocketFacade(BASE_URL, serverMessageHandler);
+        inGameplay = true;
+        player = true;
         if (response.get("success").getAsBoolean()) {
             out.println("Joined game with ID " + command[1] + " as color " + command[2]);
         } else {
@@ -228,7 +272,7 @@ public class Client {
         }
 
         verifyArguments(command, 3,
-                "observe <ID>");
+                "observe <ID> \n");
         try {
             gameNumber = Integer.parseInt(command[1]);
         } catch (Exception e) {
@@ -238,10 +282,33 @@ public class Client {
             return "Game does not exist";
         }
         WS_FACADE = new WebSocketFacade(BASE_URL, serverMessageHandler);
+        inGameplay = true;
 
         drawBoard();
         return "Chess board";
     }
+
+    private String move(String[] command) {
+        return "";
+    }
+
+    private String leave(String[] command) {
+        return "";
+    }
+
+    private String resign(String[] command) {
+        return "";
+    }
+
+    private String redraw(String[] command) {
+        return "";
+    }
+
+    private String highlight(String[] command) {
+        return "";
+    }
+
+
 
     private void drawBoard() {
         ChessBoard board = new ChessBoard();
