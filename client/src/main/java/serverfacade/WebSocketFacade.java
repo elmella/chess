@@ -6,6 +6,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import websocket.ServerMessageHandler;
 import websocket.commands.CommandSerializer;
+import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.exception.ResponseException;
@@ -47,6 +48,15 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void connect(String color, String authToken, int gameID) throws IOException {
+        System.out.println("Client sending connect command");
+        ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT,
+                authToken, gameID, color);
+
+        String jsonCommand = gson.toJson(command);
+        send(jsonCommand);
+    }
+
     public void makeMove(int startRow, String startCol, int endRow, String endCol, String piece,
                          String authToken, int gameID) throws IOException {
         Map<String, Integer> colInt = Map.of(
@@ -71,10 +81,10 @@ public class WebSocketFacade extends Endpoint {
         ChessMove move = new ChessMove(startPos, endPos, promotionPiece);
 
         // Create MakeMoveCommand
-        MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,
+        MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,
                 authToken, gameID, move);
 
-        String jsonCommand = gson.toJson(makeMoveCommand);
+        String jsonCommand = gson.toJson(command);
         send(jsonCommand);
     }
 

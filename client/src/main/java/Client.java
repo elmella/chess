@@ -237,6 +237,7 @@ public class Client {
     private String join(String[] command) throws ResponseException, IOException {
         int gameNumber;
         String gameIDString;
+        String color = command[2];
 
         if (gameMap.isEmpty()) {
             return list(command);
@@ -254,10 +255,9 @@ public class Client {
             return "Game does not exist";
         }
 
-        command[2] = command[2].toUpperCase();
+        color = color.toUpperCase();
 
-        if (!command[2].equals("WHITE") && !command[2].equals("BLACK")) {
-            out.println(command[2]);
+        if (!color.equals("WHITE") && !color.equals("BLACK")) {
             return "Invalid color";
         }
 
@@ -267,6 +267,7 @@ public class Client {
         JsonObject response = facade.joinGame(command[2], gameIDString, authToken);
         if (response.get("success").getAsBoolean()) {
             wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
+            wsFacade.connect(color, authToken, gameID);
             inGameplay = true;
             player = true;
             return "Joined game with ID " + command[1] + " as color " + command[2];
@@ -293,6 +294,7 @@ public class Client {
             return "Game does not exist";
         }
         wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
+        wsFacade.connect(null, authToken, gameID);
         inGameplay = true;
 
         drawBoard();

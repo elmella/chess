@@ -71,7 +71,7 @@ public class WSServer {
     }
 
     private void connect(Session session, String username, ConnectCommand command) {
-
+        System.out.println("Server receiving connect command");
         // Load game for others
         LoadGameMessage loadGameMessage = (LoadGameMessage) new LoadGame().handleRequest(command);
         sendMessage(session.getRemote(), loadGameMessage);
