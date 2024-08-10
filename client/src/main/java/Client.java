@@ -264,7 +264,7 @@ public class Client {
         gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsInt();
         gameIDString = String.valueOf(gameID);
 
-        JsonObject response = facade.joinGame(command[2], gameIDString, authToken);
+        JsonObject response = facade.joinGame(color, gameIDString, authToken);
         if (response.get("success").getAsBoolean()) {
             wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
             wsFacade.connect(color, authToken, gameID);

@@ -55,8 +55,8 @@ public class GameService extends Service {
         int gameID = request.gameID();
         String color = request.playerColor();
         GameData currentGame;
-        String whiteUsername;
-        String blackUsername;
+        String whiteUsername = null;
+        String blackUsername = null;
         String gameName;
         ChessGame game;
 
@@ -72,15 +72,15 @@ public class GameService extends Service {
         if (color.equals("WHITE")) {
 
             // Verify color is available
-            if (currentGame.getWhiteUsername() != null) {
+            if (currentGame.getWhiteUsername() != null && !currentGame.getWhiteUsername().equals(username)) {
                 throw new AlreadyTakenException("Error: already taken");
             }
             whiteUsername = username;
             blackUsername = currentGame.getBlackUsername();
-        } else {
+        } else if (color.equals("BLACK")) {
 
             // Verify color is available
-            if (currentGame.getBlackUsername() != null) {
+            if (currentGame.getBlackUsername() != null && !currentGame.getBlackUsername().equals(username)) {
                 throw new AlreadyTakenException("Error: already taken");
             }
             blackUsername = username;
