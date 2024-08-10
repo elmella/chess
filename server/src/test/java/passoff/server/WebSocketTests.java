@@ -61,14 +61,14 @@ public class WebSocketTests {
 
     @Test
     @Order(1)
-    @DisplayName("Normal LoadGame")
+    @DisplayName("Normal Connect")
     public void connectGood() {
         setupNormalGame();
     }
 
     @Test
     @Order(2)
-    @DisplayName("LoadGame Bad GameID")
+    @DisplayName("Connect Bad GameID")
     public void connectBadGameID() {
         connectToGame(white, gameID + 1, false, Set.of(), Set.of()); //player connect with an incorrect game id
         connectToGame(observer, gameID + 1, false, Set.of(white), Set.of()); //observer incorrect game id
@@ -76,7 +76,7 @@ public class WebSocketTests {
 
     @Test
     @Order(2)
-    @DisplayName("LoadGame Bad AuthToken")
+    @DisplayName("Connect Bad AuthToken")
     public void connectBadAuthToken() {
         connectToGame(new WebsocketUser(black.username(), "badAuth"), gameID, false, Set.of(), Set.of());
         connectToGame(new WebsocketUser(observer.username(), "badAuth"), gameID, false, Set.of(black), Set.of());
