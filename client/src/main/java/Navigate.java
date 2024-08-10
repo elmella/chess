@@ -58,12 +58,12 @@ public class Navigate implements ServerMessageHandler {
 
     private void printPrompt(boolean loggedIn, boolean gamePlay) {
         if (gamePlay) {
-            System.out.println("[GAMEPLAY] >>>" );
+            System.out.println("\n[GAMEPLAY] >>>" );
         }
         else if(loggedIn) {
-            System.out.println("[LOGGED_IN] >>>" );
+            System.out.println("\n[LOGGED_IN] >>>" );
         } else {
-            System.out.println("[LOGGED_OUT] >>>" );
+            System.out.println("\n[LOGGED_OUT] >>>" );
         }
     }
 

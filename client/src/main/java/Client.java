@@ -9,6 +9,8 @@ import websocket.ServerMessageHandler;
 import websocket.exception.ResponseException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,7 +89,7 @@ public class Client {
         };
     }
 
-    public String gamePlayMenu(String input) {
+    public String gamePlayMenu(String input) throws IOException {
         String[] command = input.toLowerCase().split(" ");
         String baseCommand = command[0];
         return switch (baseCommand) {
@@ -96,7 +98,6 @@ public class Client {
             case "resign" -> resign(command);
             case "redraw" -> redraw(command);
             case "highlight" -> highlight(command);
-            case "quit" -> "quit";
             default -> gamePlayHelp();
         };
     }
@@ -129,7 +130,7 @@ public class Client {
             return """
                     \n
                     move <START_ROW> <START_COL> <END_ROW> <END_COL> <PROMOTION_PIECE_TYPE> (If applicable) 
-                    - make move (move 2 a 4 a)\s
+                    - make move (move 7 a 8 a KING)\s
                     leave - leave the game\s
                     resign - end the game and lose\s
                     redraw - redraws the board\s
@@ -264,10 +265,10 @@ public class Client {
         gameIDString = String.valueOf(gameID);
 
         JsonObject response = facade.joinGame(command[2], gameIDString, authToken);
-        wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
-        inGameplay = true;
-        player = true;
         if (response.get("success").getAsBoolean()) {
+            wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
+            inGameplay = true;
+            player = true;
             return "Joined game with ID " + command[1] + " as color " + command[2];
         } else {
             return "Failed to join game";
@@ -298,14 +299,16 @@ public class Client {
         return "Chess board";
     }
 
-    private String move(String[] command) {
-
+    private String move(String[] command) throws IOException {
+        wsFacade.makeMove(Integer.parseInt(command[1]), command[2], Integer.parseInt(command[3]),
+                command[4], command[5],
+                authToken, gameID);
         return "";
     }
 
     private String leave(String[] command) {
         inGameplay = false;
-        return "";
+        return "quit";
     }
 
     private String resign(String[] command) {
@@ -339,7 +342,6 @@ public class Client {
         if (command.length != correctAmount) {
             throw new ResponseException(400, "Wrong argument length, structure is\n" + message);
         }
-
     }
 
 }
