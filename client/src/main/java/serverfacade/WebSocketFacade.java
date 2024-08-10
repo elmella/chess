@@ -39,6 +39,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+//    public void makeMove(int startRow, int startCol, int endRow, int endCol,
+//                         )
+
     //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {

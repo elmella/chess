@@ -23,6 +23,7 @@ public class Client {
     private final String BASE_URL;
     private final ServerMessageHandler serverMessageHandler;
     private String authToken;
+    private Integer gameID;
     private boolean loggedIn;
     private boolean player;
     private boolean inGameplay;
@@ -103,6 +104,7 @@ public class Client {
 
     public String loggedOutHelp() {
             return """
+                    \n
                     register <USERNAME> <PASSWORD> <EMAIL> - to create an account\s
                     login <USERNAME> <PASSWORD> - to play chess \s
                     quit - playing chess\s
@@ -112,6 +114,7 @@ public class Client {
 
     public String loggedInHelp() {
         return """
+                \n
                 create <NAME> - a game\s
                 list - games\s
                 join <ID> [WHITE|BLACK] - a game\s
@@ -125,7 +128,9 @@ public class Client {
     public String gamePlayHelp() {
         if (player) {
             return """
-                    move <START_ROW> <START_COL> <END_ROW> <END_COL> - make move (move 2 a 4 a)\s
+                    \n
+                    move <START_ROW> <START_COL> <END_ROW> <END_COL> <PROMOTION_PIECE_TYPE> (If applicable) 
+                    - make move (move 2 a 4 a)\s
                     leave - leave the game\s
                     resign - end the game and lose\s
                     redraw - redraws the board\s
@@ -150,11 +155,11 @@ public class Client {
         JsonObject jsonObject = GSON.fromJson(response, JsonObject.class);
         if (jsonObject.get("success").getAsBoolean()) {
             authToken = jsonObject.get("authToken").getAsString();
-            out.println("Logged in as " + command[1]);
             loggedIn = true;
+            return "Logged in as " + command[1];
+        } else {
+            return "Failed to register " + command[1];
         }
-
-        return response.getAsString();
     }
 
     private String login(String[] command) throws ResponseException, IOException {
@@ -165,29 +170,33 @@ public class Client {
         response = FACADE.login(command[1], command[2]);
         if (response.get("success").getAsBoolean()) {
             authToken = response.get("authToken").getAsString();
-            out.println("Logged in as " + command[1]);
             loggedIn = true;
+            return "Logged in as " + command[1];
         }
-        return response.getAsString();
+        else {
+            return "Failed to login " + command[1];
+        }
     }
 
     private String logout(String[] command) throws IOException {
         JsonObject response = FACADE.logout(authToken);
         if (response.get("success").getAsBoolean()) {
-            out.println("Logged out");
             authToken = "";
             loggedIn = false;
+            return "Logged out successfully";
+        } else {
+            return "Failed to log out";
         }
-        return response.getAsString();
     }
 
     private String create(String[] command) throws IOException, ResponseException {
         verifyArguments(command, 2, "create <NAME> \n");
         JsonObject response = FACADE.createGame(command[1], authToken);
         if (response.get("success").getAsBoolean()) {
-            out.println("Created game " + command[1]);
+            return "Created game " + command[1];
+        } else {
+            return "Failed to create game " + command[1];
         }
-        return response.getAsString();
     }
 
     private String list(String[] command) throws ResponseException, IOException {
@@ -200,7 +209,7 @@ public class Client {
                 GAME_MAP.put(i, gameArray.get(i - 1));
             }
             if (GAME_MAP.isEmpty()) {
-                out.println("No games");
+                return "No games";
             }
             for (Map.Entry<Integer, JsonElement> entry : GAME_MAP.entrySet()) {
                 JsonObject game = entry.getValue().getAsJsonObject();
@@ -245,23 +254,25 @@ public class Client {
             return "Game does not exist";
         }
 
+        command[2] = command[2].toUpperCase();
+
         if (!command[2].equals("WHITE") && !command[2].equals("BLACK")) {
+            out.println(command[2]);
             return "Invalid color";
         }
 
-        gameIDString = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsString();
+        gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsInt();
+        gameIDString = String.valueOf(gameID);
 
         JsonObject response = FACADE.joinGame(command[2], gameIDString, authToken);
         WS_FACADE = new WebSocketFacade(BASE_URL, serverMessageHandler);
         inGameplay = true;
         player = true;
         if (response.get("success").getAsBoolean()) {
-            out.println("Joined game with ID " + command[1] + " as color " + command[2]);
+            return "Joined game with ID " + command[1] + " as color " + command[2];
         } else {
-            out.println("Failed to join game");
+            return "Failed to join game";
         }
-
-        return response.getAsString();
     }
 
     private String observe(String[] command) throws ResponseException, IOException {
@@ -289,10 +300,12 @@ public class Client {
     }
 
     private String move(String[] command) {
+
         return "";
     }
 
     private String leave(String[] command) {
+        inGameplay = false;
         return "";
     }
 
@@ -325,7 +338,7 @@ public class Client {
 
     private void verifyArguments(String[] command, int correctAmount, String message) throws ResponseException {
         if (command.length != correctAmount) {
-            throw new ResponseException(400, message);
+            throw new ResponseException(400, "Wrong argument length, structure is\n" + message);
         }
 
     }
