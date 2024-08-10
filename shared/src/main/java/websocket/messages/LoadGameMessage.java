@@ -9,7 +9,8 @@ public class LoadGameMessage extends ServerMessage {
     private String checkmateNotification;
     private String stalemateNotification;
     private String moveNotification;
-    public LoadGameMessage(ServerMessageType type, ChessGame game, String checkNotification, String checkmateNotification, String stalemateNotification, String moveNotification) {
+    public LoadGameMessage(ServerMessageType type, ChessGame game, String checkNotification,
+                           String checkmateNotification, String stalemateNotification, String moveNotification) {
         super(type);
         this.game = game;
         this.checkNotification = checkNotification;

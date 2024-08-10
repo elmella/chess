@@ -49,7 +49,8 @@ public class GameService extends Service {
         return new CreateGameResponse(gameID, true, null);
     }
 
-    public Response joinGame(JoinGameRequest request, String username) throws AlreadyTakenException, BadRequestException, DataAccessException {
+    public Response joinGame(JoinGameRequest request, String username)
+            throws AlreadyTakenException, BadRequestException, DataAccessException {
         hasNullFields(request);
         int gameID = request.gameID();
         String color = request.playerColor();
@@ -122,7 +123,8 @@ public class GameService extends Service {
         gameDAO.updateGame(gameData);
     }
 
-    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor) throws DataAccessException, InvalidMoveException, GameOverException {
+    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor)
+            throws DataAccessException, InvalidMoveException, GameOverException {
 
         Map<Integer, String> alphaIntMap = Map.of(1, "a", 2, "b", 3, "c", 4,
                 "d", 5, "e", 6, "f", 7, "g", 8, "h");
@@ -177,7 +179,8 @@ public class GameService extends Service {
         if (game.isInStalemate(newTeam)) {
             stalemateNotification = newTeam + " is in stalemate";
         }
-        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(), checkNotification, checkmateNotification, stalemateNotification, moveNotification);
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(),
+                checkNotification, checkmateNotification, stalemateNotification, moveNotification);
     }
 
     private int createGameID() throws DataAccessException {

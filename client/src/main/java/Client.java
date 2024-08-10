@@ -9,7 +9,6 @@ import websocket.ServerMessageHandler;
 import websocket.exception.ResponseException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,22 +17,22 @@ import static ui.DrawBoard.drawChessBoard;
 import static ui.EscapeSequences.*;
 
 public class Client {
-    private final ServerFacade FACADE;
-    private WebSocketFacade WS_FACADE;
-    private final String BASE_URL;
+    private final ServerFacade facade;
+    private WebSocketFacade wsFacade;
+    private final String baseUrl;
     private final ServerMessageHandler serverMessageHandler;
     private String authToken;
     private Integer gameID;
     private boolean loggedIn;
     private boolean player;
     private boolean inGameplay;
-    private final Gson GSON = new Gson();
-    private static final HashMap<Integer, JsonElement> GAME_MAP = new HashMap<>();
+    private final Gson gson = new Gson();
+    private static final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
 
-    public Client(String BASE_URL, ServerMessageHandler serverMessageHandler) {
-        this.BASE_URL = BASE_URL;
+    public Client(String baseUrl, ServerMessageHandler serverMessageHandler) {
+        this.baseUrl = baseUrl;
         this.serverMessageHandler = serverMessageHandler;
-        FACADE = new ServerFacade(BASE_URL);
+        facade = new ServerFacade(baseUrl);
         loggedIn = false;
         inGameplay = false;
         player = false;
@@ -151,8 +150,8 @@ public class Client {
         verifyArguments(command, 4,
                 "register <USERNAME> <PASSWORD> <EMAIL> \n");
 
-        response = FACADE.register(command[1], command[2], command[3]);
-        JsonObject jsonObject = GSON.fromJson(response, JsonObject.class);
+        response = facade.register(command[1], command[2], command[3]);
+        JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
         if (jsonObject.get("success").getAsBoolean()) {
             authToken = jsonObject.get("authToken").getAsString();
             loggedIn = true;
@@ -167,7 +166,7 @@ public class Client {
         verifyArguments(command, 3,
                 "login <USERNAME> <PASSWORD> \n");
 
-        response = FACADE.login(command[1], command[2]);
+        response = facade.login(command[1], command[2]);
         if (response.get("success").getAsBoolean()) {
             authToken = response.get("authToken").getAsString();
             loggedIn = true;
@@ -179,7 +178,7 @@ public class Client {
     }
 
     private String logout(String[] command) throws IOException {
-        JsonObject response = FACADE.logout(authToken);
+        JsonObject response = facade.logout(authToken);
         if (response.get("success").getAsBoolean()) {
             authToken = "";
             loggedIn = false;
@@ -191,7 +190,7 @@ public class Client {
 
     private String create(String[] command) throws IOException, ResponseException {
         verifyArguments(command, 2, "create <NAME> \n");
-        JsonObject response = FACADE.createGame(command[1], authToken);
+        JsonObject response = facade.createGame(command[1], authToken);
         if (response.get("success").getAsBoolean()) {
             return "Created game " + command[1];
         } else {
@@ -201,17 +200,17 @@ public class Client {
 
     private String list(String[] command) throws ResponseException, IOException {
         verifyArguments(command, 1, "list");
-        JsonObject response = FACADE.listGames(authToken);
+        JsonObject response = facade.listGames(authToken);
         StringBuilder gameList = new StringBuilder("List of games: \n");
         if (response.get("success").getAsBoolean()) {
             JsonArray gameArray = response.get("games").getAsJsonArray();
             for (int i = 1; i < gameArray.size() + 1; i++) {
-                GAME_MAP.put(i, gameArray.get(i - 1));
+                gameMap.put(i, gameArray.get(i - 1));
             }
-            if (GAME_MAP.isEmpty()) {
+            if (gameMap.isEmpty()) {
                 return "No games";
             }
-            for (Map.Entry<Integer, JsonElement> entry : GAME_MAP.entrySet()) {
+            for (Map.Entry<Integer, JsonElement> entry : gameMap.entrySet()) {
                 JsonObject game = entry.getValue().getAsJsonObject();
                 JsonElement whiteElement = game.get("whiteUsername");
                 JsonElement blackElement = game.get("blackUsername");
@@ -238,7 +237,7 @@ public class Client {
         int gameNumber;
         String gameIDString;
 
-        if (GAME_MAP.isEmpty()) {
+        if (gameMap.isEmpty()) {
             return list(command);
         }
 
@@ -250,7 +249,7 @@ public class Client {
             return "Could not parse game ID";
         }
 
-        if (gameNumber > GAME_MAP.size()) {
+        if (gameNumber > gameMap.size()) {
             return "Game does not exist";
         }
 
@@ -261,11 +260,11 @@ public class Client {
             return "Invalid color";
         }
 
-        gameID = GAME_MAP.get(gameNumber).getAsJsonObject().get("gameID").getAsInt();
+        gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsInt();
         gameIDString = String.valueOf(gameID);
 
-        JsonObject response = FACADE.joinGame(command[2], gameIDString, authToken);
-        WS_FACADE = new WebSocketFacade(BASE_URL, serverMessageHandler);
+        JsonObject response = facade.joinGame(command[2], gameIDString, authToken);
+        wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
         inGameplay = true;
         player = true;
         if (response.get("success").getAsBoolean()) {
@@ -278,7 +277,7 @@ public class Client {
     private String observe(String[] command) throws ResponseException, IOException {
         int gameNumber;
 
-        if (GAME_MAP.isEmpty()) {
+        if (gameMap.isEmpty()) {
             return list(command);
         }
 
@@ -289,10 +288,10 @@ public class Client {
         } catch (Exception e) {
             return "Could not parse game ID";
         }
-        if (gameNumber > GAME_MAP.size()) {
+        if (gameNumber > gameMap.size()) {
             return "Game does not exist";
         }
-        WS_FACADE = new WebSocketFacade(BASE_URL, serverMessageHandler);
+        wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
         inGameplay = true;
 
         drawBoard();

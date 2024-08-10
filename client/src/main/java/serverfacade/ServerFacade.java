@@ -13,50 +13,50 @@ import java.util.Map;
 
 public class ServerFacade {
 
-    private final Gson GSON = new Gson();
-    private final String BASE_URL;
+    private final Gson gson = new Gson();
+    private final String baseUrl;
 
     public ServerFacade(String baseURL) {
-        this.BASE_URL = baseURL;
+        this.baseUrl = baseURL;
     }
 
     public void clear() throws IOException {
         String route = "/db";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         doDelete(url, null);
     }
 
     public JsonObject register(String username, String password, String email) throws IOException {
         String route = "/user";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("username", username);
         bodyMap.put("password", password);
         bodyMap.put("email", email);
 
-        String bodyJSON = GSON.toJson(bodyMap, Map.class);
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
 
         return doPost(url, null, bodyJSON);
     }
 
     public JsonObject login(String username, String password) throws IOException {
         String route = "/session";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("username", username);
         bodyMap.put("password", password);
 
-        String bodyJSON = GSON.toJson(bodyMap, Map.class);
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
 
         return doPost(url, null, bodyJSON);
     }
 
     public JsonObject logout(String authToken) throws IOException {
         String route = "/session";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
@@ -66,7 +66,7 @@ public class ServerFacade {
 
     public JsonObject listGames(String authToken) throws IOException {
         String route = "/game";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
@@ -76,7 +76,7 @@ public class ServerFacade {
 
     public JsonObject createGame(String gameName, String authToken) throws IOException {
         String route = "/game";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
@@ -84,14 +84,14 @@ public class ServerFacade {
         Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("gameName", gameName);
 
-        String bodyJSON = GSON.toJson(bodyMap, Map.class);
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
 
         return doPost(url, headers, bodyJSON);
     }
 
     public JsonObject joinGame(String playerColor, String gameID, String authToken) throws IOException {
         String route = "/game";
-        String url = BASE_URL + route;
+        String url = baseUrl + route;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", authToken);
@@ -100,7 +100,7 @@ public class ServerFacade {
         bodyMap.put("playerColor", playerColor);
         bodyMap.put("gameID", gameID);
 
-        String bodyJSON = GSON.toJson(bodyMap, Map.class);
+        String bodyJSON = gson.toJson(bodyMap, Map.class);
 
         return doPut(url, headers, bodyJSON);
     }
@@ -168,13 +168,13 @@ public class ServerFacade {
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             try (InputStream responseBody = connection.getInputStream()) {
                 InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-                responseObject = GSON.fromJson(inputStreamReader, JsonObject.class);
+                responseObject = gson.fromJson(inputStreamReader, JsonObject.class);
             }
             return responseObject;
         } else {
             InputStream responseBody = connection.getErrorStream();
             InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
-            return GSON.fromJson(inputStreamReader, JsonObject.class);
+            return gson.fromJson(inputStreamReader, JsonObject.class);
         }
     }
 }
