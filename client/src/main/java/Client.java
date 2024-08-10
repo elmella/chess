@@ -27,7 +27,7 @@ public class Client {
     private boolean player;
     private boolean inGameplay;
     private final Gson gson = new Gson();
-    private static final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
+    private final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
 
     public Client(String baseUrl, ServerMessageHandler serverMessageHandler) {
         this.baseUrl = baseUrl;
