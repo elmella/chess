@@ -9,10 +9,7 @@ import request.JoinGameRequest;
 import result.GameResponse;
 import result.ListGamesResponse;
 import result.Response;
-import websocket.commands.LeaveGameCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.ResignCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -20,6 +17,9 @@ import websocket.messages.ServerMessage;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
+
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 
 public class GameService extends Service {
     private final GameDAOInterface gameDAO;
@@ -98,14 +98,23 @@ public class GameService extends Service {
         return gameDAO.getGame(gameID);
     }
 
-    public LoadGameMessage loadGame(UserGameCommand command) throws DataAccessException {
+    public LoadGameMessage loadGame(ConnectCommand command) throws DataAccessException {
         GameData gameData = gameDAO.getGame(command.getGameID());
-        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(), null, null, null, null);
+        ChessGame.TeamColor color = null;
+        if (command.color() != null) {
+            if (command.color().equals("WHITE")) {
+                color = WHITE;
+            } else if (command.color().equals("BLACK")) {
+                color = BLACK;
+            }
+        }
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(),
+                null, null, null, null, color);
     }
 
     public void leaveGame(LeaveGameCommand command, ChessGame.TeamColor leaveColor) throws DataAccessException {
         GameData gameData = gameDAO.getGame(command.getGameID());
-        if (leaveColor.equals(ChessGame.TeamColor.WHITE)) {
+        if (leaveColor.equals(WHITE)) {
             gameData.setWhiteUsername(null);
         } else {
             gameData.setBlackUsername(null);
@@ -180,7 +189,7 @@ public class GameService extends Service {
             stalemateNotification = newTeam + " is in stalemate";
         }
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(),
-                checkNotification, checkmateNotification, stalemateNotification, moveNotification);
+                checkNotification, checkmateNotification, stalemateNotification, moveNotification, clientColor);
     }
 
     private int createGameID() throws DataAccessException {

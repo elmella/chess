@@ -72,7 +72,10 @@ public class Navigate implements ServerMessageHandler {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
             case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+            case LOAD_GAME -> {
+                LoadGameMessage loadGameMessage = ((LoadGameMessage) message);
+                loadGame(loadGameMessage.getGame(), loadGameMessage.getColor());
+            }
         }
     }
 
@@ -85,13 +88,11 @@ public class Navigate implements ServerMessageHandler {
         out.println(error);
     }
 
-    private void loadGame(ChessGame game) {
-        out.println(game);
+    private void loadGame(ChessGame game, ChessGame.TeamColor color) {
         ChessBoard board = game.getBoard();
         board.resetBoard();
         out.print(ERASE_SCREEN);
-        drawChessBoard(out, board, false);
-        drawChessBoard(out, board, true);
+        drawChessBoard(out, board, color != ChessGame.TeamColor.BLACK);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }

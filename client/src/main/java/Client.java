@@ -283,7 +283,7 @@ public class Client {
             return list(command);
         }
 
-        verifyArguments(command, 3,
+        verifyArguments(command, 2,
                 "observe <ID> \n");
         try {
             gameNumber = Integer.parseInt(command[1]);
@@ -293,12 +293,11 @@ public class Client {
         if (gameNumber > gameMap.size()) {
             return "Game does not exist";
         }
+        gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsInt();
         wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
         wsFacade.connect(null, authToken, gameID);
         inGameplay = true;
-
-        drawBoard();
-        return "Chess board";
+        return "";
     }
 
     private String move(String[] command) throws IOException {

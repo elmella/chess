@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UnauthorizedException;
 import service.GameService;
+import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -14,13 +15,15 @@ public class LoadGame extends WebsocketHandler {
 
         GameService game = new GameService(GameDAO.getInstance());
 
+        ConnectCommand connectCommand = (ConnectCommand) command;
+
         LoadGameMessage result = null;
         try {
             // Authorize
             authorize(command);
 
             // Load the game
-            result = game.loadGame(command);
+            result = game.loadGame(connectCommand);
             if (result.getGame() == null) {
                 return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");
             }
