@@ -6,6 +6,8 @@ import dataaccess.DataAccessException;
 import dataaccess.UnauthorizedException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.AuthService;
@@ -27,6 +29,7 @@ public class WSServer {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
+        System.out.println("Message received by server");
         try {
             UserGameCommand command = CommandSerializer.createSerializer().fromJson(message, UserGameCommand.class);
 
@@ -47,6 +50,16 @@ public class WSServer {
         } catch (Exception e) {
             sendMessage(session.getRemote(), new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage()));
         }
+    }
+
+    @OnWebSocketConnect
+    public void onConnect(Session session) {
+        System.out.println("WebSocket connection established: " + session.getRemoteAddress().getAddress());
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        System.out.println("WebSocket connection closed: " + reason);
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage message) {
@@ -71,7 +84,6 @@ public class WSServer {
     }
 
     private void connect(Session session, String username, ConnectCommand command) {
-        System.out.println("Server receiving connect command");
         // Load game for others
         LoadGameMessage loadGameMessage = (LoadGameMessage) new LoadGame().handleRequest(command);
         sendMessage(session.getRemote(), loadGameMessage);

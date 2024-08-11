@@ -86,6 +86,7 @@ public class Navigate implements ServerMessageHandler {
     }
 
     private void loadGame(ChessGame game) {
+        out.println(game);
         ChessBoard board = game.getBoard();
         board.resetBoard();
         out.print(ERASE_SCREEN);

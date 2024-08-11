@@ -10,6 +10,7 @@ import websocket.commands.ConnectCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.exception.ResponseException;
+import websocket.messages.MessageSerializer;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -23,7 +24,8 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     ServerMessageHandler serverMessageHandler;
-    private Gson gson = CommandSerializer.createSerializer();
+    private final Gson commandGson = CommandSerializer.createSerializer();
+    private final Gson messageGson = MessageSerializer.createSerializer();
 
 
     public WebSocketFacade(String url, ServerMessageHandler serverMessageHandler) throws ResponseException {
@@ -39,7 +41,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    ServerMessage serverMessage = messageGson.fromJson(message, ServerMessage.class);
                     serverMessageHandler.notify(serverMessage);
                 }
             });
@@ -49,11 +51,10 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void connect(String color, String authToken, int gameID) throws IOException {
-        System.out.println("Client sending connect command");
         ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT,
                 authToken, gameID, color);
 
-        String jsonCommand = gson.toJson(command);
+        String jsonCommand = commandGson.toJson(command);
         send(jsonCommand);
     }
 
@@ -84,15 +85,19 @@ public class WebSocketFacade extends Endpoint {
         MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,
                 authToken, gameID, move);
 
-        String jsonCommand = gson.toJson(command);
+        String jsonCommand = commandGson.toJson(command);
         send(jsonCommand);
     }
 
     public void send(String msg) throws IOException {
-        this.session.getBasicRemote().sendText(msg);
+        if (this.session.isOpen()) {
+            this.session.getBasicRemote().sendText(msg);
+        } else {
+            System.out.println("Session is not open, please leave and rejoin.");
+        }
     }
 
-    //Endpoint requires this method, but you don't have to do anything
+            //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }

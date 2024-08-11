@@ -310,7 +310,7 @@ public class Client {
 
     private String leave(String[] command) {
         inGameplay = false;
-        return "quit";
+        return "";
     }
 
     private String resign(String[] command) {
