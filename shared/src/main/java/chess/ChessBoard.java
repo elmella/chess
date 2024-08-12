@@ -34,7 +34,18 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard{" + "squares=" + Arrays.toString(squares) + '}';
+        StringBuilder stringBuilder = new StringBuilder("Chess board: ");
+        for (int i = 0; i < squares.length; i++) {
+            for (int j = 0; j < squares.length; j++) {
+                stringBuilder.append("row: ").append(i).append(", col: ").append(j).append(", piece: ");
+                if (squares[i][j] == null) {
+                    stringBuilder.append("null");
+                } else {
+                    stringBuilder.append(squares[i][j].toString());
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 
     /**

@@ -95,7 +95,7 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void resign(String authToken, int gameID) throws IOException {
-        ResignCommand command = new ResignCommand(UserGameCommand.CommandType.LEAVE,
+        ResignCommand command = new ResignCommand(UserGameCommand.CommandType.RESIGN,
                 authToken, gameID);
 
         String jsonCommand = commandGson.toJson(command);

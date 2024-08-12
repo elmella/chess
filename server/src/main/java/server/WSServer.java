@@ -147,7 +147,6 @@ public class WSServer {
 
         // Load game if no error
         LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
-
         // Get game sessions
         int gameId = command.getGameID();
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(gameId);

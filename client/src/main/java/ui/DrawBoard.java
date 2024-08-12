@@ -1,11 +1,9 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static ui.EscapeSequences.*;
@@ -72,11 +70,9 @@ public class DrawBoard {
 
     private static void drawHeader(PrintStream out, String headerText) {
         int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-        int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
         out.print(EMPTY.repeat(prefixLength));
         printHeaderText(out, headerText);
-//        out.print(EMPTY.repeat(suffixLength));
     }
 
     private static void printHeaderText(PrintStream out, String player) {
@@ -88,11 +84,28 @@ public class DrawBoard {
         setBlack(out);
     }
 
-    public static void drawChessBoard(PrintStream out, ChessBoard board, boolean reverse) {
+    public static void drawChessBoard(PrintStream out, ChessBoard board, boolean reverse, ArrayList<ChessPosition> validEnds, ChessPosition startPos) {
         drawHeaders(out, reverse);
 
+//        if (!reverse) {
+//            for (int boardRow = BOARD_SIZE_IN_SQUARES - 1; boardRow >= 0; --boardRow) {
+//                drawRowOfSquares(out, boardRow, board, reverse, validEnds, startPos);
+//
+//                if (boardRow > 0) {
+//                    setBlack(out);
+//                }
+//            }
+//        } else {
+//            for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+//                drawRowOfSquares(out, boardRow, board, reverse, validEnds, startPos);
+//
+//                if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
+//                    setBlack(out);
+//                }
+//            }
+//        }
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            drawRowOfSquares(out, boardRow, board, reverse);
+            drawRowOfSquares(out, boardRow, board, reverse, validEnds, startPos);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
                 setBlack(out);
@@ -102,9 +115,9 @@ public class DrawBoard {
         drawHeaders(out, reverse);
     }
 
-    private static void drawRowOfSquares(PrintStream out, int boardRow, ChessBoard board, boolean reverse) {
+    private static void drawRowOfSquares(PrintStream out, int boardRow, ChessBoard board, boolean reverse, ArrayList<ChessPosition> validEnds, ChessPosition startPos) {
         String intChar = String.valueOf(reverse ? boardRow + 1 : BOARD_SIZE_IN_SQUARES - boardRow);
-        ChessPiece piece;
+        ChessPiece piece = null;
 
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
             if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
@@ -114,11 +127,32 @@ public class DrawBoard {
             }
 
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+
+                // Check if new square is valid square to highlight
+                ChessPosition pos = new ChessPosition(boardRow + 1, boardCol + 1);
+                boolean isStartPos = false;
+                boolean isValidSquare = false;
+                if (startPos != null) {
+                    isStartPos = pos.equals(startPos);
+                }
+                if (validEnds != null) {
+                 isValidSquare = validEnds.contains(pos);
+                }
+
+                // Check if is a white square
                 boolean isWhiteSquare = (boardRow + boardCol) % 2 == 0;
-                if (isWhiteSquare) {
-                    setWhite(out);
+
+                // Set the background color based on the conditions
+                if (isStartPos) {
+                    setOverlayColor(out, isWhiteSquare, true);
+                } else if (isValidSquare) {
+                    setOverlayColor(out, isWhiteSquare, false);
                 } else {
-                    setBlackSquare(out);
+                    if (isWhiteSquare) {
+                        setWhiteSquare(out);
+                    } else {
+                        setBlackSquare(out);
+                    }
                 }
 
                 if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
@@ -126,13 +160,12 @@ public class DrawBoard {
                     int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
                     out.print(EMPTY.repeat(prefixLength));
-
-                    // Adjust piece retrieval for reverse logic
                     if (reverse) {
-                        piece = board.getPiece(new ChessPosition(boardRow + 1, BOARD_SIZE_IN_SQUARES - boardCol));
+                        piece = board.getPiece(new ChessPosition(boardRow + 1,
+                                boardCol + 1));
                     } else {
                         piece = board.getPiece(new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow,
-                                 boardCol + 1));
+                                BOARD_SIZE_IN_SQUARES - boardCol));
                     }
                     if (piece != null) {
                         printPlayer(out, printPiece(piece), isWhiteSquare);
@@ -155,8 +188,28 @@ public class DrawBoard {
         }
     }
 
+    private static void setOverlayColor(PrintStream out, boolean isWhiteSquare, boolean isStartPos) {
+        if (isStartPos) {
+            if (!isWhiteSquare) {
+                out.print(SET_BG_COLOR_YELLOW);
+                out.print(SET_TEXT_COLOR_BLACK);
+            } else {
+                out.print(SET_BG_COLOR_BRIGHT_YELLOW);
+                out.print(SET_TEXT_COLOR_WHITE);
+            }
+        } else {
+            if (!isWhiteSquare) {
+                out.print(SET_BG_COLOR_GREEN);
+                out.print(SET_TEXT_COLOR_BLACK);
+            } else {
+                out.print(SET_BG_COLOR_BRIGHT_GREEN);
+                out.print(SET_TEXT_COLOR_WHITE);
+            }
+        }
+    }
 
-    private static void setWhite(PrintStream out) {
+
+    private static void setWhiteSquare(PrintStream out) {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_COLOR_BLACK);
     }
@@ -164,6 +217,14 @@ public class DrawBoard {
     private static void setBlackSquare(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    private static void setGreenSquare(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+    }
+
+    private static void setYellowSquare(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
     }
 
 

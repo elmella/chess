@@ -1,5 +1,4 @@
-import chess.ChessBoard;
-import chess.ChessGame;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,8 +9,10 @@ import websocket.ServerMessageHandler;
 import websocket.exception.ResponseException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import static java.lang.System.out;
 import static ui.DrawBoard.drawChessBoard;
@@ -30,6 +31,7 @@ public class Client {
     private boolean player;
     private boolean inGameplay;
     private ChessGame game;
+    private ChessGame.TeamColor color;
 
     public Client(String baseUrl, ServerMessageHandler serverMessageHandler) {
         this.baseUrl = baseUrl;
@@ -129,8 +131,8 @@ public class Client {
         if (player) {
             return """
                     \n
-                    move <START_ROW> <START_COL> <END_ROW> <END_COL> <PROMOTION_PIECE_TYPE> (if applicable) 
-                    - make move (move 7 a 8 a KING)\s
+                    move <START_ROW> <START_COL> <END_ROW> <END_COL> <PROMOTION_PIECE_TYPE (if applicable)> 
+                    (move 7 a 8 a KING) - move piece from start position to end position\s
                     leave - leave the game\s
                     resign - end the game and lose\s
                     redraw - redraws the board\s
@@ -140,17 +142,17 @@ public class Client {
             return """
                     leave - leave the game\s
                     redraw - redraws the board\s
-                    highlight <ROW> <COL> - highlight all of the legal moves from the square\s
+                    highlight <ROW> <COL> (2 a)- highlight all of the legal moves from the square\s
                     """;
         }
     }
 
     public void loadGame(ChessGame game, ChessGame.TeamColor color) {
         this.game = game;
+        this.color = color;
         ChessBoard board = game.getBoard();
-        board.resetBoard();
         out.print(ERASE_SCREEN);
-        drawChessBoard(out, board, color == ChessGame.TeamColor.BLACK);
+        drawChessBoard(out, board, color == ChessGame.TeamColor.BLACK, null, null);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
         String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE))
@@ -324,8 +326,21 @@ public class Client {
     }
 
     private String resign() throws IOException {
-        wsFacade.resign(authToken, gameID);
-        return "";
+        out.println("Are you sure you want to resign? Y or N\n");
+        out.println("[CONFIRM RESIGNATION] >>>");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+        while (true) {
+            if (input.equals("N")) {
+                return "Did not resign";
+            } else if (input.equals("Y")) {
+                wsFacade.resign(authToken, gameID);
+                return "You have resigned";
+            } else {
+                out.println("Try again, Y or N\n");
+                out.println("[CONFIRM RESIGNATION] >>>");
+            }
+        }
     }
 
     private String redraw() throws IOException {
@@ -334,6 +349,34 @@ public class Client {
     }
 
     private String highlight(String[] command) {
+        boolean reverse = color == ChessGame.TeamColor.BLACK;
+        Map<String, Integer> colInt = Map.of(
+                "a", 1,
+                "b", 2,
+                "c", 3,
+                "d", 4,
+                "e", 5,
+                "f", 6,
+                "g", 7,
+                "h", 8
+        );
+        int row = Integer.parseInt(command[1]);
+        int col = colInt.get(command[2]);
+        ChessPosition pos = new ChessPosition(row, col);
+
+        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) game.validMoves(pos);
+        ArrayList<ChessPosition> validEnds = new ArrayList<>();
+        for (ChessMove move : validMoves) {
+            validEnds.add(move.getEndPosition());
+        }
+        ChessBoard board = game.getBoard();
+        out.print(ERASE_SCREEN);
+        drawChessBoard(out, board, reverse, validEnds, pos);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE))
+                ? "WHITE" : "BLACK";
+        out.println(colorString + "'s turn");
         return "";
     }
 

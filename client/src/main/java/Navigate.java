@@ -1,4 +1,3 @@
-import chess.ChessBoard;
 import chess.ChessGame;
 import websocket.ServerMessageHandler;
 import websocket.messages.ErrorMessage;
@@ -9,8 +8,6 @@ import websocket.messages.ServerMessage;
 import java.util.Scanner;
 
 import static java.lang.System.out;
-import static ui.DrawBoard.drawChessBoard;
-import static ui.EscapeSequences.*;
 
 public class Navigate implements ServerMessageHandler {
 
@@ -74,7 +71,8 @@ public class Navigate implements ServerMessageHandler {
             case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
             case LOAD_GAME -> {
                 LoadGameMessage loadGameMessage = ((LoadGameMessage) message);
-                client.loadGame(loadGameMessage.getGame(), loadGameMessage.getColor());
+                ChessGame game = loadGameMessage.getGame();
+                client.loadGame(game, loadGameMessage.getColor());
             }
         }
     }
