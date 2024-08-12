@@ -301,8 +301,12 @@ public class Client {
     }
 
     private String move(String[] command) throws IOException {
+        String piece = null;
+        if (command.length > 5) {
+            piece = command[5];
+        }
         wsFacade.makeMove(Integer.parseInt(command[1]), command[2], Integer.parseInt(command[3]),
-                command[4], command[5],
+                command[4], piece,
                 authToken, gameID);
         return "";
     }

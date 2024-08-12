@@ -92,7 +92,7 @@ public class Navigate implements ServerMessageHandler {
         ChessBoard board = game.getBoard();
         board.resetBoard();
         out.print(ERASE_SCREEN);
-        drawChessBoard(out, board, color != ChessGame.TeamColor.BLACK);
+        drawChessBoard(out, board, color == ChessGame.TeamColor.BLACK);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
