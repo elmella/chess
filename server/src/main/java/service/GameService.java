@@ -150,7 +150,7 @@ public class GameService extends Service {
 
         // Verify requester is correct color
         if (!teamColor.equals(clientColor)) {
-            throw new InvalidMoveException("Error: not correct color");
+            throw new InvalidMoveException("Error: not your turn");
         }
 
         // Verify game is not over

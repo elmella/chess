@@ -21,8 +21,6 @@ public class MakeMove extends WebsocketHandler {
 
         MakeMoveCommand makeMoveCommand = (MakeMoveCommand) command;
 
-        ChessMove move = makeMoveCommand.getMove();
-
         LoadGameMessage result = null;
         try {
             // Authorize
@@ -32,7 +30,7 @@ public class MakeMove extends WebsocketHandler {
             ChessGame.TeamColor clientColor = getColor(command);
 
             // Load the game
-            result = game.makeMove((MakeMoveCommand) command, clientColor);
+            result = game.makeMove(makeMoveCommand, clientColor);
 
             if (result.getGame() == null) {
                 return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");

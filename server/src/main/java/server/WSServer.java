@@ -66,6 +66,7 @@ public class WSServer {
             try {
                 // Serialize the message
                 String jsonResponse = MessageSerializer.createSerializer().toJson(message);
+                System.out.println("Sending message " + jsonResponse);
 
                 // Send to session
                 remote.sendString(jsonResponse);

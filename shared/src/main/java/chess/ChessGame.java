@@ -170,18 +170,20 @@ public class ChessGame {
 
         // Verify starting square contains a piece
         if (piece == null) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Error: No piece there");
         }
 
         // Check if it is the corresponding team's turn
         if (piece.getTeamColor() != team) {
-            throw new InvalidMoveException();
+            String teamString = (team.equals(TeamColor.WHITE))
+                    ? "WHITE" : "BLACK";
+            throw new InvalidMoveException("Error: Piece must be " + teamString);
         }
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(startPos);
 
         // Check if the chess piece can move there
         if (!validMoves.contains(move)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Error: Piece can not move there");
         }
 
         // If move requires a promotion, update the piece
