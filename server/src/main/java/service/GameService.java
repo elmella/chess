@@ -150,6 +150,9 @@ public class GameService extends Service {
 
         // Verify requester is correct color
         if (!teamColor.equals(clientColor)) {
+            if (clientColor == null) {
+                throw new InvalidMoveException("Error: you are not a player");
+            }
             throw new InvalidMoveException("Error: not your turn");
         }
 
