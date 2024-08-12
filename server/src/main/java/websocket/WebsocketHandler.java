@@ -30,21 +30,4 @@ public class WebsocketHandler {
 
         return auth.getUsername(authToken);
     }
-
-    public ChessGame.TeamColor getColor(UserGameCommand command) throws DataAccessException {
-        String username = getUsername(command);
-        int gameID = command.getGameID();
-
-        GameService game = new GameService(GameDAO.getInstance());
-
-        GameData gameData = game.getGame(gameID);
-
-        if (username.equals(gameData.getWhiteUsername())) {
-            return ChessGame.TeamColor.WHITE;
-        } else if (username.equals(gameData.getBlackUsername())) {
-            return ChessGame.TeamColor.BLACK;
-        } else {
-            return null;
-        }
-    }
 }

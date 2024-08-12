@@ -1,3 +1,5 @@
+import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,6 +13,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.System.out;
+import static ui.DrawBoard.drawChessBoard;
+import static ui.EscapeSequences.*;
+
 public class Client {
     private final ServerFacade facade;
     private final String baseUrl;
@@ -23,6 +29,7 @@ public class Client {
     private boolean loggedIn;
     private boolean player;
     private boolean inGameplay;
+    private ChessGame game;
 
     public Client(String baseUrl, ServerMessageHandler serverMessageHandler) {
         this.baseUrl = baseUrl;
@@ -136,6 +143,19 @@ public class Client {
                     highlight <ROW> <COL> - highlight all of the legal moves from the square\s
                     """;
         }
+    }
+
+    public void loadGame(ChessGame game, ChessGame.TeamColor color) {
+        this.game = game;
+        ChessBoard board = game.getBoard();
+        board.resetBoard();
+        out.print(ERASE_SCREEN);
+        drawChessBoard(out, board, color == ChessGame.TeamColor.BLACK);
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE))
+                ? "WHITE" : "BLACK";
+        out.println(colorString + "'s turn");
     }
 
 
@@ -255,7 +275,7 @@ public class Client {
         JsonObject response = facade.joinGame(color, gameIDString, authToken);
         if (response.get("success").getAsBoolean()) {
             wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
-            wsFacade.connect(color, authToken, gameID);
+            wsFacade.connect(authToken, gameID);
             inGameplay = true;
             player = true;
             return "Joined game with ID " + command[1] + " as color " + command[2];
@@ -282,7 +302,7 @@ public class Client {
         }
         gameID = gameMap.get(gameNumber).getAsJsonObject().get("gameID").getAsInt();
         wsFacade = new WebSocketFacade(baseUrl, serverMessageHandler);
-        wsFacade.connect(null, authToken, gameID);
+        wsFacade.connect(authToken, gameID);
         inGameplay = true;
         return "";
     }
@@ -308,7 +328,8 @@ public class Client {
         return "";
     }
 
-    private String redraw(String[] command) {
+    private String redraw(String[] command) throws IOException {
+        wsFacade.drawBoard(authToken, gameID);
         return "";
     }
 

@@ -47,9 +47,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void connect(String color, String authToken, int gameID) throws IOException {
+    public void connect(String authToken, int gameID) throws IOException {
         ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT,
-                authToken, gameID, color);
+                authToken, gameID);
 
         String jsonCommand = commandGson.toJson(command);
         send(jsonCommand);
@@ -96,6 +96,14 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(String authToken, int gameID) throws IOException {
         ResignCommand command = new ResignCommand(UserGameCommand.CommandType.LEAVE,
+                authToken, gameID);
+
+        String jsonCommand = commandGson.toJson(command);
+        send(jsonCommand);
+    }
+
+    public void drawBoard(String authToken, int gameID) throws IOException {
+        DrawBoardCommand command = new DrawBoardCommand(UserGameCommand.CommandType.DRAW_BOARD,
                 authToken, gameID);
 
         String jsonCommand = commandGson.toJson(command);

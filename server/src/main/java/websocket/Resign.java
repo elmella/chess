@@ -3,10 +3,7 @@ package websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.GameOverException;
-import dataaccess.UnauthorizedException;
+import dataaccess.*;
 import service.GameService;
 import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
@@ -30,12 +27,7 @@ public class Resign extends WebsocketHandler {
             // Authorize
             authorize(command);
 
-            // Get client color
-            ChessGame.TeamColor clientColor = getColor(command);
 
-            if (clientColor == null) {
-                return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: must be player to resign");
-            }
             // Resign
             game.resign(resignCommand);
 
@@ -44,7 +36,7 @@ public class Resign extends WebsocketHandler {
 
         } catch (DataAccessException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());
-        } catch (UnauthorizedException | GameOverException e) {
+        } catch (NotPlayerException | UnauthorizedException | GameOverException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
         }
 

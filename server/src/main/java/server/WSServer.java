@@ -44,6 +44,7 @@ public class WSServer {
                 case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
                 case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case RESIGN -> resign(session, username, (ResignCommand) command);
+                case DRAW_BOARD -> drawBoard(session, (DrawBoardCommand) command);
             }
         } catch (UnauthorizedException e) {
             // Serializes and sends the error message
@@ -82,9 +83,9 @@ public class WSServer {
         return auth.getUsername(command.getAuthToken());
     }
 
-    private ChessGame.TeamColor getTeamColor(int gameID, String username) throws DataAccessException {
+    private ChessGame.TeamColor getBystanderColor(int gameID, String username) throws DataAccessException {
         GameService game = new GameService(GameDAO.getInstance());
-        return game.getTeamColor(gameID, username);
+        return game.bystanderColor(gameID, username);
     }
 
     private void saveSession(int gameID, String username, Session session) {
@@ -105,14 +106,7 @@ public class WSServer {
         sendMessage(session.getRemote(), loadGameMessage);
 
         // Create notification
-        String notification;
-        String color = command.color();
-        if (color == null) {
-            notification = username + " joined as an observer";
-        } else {
-            notification = username + " joined as player " + color;
-        }
-        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notification);
+        NotificationMessage notificationMessage = getConnectMessage(username, loadGameMessage);
 
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
@@ -121,6 +115,25 @@ public class WSServer {
             }
         }
 
+    }
+
+    private NotificationMessage getConnectMessage(String username, LoadGameMessage loadGameMessage) {
+        String notification;
+        String color = null;
+        ChessGame.TeamColor teamColor = loadGameMessage.getColor();
+        if (teamColor != null) {
+            if (teamColor.equals(ChessGame.TeamColor.WHITE)){
+                color = "WHITE";
+            } else if (loadGameMessage.getColor().equals(ChessGame.TeamColor.BLACK)) {
+                color = "BLACK";
+            }
+        }
+        if (color == null) {
+            notification = username + " joined as an observer";
+        } else {
+            notification = username + " joined as player " + color;
+        }
+        return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, notification);
     }
 
     private void makeMove(Session session, String username, MakeMoveCommand command) {
@@ -152,7 +165,7 @@ public class WSServer {
             String bystanderUsername = entry.getKey();
             ChessGame.TeamColor bystanderColor = null;
             try {
-                 bystanderColor = getTeamColor(gameId, bystanderUsername);
+                 bystanderColor = getBystanderColor(gameId, bystanderUsername);
             } catch (DataAccessException ignored) {
             }
 
@@ -223,6 +236,17 @@ public class WSServer {
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
             sendMessage(entry.getValue().getRemote(), resignNotification);
         }
+    }
+
+    private void drawBoard(Session session, DrawBoardCommand command) {
+        ServerMessage serverMessage = new LoadGame().handleRequest(command);
+        if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
+            sendMessage(session.getRemote(), serverMessage);
+        }
+
+        // Cast if no error
+        LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+        sendMessage(session.getRemote(), loadGameMessage);
     }
 
     private NotificationMessage createNotification(String message) {

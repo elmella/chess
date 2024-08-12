@@ -28,13 +28,8 @@ public class LeaveGame extends WebsocketHandler {
             // Authorize
             authorize(command);
 
-            // Get client color
-            ChessGame.TeamColor clientColor = getColor(command);
-
             // Leave the game
-            if (clientColor != null) {
-                game.leaveGame(leaveGameCommand, clientColor);
-            }
+            game.leaveGame(leaveGameCommand);
 
             notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     " has left the game");

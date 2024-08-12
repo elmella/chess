@@ -15,15 +15,13 @@ public class LoadGame extends WebsocketHandler {
 
         GameService game = new GameService(GameDAO.getInstance());
 
-        ConnectCommand connectCommand = (ConnectCommand) command;
-
-        LoadGameMessage result = null;
+        LoadGameMessage result;
         try {
             // Authorize
             authorize(command);
 
             // Load the game
-            result = game.loadGame(connectCommand);
+            result = game.loadGame(command);
             if (result.getGame() == null) {
                 return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");
             }

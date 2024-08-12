@@ -99,21 +99,18 @@ public class GameService extends Service {
         return gameDAO.getGame(gameID);
     }
 
-    public LoadGameMessage loadGame(ConnectCommand command) throws DataAccessException {
+    public LoadGameMessage loadGame(UserGameCommand command) throws DataAccessException {
         GameData gameData = gameDAO.getGame(command.getGameID());
-        ChessGame.TeamColor color = null;
-        if (command.color() != null) {
-            if (command.color().equals("WHITE")) {
-                color = WHITE;
-            } else if (command.color().equals("BLACK")) {
-                color = BLACK;
-            }
-        }
+        ChessGame.TeamColor color = getTeamColor(command);
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.getGame(),
                 null, null, null, null, color);
     }
 
-    public void leaveGame(LeaveGameCommand command, ChessGame.TeamColor leaveColor) throws DataAccessException {
+    public void leaveGame(LeaveGameCommand command) throws DataAccessException {
+        ChessGame.TeamColor leaveColor = getTeamColor(command);
+        if (leaveColor == null) {
+            return;
+        }
         GameData gameData = gameDAO.getGame(command.getGameID());
         if (leaveColor.equals(WHITE)) {
             gameData.setWhiteUsername(null);
@@ -123,7 +120,11 @@ public class GameService extends Service {
         gameDAO.updateGame(gameData);
     }
 
-    public void resign(ResignCommand command) throws DataAccessException, GameOverException {
+    public void resign(ResignCommand command) throws DataAccessException, GameOverException, NotPlayerException {
+        ChessGame.TeamColor color = getTeamColor(command);
+        if (color == null) {
+            throw new NotPlayerException("Error: must be player to resign");
+        }
         GameData gameData = gameDAO.getGame(command.getGameID());
         ChessGame game = gameData.getGame();
         if (game.isGameOver()) {
@@ -133,7 +134,7 @@ public class GameService extends Service {
         gameDAO.updateGame(gameData);
     }
 
-    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand, ChessGame.TeamColor clientColor)
+    public LoadGameMessage makeMove(MakeMoveCommand makeMoveCommand)
             throws DataAccessException, InvalidMoveException, GameOverException {
 
         Map<Integer, String> alphaIntMap = Map.of(1, "a", 2, "b", 3, "c", 4,
@@ -147,6 +148,8 @@ public class GameService extends Service {
         ChessPosition endPos = move.getEndPosition();
         ChessPiece piece = game.getBoard().getPiece(startPos);
         ChessGame.TeamColor teamColor = piece.getTeamColor();
+
+        ChessGame.TeamColor clientColor = getTeamColor(makeMoveCommand);
 
         // Verify requester is correct color
         if (!teamColor.equals(clientColor)) {
@@ -206,7 +209,20 @@ public class GameService extends Service {
         return gameID;
     }
 
-    public ChessGame.TeamColor getTeamColor(int gameID, String username) throws DataAccessException {
+    public ChessGame.TeamColor getTeamColor(UserGameCommand command) throws DataAccessException {
+        GameData gameData = getGame(command.getGameID());
+        AuthService auth = new AuthService(AuthDAO.getInstance());
+        String username = auth.getUsername(command.getAuthToken());
+        String whiteUsername = gameData.getWhiteUsername();
+        String blackUsername = gameData.getBlackUsername();
+        if (whiteUsername != null && whiteUsername.equals(username)) {
+            return WHITE;
+        } else if (blackUsername != null && blackUsername.equals(username)) {
+            return BLACK;
+        } return null;
+    }
+
+    public ChessGame.TeamColor bystanderColor(int gameID, String username) throws DataAccessException {
         GameData gameData = getGame(gameID);
         if (gameData.getWhiteUsername().equals(username)) {
             return WHITE;
@@ -214,6 +230,4 @@ public class GameService extends Service {
             return BLACK;
         } return null;
     }
-
-
 }
