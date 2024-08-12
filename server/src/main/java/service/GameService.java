@@ -164,9 +164,9 @@ public class GameService extends Service {
         String endPosString = endPos.getRow() + " " + alphaIntMap.get(endPos.getColumn());
 
         String moveNotification = teamColor + " moves " + piece.getPieceType()
-                + "from " + startPosString + " to " + endPosString;
+                + " from " + startPosString + " to " + endPosString;
         if (move.getPromotionPiece() != null) {
-            moveNotification += ", promoting it to " + move.getPromotionPiece();
+            moveNotification += ", promoting it to a " + move.getPromotionPiece();
         }
 
         // Make move and add it to database
@@ -201,6 +201,15 @@ public class GameService extends Service {
             gameID = r.nextInt(8999) + 1000;
         }
         return gameID;
+    }
+
+    public ChessGame.TeamColor getTeamColor(int gameID, String username) throws DataAccessException {
+        GameData gameData = getGame(gameID);
+        if (gameData.getWhiteUsername().equals(username)) {
+            return WHITE;
+        } else if (gameData.getBlackUsername().equals(username)) {
+            return BLACK;
+        } return null;
     }
 
 

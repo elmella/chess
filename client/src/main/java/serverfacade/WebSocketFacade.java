@@ -5,10 +5,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import websocket.ServerMessageHandler;
-import websocket.commands.CommandSerializer;
-import websocket.commands.ConnectCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.exception.ResponseException;
 import websocket.messages.MessageSerializer;
 import websocket.messages.ServerMessage;
@@ -84,6 +81,22 @@ public class WebSocketFacade extends Endpoint {
         // Create MakeMoveCommand
         MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,
                 authToken, gameID, move);
+
+        String jsonCommand = commandGson.toJson(command);
+        send(jsonCommand);
+    }
+
+    public void leaveGame(String authToken, int gameID) throws IOException {
+        LeaveGameCommand command = new LeaveGameCommand(UserGameCommand.CommandType.LEAVE,
+                authToken, gameID);
+
+        String jsonCommand = commandGson.toJson(command);
+        send(jsonCommand);
+    }
+
+    public void resign(String authToken, int gameID) throws IOException {
+        ResignCommand command = new ResignCommand(UserGameCommand.CommandType.LEAVE,
+                authToken, gameID);
 
         String jsonCommand = commandGson.toJson(command);
         send(jsonCommand);

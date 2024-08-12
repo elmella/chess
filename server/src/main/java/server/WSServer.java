@@ -1,8 +1,9 @@
 package server;
 
-import com.google.gson.Gson;
+import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
 import dataaccess.UnauthorizedException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -11,6 +12,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.AuthService;
+import service.GameService;
 import websocket.LeaveGame;
 import websocket.LoadGame;
 import websocket.MakeMove;
@@ -66,7 +68,6 @@ public class WSServer {
             try {
                 // Serialize the message
                 String jsonResponse = MessageSerializer.createSerializer().toJson(message);
-                System.out.println("Sending message " + jsonResponse);
 
                 // Send to session
                 remote.sendString(jsonResponse);
@@ -79,6 +80,11 @@ public class WSServer {
     private String getUsername(UserGameCommand command) throws UnauthorizedException, DataAccessException {
         AuthService auth = new AuthService(AuthDAO.getInstance());
         return auth.getUsername(command.getAuthToken());
+    }
+
+    private ChessGame.TeamColor getTeamColor(int gameID, String username) throws DataAccessException {
+        GameService game = new GameService(GameDAO.getInstance());
+        return game.getTeamColor(gameID, username);
     }
 
     private void saveSession(int gameID, String username, Session session) {
@@ -130,7 +136,8 @@ public class WSServer {
         LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
 
         // Get game sessions
-        ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
+        int gameId = command.getGameID();
+        ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(gameId);
 
         // Create notifications
         NotificationMessage move = createNotification(loadGameMessage.getMoveNotification());
@@ -142,7 +149,15 @@ public class WSServer {
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
             RemoteEndpoint remote = entry.getValue().getRemote();
 
+            String bystanderUsername = entry.getKey();
+            ChessGame.TeamColor bystanderColor = null;
+            try {
+                 bystanderColor = getTeamColor(gameId, bystanderUsername);
+            } catch (DataAccessException ignored) {
+            }
+
             // Send load game to everyone
+            loadGameMessage.setColor(bystanderColor);
             sendMessage(entry.getValue().getRemote(), loadGameMessage);
 
             // Send move to everyone else
@@ -167,6 +182,9 @@ public class WSServer {
             sendMessage(session.getRemote(), serverMessage);
             return;
         }
+
+        // Close the session
+        session.close();
 
         // Leave the game if no error
         NotificationMessage leaveNotification = (NotificationMessage) serverMessage;

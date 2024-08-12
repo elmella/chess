@@ -95,5 +95,8 @@ public class Navigate implements ServerMessageHandler {
         drawChessBoard(out, board, color == ChessGame.TeamColor.BLACK);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
+        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE))
+                ? "WHITE" : "BLACK";
+        out.println(colorString + "'s turn");
     }
 }

@@ -297,12 +297,14 @@ public class Client {
         return "";
     }
 
-    private String leave(String[] command) {
+    private String leave(String[] command) throws IOException {
+        wsFacade.leaveGame(authToken, gameID);
         inGameplay = false;
         return "";
     }
 
-    private String resign(String[] command) {
+    private String resign(String[] command) throws IOException {
+        wsFacade.resign(authToken, gameID);
         return "";
     }
 
