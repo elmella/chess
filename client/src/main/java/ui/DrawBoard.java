@@ -87,23 +87,6 @@ public class DrawBoard {
     public static void drawChessBoard(PrintStream out, ChessBoard board, boolean reverse, ArrayList<ChessPosition> validEnds, ChessPosition startPos) {
         drawHeaders(out, reverse);
 
-//        if (!reverse) {
-//            for (int boardRow = BOARD_SIZE_IN_SQUARES - 1; boardRow >= 0; --boardRow) {
-//                drawRowOfSquares(out, boardRow, board, reverse, validEnds, startPos);
-//
-//                if (boardRow > 0) {
-//                    setBlack(out);
-//                }
-//            }
-//        } else {
-//            for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-//                drawRowOfSquares(out, boardRow, board, reverse, validEnds, startPos);
-//
-//                if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-//                    setBlack(out);
-//                }
-//            }
-//        }
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
             drawRowOfSquares(out, boardRow, board, reverse, validEnds, startPos);
 

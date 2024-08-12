@@ -40,8 +40,7 @@ public class Navigate implements ServerMessageHandler {
                 } catch (Throwable e) {
                     out.print(e.getMessage());
                 }
-            }
-            else {
+            } else {
                 try {
                     result = client.loggedOutMenu(input);
                     out.println(result);
@@ -55,12 +54,11 @@ public class Navigate implements ServerMessageHandler {
 
     private void printPrompt(boolean loggedIn, boolean gamePlay) {
         if (gamePlay) {
-            System.out.println("\n[GAMEPLAY] >>>" );
-        }
-        else if(loggedIn) {
-            System.out.println("\n[LOGGED_IN] >>>" );
+            System.out.println("\n[GAMEPLAY] >>>");
+        } else if (loggedIn) {
+            System.out.println("\n[LOGGED_IN] >>>");
         } else {
-            System.out.println("\n[LOGGED_OUT] >>>" );
+            System.out.println("\n[LOGGED_OUT] >>>");
         }
     }
 

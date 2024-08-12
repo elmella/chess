@@ -122,7 +122,7 @@ public class WSServer {
         String color = null;
         ChessGame.TeamColor teamColor = loadGameMessage.getColor();
         if (teamColor != null) {
-            if (teamColor.equals(ChessGame.TeamColor.WHITE)){
+            if (teamColor.equals(ChessGame.TeamColor.WHITE)) {
                 color = "WHITE";
             } else if (loadGameMessage.getColor().equals(ChessGame.TeamColor.BLACK)) {
                 color = "BLACK";
@@ -164,7 +164,7 @@ public class WSServer {
             String bystanderUsername = entry.getKey();
             ChessGame.TeamColor bystanderColor = null;
             try {
-                 bystanderColor = getBystanderColor(gameId, bystanderUsername);
+                bystanderColor = getBystanderColor(gameId, bystanderUsername);
             } catch (DataAccessException ignored) {
             }
 
@@ -209,7 +209,7 @@ public class WSServer {
         leaveNotification.setMessage(username + leaveNotification.getMessage());
 
         for (Map.Entry<String, Session> entry : userSessions.entrySet()) {
-                sendMessage(entry.getValue().getRemote(), leaveNotification);
+            sendMessage(entry.getValue().getRemote(), leaveNotification);
         }
 
         gameUserSessionMap.put(command.getGameID(), userSessions);

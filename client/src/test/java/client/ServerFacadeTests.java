@@ -10,7 +10,6 @@ import java.io.IOException;
 
 public class ServerFacadeTests {
 
-    private static String baseUrl;
     static ServerFacade facade;
     private static Server server;
     private final String username = "username";
@@ -22,7 +21,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        baseUrl = "http://localhost:" + port;
+        String baseUrl = "http://localhost:" + port;
         facade = new ServerFacade(baseUrl);
     }
 

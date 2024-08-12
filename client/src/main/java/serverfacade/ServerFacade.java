@@ -1,4 +1,5 @@
 package serverfacade;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -106,30 +107,28 @@ public class ServerFacade {
     }
 
 
-
-
     private JsonObject doGet(String urlString, Map<String, String> headers) throws IOException {
         HttpURLConnection connection = getHttpURLConnection(urlString, "GET", false, headers, "");
         return readResponseBody(connection);
     }
 
     private JsonObject doPost(String urlString, Map<String, String> headers, String body) throws IOException {
-        HttpURLConnection connection = getHttpURLConnection(urlString, "POST", true,  headers, body);
+        HttpURLConnection connection = getHttpURLConnection(urlString, "POST", true, headers, body);
         return readResponseBody(connection);
     }
 
     private JsonObject doPut(String urlString, Map<String, String> headers, String body) throws IOException {
-        HttpURLConnection connection = getHttpURLConnection(urlString, "PUT", true,  headers, body);
+        HttpURLConnection connection = getHttpURLConnection(urlString, "PUT", true, headers, body);
         return readResponseBody(connection);
     }
 
     private JsonObject doDelete(String urlString, Map<String, String> headers) throws IOException {
-        HttpURLConnection connection = getHttpURLConnection(urlString, "DELETE", true,  headers, null);
+        HttpURLConnection connection = getHttpURLConnection(urlString, "DELETE", true, headers, null);
         return readResponseBody(connection);
     }
 
-    private HttpURLConnection getHttpURLConnection(String urlString, String method, boolean doOutput,
-                                                          Map<String, String> headers, String body) throws IOException {
+    private HttpURLConnection getHttpURLConnection(String urlString, String method,
+                                                   boolean doOutput, Map<String, String> headers, String body) throws IOException {
         URL url = new URL(urlString);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -157,9 +156,9 @@ public class ServerFacade {
         }
     }
 
-    private void addHeaders(Map<String,String> headers, HttpURLConnection connection) {
+    private void addHeaders(Map<String, String> headers, HttpURLConnection connection) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
-             connection.addRequestProperty(entry.getKey(), entry.getValue());
+            connection.addRequestProperty(entry.getKey(), entry.getValue());
         }
     }
 

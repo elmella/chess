@@ -19,11 +19,10 @@ import java.util.Map;
 //need to extend Endpoint for websocket to work properly
 public class WebSocketFacade extends Endpoint {
 
-    Session session;
-    ServerMessageHandler serverMessageHandler;
     private final Gson commandGson = CommandSerializer.createSerializer();
     private final Gson messageGson = MessageSerializer.createSerializer();
-
+    Session session;
+    ServerMessageHandler serverMessageHandler;
 
     public WebSocketFacade(String url, ServerMessageHandler serverMessageHandler) throws ResponseException {
         try {

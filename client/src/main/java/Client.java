@@ -1,4 +1,7 @@
-import chess.*;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -22,8 +25,8 @@ public class Client {
     private final ServerFacade facade;
     private final String baseUrl;
     private final ServerMessageHandler serverMessageHandler;
+    private final HashMap<Integer, JsonElement> gameMap;
     private final Gson gson = new Gson();
-    private final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
     private WebSocketFacade wsFacade;
     private String authToken;
     private Integer gameID;
@@ -40,30 +43,16 @@ public class Client {
         loggedIn = false;
         inGameplay = false;
         player = false;
+        gameMap = new HashMap<>();
     }
 
     public boolean isLoggedIn() {
         return loggedIn;
     }
 
-    public void setLoggedIn(boolean loggedIn) {
-        this.loggedIn = loggedIn;
-    }
 
     public boolean isInGameplay() {
         return inGameplay;
-    }
-
-    public void setInGameplay(boolean inGameplay) {
-        this.inGameplay = inGameplay;
-    }
-
-    public boolean isPlayer() {
-        return player;
-    }
-
-    public void setPlayer(boolean player) {
-        this.player = player;
     }
 
     public String loggedOutMenu(String input) throws ResponseException, IOException {
@@ -155,8 +144,7 @@ public class Client {
         drawChessBoard(out, board, color == ChessGame.TeamColor.BLACK, null, null);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
-        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE))
-                ? "WHITE" : "BLACK";
+        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE)) ? "WHITE" : "BLACK";
         out.println(colorString + "'s turn");
     }
 
@@ -237,8 +225,7 @@ public class Client {
                 }
                 gameList.append("Game number: ").append(entry.getKey()).append(", game name: ")
                         .append(game.get("gameName").getAsString()).append(", white username: ")
-                        .append(whiteUsername).append(", black username: ").append(blackUsername)
-                        .append("\n");
+                        .append(whiteUsername).append(", black username: ").append(blackUsername).append("\n");
             }
 
         }
@@ -358,8 +345,7 @@ public class Client {
                 "e", 5,
                 "f", 6,
                 "g", 7,
-                "h", 8
-        );
+                "h", 8);
         int row = Integer.parseInt(command[1]);
         int col = colInt.get(command[2]);
         ChessPosition pos = new ChessPosition(row, col);
@@ -377,8 +363,7 @@ public class Client {
         drawChessBoard(out, board, reverse, validEnds, pos);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
-        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE))
-                ? "WHITE" : "BLACK";
+        String colorString = (game.getTeamTurn().equals(ChessGame.TeamColor.WHITE)) ? "WHITE" : "BLACK";
         out.println(colorString + "'s turn");
         return "";
     }

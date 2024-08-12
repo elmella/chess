@@ -1,16 +1,10 @@
 package websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.InvalidMoveException;
 import dataaccess.*;
 import service.GameService;
-import websocket.commands.LeaveGameCommand;
-import websocket.commands.MakeMoveCommand;
 import websocket.commands.ResignCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -31,8 +25,7 @@ public class Resign extends WebsocketHandler {
             // Resign
             game.resign(resignCommand);
 
-            notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    " has resigned");
+            notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, " has resigned");
 
         } catch (DataAccessException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());

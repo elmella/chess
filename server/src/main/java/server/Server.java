@@ -1,13 +1,9 @@
 package server;
 
-import dataaccess.*;
+import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import handler.*;
-import spark.*;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-
-import java.util.HashMap;
+import spark.Spark;
 
 public class Server {
 

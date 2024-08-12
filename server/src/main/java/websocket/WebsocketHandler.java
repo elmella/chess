@@ -1,15 +1,9 @@
 package websocket;
 
-import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
 import dataaccess.UnauthorizedException;
-import model.GameData;
 import service.AuthService;
-import service.GameService;
-import spark.Request;
-import spark.Response;
 import websocket.commands.UserGameCommand;
 
 public class WebsocketHandler {

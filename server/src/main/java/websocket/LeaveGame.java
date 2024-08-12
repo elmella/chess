@@ -1,17 +1,12 @@
 package websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UnauthorizedException;
 import service.GameService;
 import websocket.commands.LeaveGameCommand;
-import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -31,8 +26,7 @@ public class LeaveGame extends WebsocketHandler {
             // Leave the game
             game.leaveGame(leaveGameCommand);
 
-            notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    " has left the game");
+            notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, " has left the game");
 
 
         } catch (DataAccessException e) {

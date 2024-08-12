@@ -25,12 +25,7 @@ public class ChessGame {
 
     @Override
     public String toString() {
-        return "ChessGame{" +
-                "team=" + team +
-                ", board=" + board +
-                ", whiteMoves=" + whiteMoves +
-                ", blackMoves=" + blackMoves +
-                '}';
+        return "ChessGame{" + "team=" + team + ", board=" + board + ", whiteMoves=" + whiteMoves + ", blackMoves=" + blackMoves + '}';
     }
 
     /**
@@ -175,8 +170,7 @@ public class ChessGame {
 
         // Check if it is the corresponding team's turn
         if (piece.getTeamColor() != team) {
-            String teamString = (team.equals(TeamColor.WHITE))
-                    ? "WHITE" : "BLACK";
+            String teamString = (team.equals(TeamColor.WHITE)) ? "WHITE" : "BLACK";
             throw new InvalidMoveException("Error: Piece must be " + teamString);
         }
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(startPos);
