@@ -34,7 +34,8 @@ public class GameService extends Service {
         for (GameData game : games) {
 
             // Turn game data into game response
-            responses.add(new GameResponse(game.getGameID(), game.getWhiteUsername(), game.getBlackUsername(), game.getGameName()));
+            responses.add(new GameResponse(game.getGameID(), game.getWhiteUsername(),
+                    game.getBlackUsername(), game.getGameName()));
         }
         return new ListGamesResponse(responses, true, null);
     }
@@ -162,7 +163,8 @@ public class GameService extends Service {
         String startPosString = startPos.getRow() + " " + alphaIntMap.get(startPos.getColumn());
         String endPosString = endPos.getRow() + " " + alphaIntMap.get(endPos.getColumn());
 
-        String moveNotification = teamColor + " moves " + piece.getPieceType() + "from " + startPosString + " to " + endPosString;
+        String moveNotification = teamColor + " moves " + piece.getPieceType()
+                + "from " + startPosString + " to " + endPosString;
         if (move.getPromotionPiece() != null) {
             moveNotification += ", promoting it to " + move.getPromotionPiece();
         }

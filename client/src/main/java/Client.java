@@ -1,4 +1,3 @@
-import chess.ChessBoard;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,27 +8,21 @@ import websocket.ServerMessageHandler;
 import websocket.exception.ResponseException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.System.out;
-import static ui.DrawBoard.drawChessBoard;
-import static ui.EscapeSequences.*;
-
 public class Client {
     private final ServerFacade facade;
-    private WebSocketFacade wsFacade;
     private final String baseUrl;
     private final ServerMessageHandler serverMessageHandler;
+    private final Gson gson = new Gson();
+    private final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
+    private WebSocketFacade wsFacade;
     private String authToken;
     private Integer gameID;
     private boolean loggedIn;
     private boolean player;
     private boolean inGameplay;
-    private final Gson gson = new Gson();
-    private final HashMap<Integer, JsonElement> gameMap = new HashMap<>();
 
     public Client(String baseUrl, ServerMessageHandler serverMessageHandler) {
         this.baseUrl = baseUrl;
@@ -103,13 +96,13 @@ public class Client {
     }
 
     public String loggedOutHelp() {
-            return """
-                    \n
-                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account\s
-                    login <USERNAME> <PASSWORD> - to play chess \s
-                    quit - playing chess\s
-                    help - with possible commands\s
-                    """;
+        return """
+                \n
+                register <USERNAME> <PASSWORD> <EMAIL> - to create an account\s
+                login <USERNAME> <PASSWORD> - to play chess \s
+                quit - playing chess\s
+                help - with possible commands\s
+                """;
     }
 
     public String loggedInHelp() {
@@ -129,7 +122,7 @@ public class Client {
         if (player) {
             return """
                     \n
-                    move <START_ROW> <START_COL> <END_ROW> <END_COL> <PROMOTION_PIECE_TYPE> (If applicable) 
+                    move <START_ROW> <START_COL> <END_ROW> <END_COL> <PROMOTION_PIECE_TYPE> (if applicable) 
                     - make move (move 7 a 8 a KING)\s
                     leave - leave the game\s
                     resign - end the game and lose\s
@@ -148,8 +141,7 @@ public class Client {
 
     private String register(String[] command) throws ResponseException, IOException {
         JsonObject response;
-        verifyArguments(command, 4,
-                "register <USERNAME> <PASSWORD> <EMAIL> \n");
+        verifyArguments(command, 4, "register <USERNAME> <PASSWORD> <EMAIL> \n");
 
         response = facade.register(command[1], command[2], command[3]);
         JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
@@ -164,16 +156,14 @@ public class Client {
 
     private String login(String[] command) throws ResponseException, IOException {
         JsonObject response;
-        verifyArguments(command, 3,
-                "login <USERNAME> <PASSWORD> \n");
+        verifyArguments(command, 3, "login <USERNAME> <PASSWORD> \n");
 
         response = facade.login(command[1], command[2]);
         if (response.get("success").getAsBoolean()) {
             authToken = response.get("authToken").getAsString();
             loggedIn = true;
             return "Logged in as " + command[1];
-        }
-        else {
+        } else {
             return "Failed to login " + command[1];
         }
     }
@@ -223,10 +213,9 @@ public class Client {
                 if (blackElement != null) {
                     blackUsername = blackElement.getAsString();
                 }
-                gameList.append("Game number: ").append(entry.getKey())
-                        .append(", game name: ").append(game.get("gameName").getAsString())
-                        .append(", white username: ").append(whiteUsername)
-                        .append(", black username: ").append(blackUsername)
+                gameList.append("Game number: ").append(entry.getKey()).append(", game name: ")
+                        .append(game.get("gameName").getAsString()).append(", white username: ")
+                        .append(whiteUsername).append(", black username: ").append(blackUsername)
                         .append("\n");
             }
 
@@ -243,8 +232,7 @@ public class Client {
             return list(command);
         }
 
-        verifyArguments(command, 3,
-                "join <ID> [WHITE|BLACK] \n");
+        verifyArguments(command, 3, "join <ID> [WHITE|BLACK] \n");
         try {
             gameNumber = Integer.parseInt(command[1]);
         } catch (Exception e) {
@@ -283,8 +271,7 @@ public class Client {
             return list(command);
         }
 
-        verifyArguments(command, 2,
-                "observe <ID> \n");
+        verifyArguments(command, 2, "observe <ID> \n");
         try {
             gameNumber = Integer.parseInt(command[1]);
         } catch (Exception e) {
@@ -305,9 +292,8 @@ public class Client {
         if (command.length > 5) {
             piece = command[5];
         }
-        wsFacade.makeMove(Integer.parseInt(command[1]), command[2], Integer.parseInt(command[3]),
-                command[4], piece,
-                authToken, gameID);
+        wsFacade.makeMove(Integer.parseInt(command[1]), command[2],
+                Integer.parseInt(command[3]), command[4], piece, authToken, gameID);
         return "";
     }
 
@@ -327,21 +313,6 @@ public class Client {
     private String highlight(String[] command) {
         return "";
     }
-
-
-
-    private void drawBoard() {
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        out.print(ERASE_SCREEN);
-        drawChessBoard(out, board, false);
-        drawChessBoard(out, board, true);
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-
-
 
     private void verifyArguments(String[] command, int correctAmount, String message) throws ResponseException {
         if (command.length != correctAmount) {

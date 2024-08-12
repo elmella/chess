@@ -29,7 +29,6 @@ public class WSServer {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        System.out.println("Message received by server");
         try {
             UserGameCommand command = CommandSerializer.createSerializer().fromJson(message, UserGameCommand.class);
 
@@ -68,7 +67,7 @@ public class WSServer {
                 // Serialize the message
                 String jsonResponse = MessageSerializer.createSerializer().toJson(message);
 
-                System.out.println("Sending message " + jsonResponse);
+                // Send to session
                 remote.sendString(jsonResponse);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -94,6 +93,7 @@ public class WSServer {
             return;
         }
 
+        // Cast if no error
         LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
         sendMessage(session.getRemote(), loadGameMessage);
 
@@ -125,7 +125,7 @@ public class WSServer {
             return;
         }
 
-        // Load game
+        // Load game if no error
         LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
 
         // Get game sessions
@@ -167,7 +167,7 @@ public class WSServer {
             return;
         }
 
-        // Leave the game
+        // Leave the game if no error
         NotificationMessage leaveNotification = (NotificationMessage) serverMessage;
 
         gameUserSessionMap.remove(command.getGameID());
@@ -195,7 +195,7 @@ public class WSServer {
             return;
         }
 
-        // Resign
+        // Resign if no error
         NotificationMessage resignNotification = (NotificationMessage) serverMessage;
 
         // Add username to notification

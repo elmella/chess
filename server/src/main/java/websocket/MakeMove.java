@@ -34,7 +34,6 @@ public class MakeMove extends WebsocketHandler {
             // Load the game
             result = game.makeMove((MakeMoveCommand) command, clientColor);
 
-
             if (result.getGame() == null) {
                 return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");
             }
