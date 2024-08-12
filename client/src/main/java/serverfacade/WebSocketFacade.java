@@ -72,7 +72,7 @@ public class WebSocketFacade extends Endpoint {
         );
 
         // String to PieceType map
-        ChessPiece.PieceType promotionPiece = stringToPieceType(piece);
+        ChessPiece.PieceType promotionPiece = (piece == null) ? null : stringToPieceType(piece);
 
         // Create chess positions
         ChessPosition startPos = new ChessPosition(startRow, colInt.get(startCol));

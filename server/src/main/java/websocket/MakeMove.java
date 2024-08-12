@@ -39,7 +39,8 @@ public class MakeMove extends WebsocketHandler {
                 return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Game not found");
             }
         } catch (DataAccessException e) {
-            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Data Access Exception, Error: " + e.getMessage());
+            return new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Data Access Exception, Error: " + e.getMessage());
         } catch (UnauthorizedException | InvalidMoveException | GameOverException e) {
             return new ErrorMessage(ServerMessage.ServerMessageType.ERROR, e.getMessage());
         }

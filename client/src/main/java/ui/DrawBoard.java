@@ -129,10 +129,10 @@ public class DrawBoard {
 
                     // Adjust piece retrieval for reverse logic
                     if (reverse) {
-                        piece = board.getPiece(new ChessPosition(boardRow + 1, boardCol + 1));
+                        piece = board.getPiece(new ChessPosition(boardRow + 1, BOARD_SIZE_IN_SQUARES - boardCol));
                     } else {
                         piece = board.getPiece(new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow,
-                                BOARD_SIZE_IN_SQUARES - boardCol));
+                                 boardCol + 1));
                     }
                     if (piece != null) {
                         printPlayer(out, printPiece(piece), isWhiteSquare);

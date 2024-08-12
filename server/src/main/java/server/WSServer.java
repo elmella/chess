@@ -67,6 +67,8 @@ public class WSServer {
             try {
                 // Serialize the message
                 String jsonResponse = MessageSerializer.createSerializer().toJson(message);
+
+                System.out.println("Sending message " + jsonResponse);
                 remote.sendString(jsonResponse);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -84,8 +86,15 @@ public class WSServer {
     }
 
     private void connect(Session session, String username, ConnectCommand command) {
+
         // Load game for others
-        LoadGameMessage loadGameMessage = (LoadGameMessage) new LoadGame().handleRequest(command);
+        ServerMessage serverMessage = new LoadGame().handleRequest(command);
+        if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
+            sendMessage(session.getRemote(), serverMessage);
+            return;
+        }
+
+        LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
         sendMessage(session.getRemote(), loadGameMessage);
 
         // Create notification
@@ -110,7 +119,14 @@ public class WSServer {
     private void makeMove(Session session, String username, MakeMoveCommand command) {
 
         // Make move, then load game for everyone
-        LoadGameMessage loadGameMessage = (LoadGameMessage) new MakeMove().handleRequest(command);
+        ServerMessage serverMessage = new MakeMove().handleRequest(command);
+        if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
+            sendMessage(session.getRemote(), serverMessage);
+            return;
+        }
+
+        // Load game
+        LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
 
         // Get game sessions
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
@@ -137,8 +153,6 @@ public class WSServer {
             sendMessage(remote, check);
             sendMessage(remote, checkmate);
             sendMessage(remote, stalemate);
-
-
         }
     }
 
@@ -147,8 +161,14 @@ public class WSServer {
         // Get all game clients
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
 
+        ServerMessage serverMessage = new LeaveGame().handleRequest(command);
+        if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
+            sendMessage(session.getRemote(), serverMessage);
+            return;
+        }
+
         // Leave the game
-        NotificationMessage leaveNotification = (NotificationMessage) new LeaveGame().handleRequest(command);
+        NotificationMessage leaveNotification = (NotificationMessage) serverMessage;
 
         gameUserSessionMap.remove(command.getGameID());
 
@@ -169,8 +189,14 @@ public class WSServer {
         // Get all game clients
         ConcurrentHashMap<String, Session> userSessions = gameUserSessionMap.get(command.getGameID());
 
+        ServerMessage serverMessage = new Resign().handleRequest(command);
+        if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
+            sendMessage(session.getRemote(), serverMessage);
+            return;
+        }
+
         // Resign
-        NotificationMessage resignNotification = (NotificationMessage) new Resign().handleRequest(command);
+        NotificationMessage resignNotification = (NotificationMessage) serverMessage;
 
         // Add username to notification
         resignNotification.setMessage(username + resignNotification.getMessage());
