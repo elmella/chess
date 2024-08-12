@@ -19,6 +19,7 @@ public class CommandSerializer {
                             case MAKE_MOVE -> userGameCommand = ctx.deserialize(el, MakeMoveCommand.class);
                             case LEAVE -> userGameCommand = ctx.deserialize(el, LeaveGameCommand.class);
                             case RESIGN -> userGameCommand = ctx.deserialize(el, ResignCommand.class);
+                            case DRAW_BOARD -> userGameCommand = ctx.deserialize(el, DrawBoardCommand.class);
                         }
                     }
                     return userGameCommand;

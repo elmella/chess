@@ -94,9 +94,9 @@ public class Client {
         String baseCommand = command[0];
         return switch (baseCommand) {
             case "move" -> move(command);
-            case "leave" -> leave(command);
-            case "resign" -> resign(command);
-            case "redraw" -> redraw(command);
+            case "leave" -> leave();
+            case "resign" -> resign();
+            case "redraw" -> redraw();
             case "highlight" -> highlight(command);
             default -> gamePlayHelp();
         };
@@ -317,18 +317,18 @@ public class Client {
         return "";
     }
 
-    private String leave(String[] command) throws IOException {
+    private String leave() throws IOException {
         wsFacade.leaveGame(authToken, gameID);
         inGameplay = false;
         return "";
     }
 
-    private String resign(String[] command) throws IOException {
+    private String resign() throws IOException {
         wsFacade.resign(authToken, gameID);
         return "";
     }
 
-    private String redraw(String[] command) throws IOException {
+    private String redraw() throws IOException {
         wsFacade.drawBoard(authToken, gameID);
         return "";
     }
