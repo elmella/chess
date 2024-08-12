@@ -328,9 +328,9 @@ public class Client {
     private String resign() throws IOException {
         out.println("Are you sure you want to resign? Y or N\n");
         out.println("[CONFIRM RESIGNATION] >>>");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
         while (true) {
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.nextLine();
             if (input.equals("N")) {
                 return "Did not resign";
             } else if (input.equals("Y")) {
@@ -365,6 +365,9 @@ public class Client {
         ChessPosition pos = new ChessPosition(row, col);
 
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) game.validMoves(pos);
+        if (validMoves.isEmpty()) {
+            return "No valid moves";
+        }
         ArrayList<ChessPosition> validEnds = new ArrayList<>();
         for (ChessMove move : validMoves) {
             validEnds.add(move.getEndPosition());

@@ -128,8 +128,14 @@ public class DrawBoard {
 
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
 
+                ChessPosition pos;
                 // Check if new square is valid square to highlight
-                ChessPosition pos = new ChessPosition(boardRow + 1, boardCol + 1);
+                if (reverse) {
+                     pos = new ChessPosition(boardRow + 1, BOARD_SIZE_IN_SQUARES - boardCol);
+                } else {
+                    pos = new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow,
+                            boardCol + 1);
+                }
                 boolean isStartPos = false;
                 boolean isValidSquare = false;
                 if (startPos != null) {
@@ -160,13 +166,7 @@ public class DrawBoard {
                     int suffixLength = SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
 
                     out.print(EMPTY.repeat(prefixLength));
-                    if (reverse) {
-                        piece = board.getPiece(new ChessPosition(boardRow + 1,
-                                boardCol + 1));
-                    } else {
-                        piece = board.getPiece(new ChessPosition(BOARD_SIZE_IN_SQUARES - boardRow,
-                                BOARD_SIZE_IN_SQUARES - boardCol));
-                    }
+                    piece = board.getPiece(pos);
                     if (piece != null) {
                         printPlayer(out, printPiece(piece), isWhiteSquare);
                     } else {
